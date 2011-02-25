@@ -24,25 +24,25 @@ python scripts/find_cns.py \
         -n 8 \
         --pad 12000  > $DIR/${ORGA}_${ORGB}.cns.txt
 
-python scripts/assign.py \
-      --qbed $DIR/${ORGA}.nolocaldups.bed \
-      --sbed $DIR/${ORGB}.nolocaldups.bed \
-      --cns $DIR/${ORGA}_${ORGB}.cns.txt \
-      --pairs $DIR/${ORGA}_${ORGB}.pairs.pck > $DIR/${ORGA}_${ORGB}.cns.assigned.csv
-
-# load orga
-python scripts/load_simpledb.py \
-    --db data/db/bsr.db \
-    --prefix $DIR/${ORGA} \
-    --comparison ${ORGA}_${ORGB} \
-    --qors q \
-   --assigned-cns $DIR/${ORGA}_${ORGB}.cns.assigned.csv
-echo "loaded orga"
-# load orgb
-python scripts/load_simpledb.py \
-    --db data/db/bsr.db \
-    --prefix $DIR/${ORGB} \
-    --comparison ${ORGA}_${ORGB} \
-    --qors s \
-    #--assigned-cns $DIR/${ORGA}_${ORGB}.cns.assigned.csv
-
+#python scripts/assign.py \
+#      --qbed $DIR/${ORGA}.nolocaldups.bed \
+#      --sbed $DIR/${ORGB}.nolocaldups.bed \
+#      --cns $DIR/${ORGA}_${ORGB}.cns.txt \
+#      --pairs $DIR/${ORGA}_${ORGB}.pairs.pck > $DIR/${ORGA}_${ORGB}.cns.assigned.csv
+#
+## load orga
+#python scripts/load_simpledb.py \
+#    --db data/db/bsr.db \
+#    --prefix $DIR/${ORGA} \
+#    --comparison ${ORGA}_${ORGB} \
+#    --qors q \
+#   --assigned-cns $DIR/${ORGA}_${ORGB}.cns.assigned.csv
+#echo "loaded orga"
+## load orgb
+#python scripts/load_simpledb.py \
+#    --db data/db/bsr.db \
+#    --prefix $DIR/${ORGB} \
+#    --comparison ${ORGA}_${ORGB} \
+#    --qors s \
+#    #--assigned-cns $DIR/${ORGA}_${ORGB}.cns.assigned.csv
+#

@@ -5,6 +5,7 @@ import numpy as np
 import commands
 from shapely.geometry import Point, Polygon, LineString, MultiLineString
 from flatfeature import Bed
+import pickle 
 
 NCPU = 8
 from processing import Pool
@@ -257,7 +258,9 @@ def remove_crossing_cnss(cnss, qgene, sgene):
 def get_pair(regions , sbed):
     "grabs the pairs from the region file"
     # pairs = []
-    for row in regions:
+    file= open(regions, "w")
+    region_dict = pickle.load(file)
+    for row in region_dict:
         region = row
         accn = row['sfeat']
         sfeat = sbed.accn(accn)
