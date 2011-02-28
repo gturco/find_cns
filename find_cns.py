@@ -258,7 +258,7 @@ def remove_crossing_cnss(cnss, qgene, sgene):
 def get_pair(regions , sbed):
     "grabs the pairs from the region file"
     # pairs = []
-    file= open(regions, "w")
+    file= open(regions, "r")
     region_dict = pickle.load(file)
     for row in region_dict:
         region = row

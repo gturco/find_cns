@@ -1,4 +1,4 @@
-QUOTA_DIR=/home/brentp/src/quota-alignment/
+QUOTA_DIR=/home/gturco/src/quota-alignment/
 
 
 # these are set from the command-line do not edit.
