@@ -7,8 +7,9 @@ from shapely.geometry import Point, Polygon, LineString, MultiLineString
 from flatfeature import Bed
 import pickle 
 
+NCPU = 8
 from processing import Pool
-pool = None
+pool = Pool(NCPU)
 
 
 EXPON = 0.90
@@ -31,8 +32,8 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, pad):
 
     qgene = [qfeat['start'], qfeat['end']]
     sgene = [sfeat['start'], sfeat['end']]
-    # qcds = qfeat['locs']
-    # scds = sfeat['locs']
+#    qcds = qfeat['locs']
+#    scds = sfeat['locs']
 
 
     sgene = sgene[::slope]
@@ -86,8 +87,6 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, pad):
     intronic_removed = 0
 
     for line in blast_str.split("\n"):
-        if "WARNING:" in line: continue
-        if "ERROR" in line: continue
         line = line.split("\t")
         locs = map(int, line[6:10])
         locs.extend(map(float, line[10:]))
@@ -96,12 +95,8 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, pad):
         yy = locs[2:4]
 
         # get rid of stuff on the wrong strand
-        try:
-            if slope == 1 and locs[2] > locs[3]: continue
-            if slope == -1 and locs[2] < locs[3]: continue
-        except:
-            print >>sys.stderr, blast_str
-            raise
+        if slope == 1 and locs[2] > locs[3]: continue
+        if slope == -1 and locs[2] < locs[3]: continue
 
         # to be saved. a hit must either be in an intron in both
         # genes, or in neither.
@@ -274,6 +269,7 @@ def get_pair(regions , sbed):
     #     pairs.append(pair)
     # return pairs
 
+
 def get_masked_fastas(bed):
     """
     create the masked fasta files per chromosome. needed to run bl2seq.
@@ -290,13 +286,13 @@ def get_masked_fastas(bed):
         fastas[seqid] = f
         if op.exists(f): continue
         fh = open(f, "wb")
-        print >>fh, seq
+        print >>fh, ">%s" % seqid
+        print >>fh, seq.tostring()
         fh.close()
     return fastas
 
-def main(qbed, sbed, pairs_file, pad, pair_fmt, mask='F', ncpu=8):
+def main(qbed, sbed, regions, pad, mask='F'):
     """main runner for finding cnss"""
-    pool = Pool(options.ncpu)
 
 
     bl2seq = "/usr/bin/bl2seq " \
@@ -309,7 +305,7 @@ def main(qbed, sbed, pairs_file, pad, pair_fmt, mask='F', ncpu=8):
     print >> fcnss, "#qseqid,qaccn,sseqid,saccn,[qstart,qend,sstart,send...]"
 
     qfastas = get_masked_fastas(qbed)
-    sfastas = get_masked_fastas(sbed) if qbed.filename != sbed.filename else qfastas
+    sfastas = get_masked_fastas(sbed)
 
     pairs = [True]
     _get_pair_gen = get_pair(regions , sbed)
@@ -319,13 +315,13 @@ def main(qbed, sbed, pairs_file, pad, pair_fmt, mask='F', ncpu=8):
         except StopIteration: return None
 
     while any(pairs):
-        pairs = [get_pair_gen() for i in range(ncpu)]
+        pairs = [get_pair_gen() for i in range(NCPU)]
 
         # this helps in parallelizing.
         def get_cmd(pair):
             if pair is None: return None
             qfeat, sfeat = pair
-            #if qfeat['accn'] != "Bradi4g01820": return None
+            #if qfeat['accn'] != "Bradi1g71480": return None
             #print >>sys.stderr, qfeat, sfeat
 
             qfasta = qfastas[qfeat['seqid']]
@@ -334,8 +330,8 @@ def main(qbed, sbed, pairs_file, pad, pair_fmt, mask='F', ncpu=8):
             qstart, qstop = max(qfeat['start'] - pad, 1), qfeat['end'] + pad
             sstart, sstop = max(sfeat['start'] - pad, 1), sfeat['end'] + pad
 
-            assert qstop - qstart > 2 * pad or qstart == 1, (qstop, qstart)
-            assert sstop - sstart > 2 * pad or sstart == 1, (sstop, sstart)
+            # assert qstop - qstart > 2 * pad or qstart == 1, (qstop, qstart)
+            # assert sstop - sstart > 2 * pad or sstart == 1, (sstop, sstart)
 
             cmd = bl2seq % dict(qfasta=qfasta, sfasta=sfasta, qstart=qstart,
                                 sstart=sstart, qstop=qstop, sstop=sstop)
@@ -364,16 +360,11 @@ if __name__ == "__main__":
     import optparse
     parser = optparse.OptionParser("usage: %prog [options] ")
     parser.add_option("-F", dest="mask", help="blast mask simple sequence [default: F]", default="F")
-    parser.add_option("-n", dest="ncpu", help="parallelize to this many cores", type='int', default=8)
     parser.add_option("-q", dest="qfasta", help="path to genomic query fasta")
     parser.add_option("--qbed", dest="qbed", help="query bed file")
     parser.add_option("-s", dest="sfasta", help="path to genomic subject fasta")
     parser.add_option("--sbed", dest="sbed", help="subject bed file")
     parser.add_option("-p", dest="pairs", help="the pairs file. output from dagchainer")
-    choices = ("dag", "cluster", "pair", 'qa', 'raw')
-    parser.add_option("--pair_fmt", dest="pair_fmt", default='raw',
-                      help="format of the pairs, one of: %s" % str(choices),
-                      choices=choices)
     parser.add_option("--pad", dest="pad", type='int', default=12000,
                       help="how far from the end of each gene to look for cnss")
     (options, _) = parser.parse_args()
@@ -386,4 +377,4 @@ if __name__ == "__main__":
     sbed = Bed(options.sbed, options.sfasta); sbed.fill_dict()
     assert options.mask in 'FT'
 
-    main(qbed, sbed, options.pairs, options.pad, options.pair_fmt, options.mask, options.ncpu)
+    main(qbed, sbed, options.pairs, options.pad, options.mask)

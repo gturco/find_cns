@@ -2,8 +2,9 @@
 # in the specified Bed file masked to N.
 from flatfeature import Bed
 import sys
-b = Bed(sys.argv[1], sys.argv[2])
+# b = Bed(sys.argv[1], sys.argv[2])
+b = Bed("/Users/gturco/data/rice_v6.bed", "/Users/gturco/data/rice_v6.fasta")
 
 for seqid, seq in b.mask_cds():
-    print ">%s" % seqid
-    print seq.tostring()
+    seqids =  []
+    seq.tostring()
