@@ -312,7 +312,7 @@ def main(qbed, sbed, pairs_file, pad, pair_fmt, mask='F', ncpu=8):
     sfastas = get_masked_fastas(sbed) if qbed.filename != sbed.filename else qfastas
 
     pairs = [True]
-    _get_pair_gen = get_pair(regions , sbed)
+    _get_pair_gen = get_pair(pairs_file , sbed)
     # need this for parallization stuff.
     def get_pair_gen():
         try: return _get_pair_gen.next()
@@ -370,10 +370,6 @@ if __name__ == "__main__":
     parser.add_option("-s", dest="sfasta", help="path to genomic subject fasta")
     parser.add_option("--sbed", dest="sbed", help="subject bed file")
     parser.add_option("-p", dest="pairs", help="the pairs file. output from dagchainer")
-    choices = ("dag", "cluster", "pair", 'qa', 'raw')
-    parser.add_option("--pair_fmt", dest="pair_fmt", default='raw',
-                      help="format of the pairs, one of: %s" % str(choices),
-                      choices=choices)
     parser.add_option("--pad", dest="pad", type='int', default=12000,
                       help="how far from the end of each gene to look for cnss")
     (options, _) = parser.parse_args()
@@ -386,4 +382,4 @@ if __name__ == "__main__":
     sbed = Bed(options.sbed, options.sfasta); sbed.fill_dict()
     assert options.mask in 'FT'
 
-    main(qbed, sbed, options.pairs, options.pad, options.pair_fmt, options.mask, options.ncpu)
+    main(qbed, sbed, options.pairs, options.pad, options.mask, options.ncpu)
