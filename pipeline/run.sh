@@ -21,7 +21,6 @@ python scripts/find_cns.py \
         -s $DIR/${ORGB}.fasta --sbed $DIR/${ORGB}.bed \
         -p $DIR/${ORGA}_${ORGB}.pairs.pck \
         -F T \
-        -n 8 \
         --pad 12000  > $DIR/${ORGA}_${ORGB}.cns.txt
 
 #python scripts/assign.py \
