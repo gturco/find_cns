@@ -330,8 +330,8 @@ def main(qbed, sbed, regions, pad, mask='F'):
             qstart, qstop = max(qfeat['start'] - pad, 1), qfeat['end'] + pad
             sstart, sstop = max(sfeat['start'] - pad, 1), sfeat['end'] + pad
 
-            assert qstop - qstart > 2 * pad or qstart == 1, (qstop, qstart)
-            assert sstop - sstart > 2 * pad or sstart == 1, (sstop, sstart)
+            # assert qstop - qstart > 2 * pad or qstart == 1, (qstop, qstart)
+            # assert sstop - sstart > 2 * pad or sstart == 1, (sstop, sstart)
 
             cmd = bl2seq % dict(qfasta=qfasta, sfasta=sfasta, qstart=qstart,
                                 sstart=sstart, qstop=qstop, sstop=sstop)
