@@ -4,7 +4,7 @@ import sys
 import os
 import os.path as op
 sys.path.insert(0, os.path.dirname(__file__))
-from find_cns import get_pair
+import pickle 
 
 def cns_id(cns_dict):
     c = cns_dict
@@ -177,6 +177,17 @@ def write_gff(d, qcns_gff, scns_gff):
     print >>qcns_gff, qfmt %d
     print >>scns_gff, sfmt %d
 
+def get_pair_names(regions , sbed):
+    "grabs the pairs from the region file"
+    # pairs = []
+    file= open(regions, "r")
+    region_dict = pickle.load(file)
+    for row in region_dict:
+        qfeat_name = row['accn']
+        sfeat_name = row['sfeat']
+        pair = qfeat_name, sfeat_name
+        yield pair
+
 def make_pair_maps(regions, sbed):
     """
     make dicts of q => s and s => q
@@ -184,7 +195,7 @@ def make_pair_maps(regions, sbed):
     qmap = collections.defaultdict(list) # key is query, value is a list of subject hits
     smap = collections.defaultdict(list)
     print >>sys.stderr, "pair file:", regions
-    for pair in get_pair(regions, sbed):
+    for pair in get_pair_names(regions, sbed):
         if pair is None: break
         (qname, sname) = pair
         qmap[qname].append(sname)
