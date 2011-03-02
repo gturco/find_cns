@@ -306,7 +306,7 @@ def main(qbed, sbed, pairs_file, pad, mask='F', ncpu=8):
             | grep -v 'WARNING' | grep -v 'ERROR' "
 
     fcnss = sys.stdout
-    print >> fcnss, "#qseqid,qaccn,sseqid,saccn,[qstart,qend,sstart,send...]"
+    print >> fcnss, "#qseqid,qaccn,sseqid,saccn,res"#"#qseqid,qaccn,sseqid,saccn,[qstart,qend,sstart,send...]"
 
     qfastas = get_masked_fastas(qbed)
     sfastas = get_masked_fastas(sbed) if qbed.filename != sbed.filename else qfastas
@@ -348,8 +348,8 @@ def main(qbed, sbed, pairs_file, pad, mask='F', ncpu=8):
         for res, (cmd, qfeat, sfeat) in zip(results, cmds):
             if not res.strip(): continue
             print >>sys.stderr,  "%s %s" % (qfeat["accn"], sfeat['accn']),
-            orient = qfeat['strand'] == sfeat['strand'] and 1 or -1, res
-
+            orient = qfeat['strand'] == sfeat['strand'] and 1 or -1
+            print >> fcnss, "%s,%s,%s,%s,%s" %((qfeat['seqid'], qfeat['accn'], sfeat['seqid'], sfeat['accn'], res)
             #cnss =  parse_blast(res, orient, qfeat, sfeat, qbed, sbed, pad)
             # print >>sys.stderr, "(%i)" % len(cnss)
             #            if len(cnss) == 0: continue
