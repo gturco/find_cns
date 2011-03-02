@@ -66,8 +66,8 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, pad):
         yall = np.hstack((yy,yb[::-1], yy[0]))
 
     feats_nearby = {}
-    feats_nearby['q'] = get_feats_in_space(qgene, qfeat['seqid'], int(x.min()), int(x.max()), qbed)
-    feats_nearby['s'] = get_feats_in_space(sgene, sfeat['seqid'], int(y.min()), int(y.max()), sbed)
+    feats_nearby['q'] = get_feats_in_space(qgene, qfeat['seqid'], sfeat['start'] ,sfeat['end'], qbed) # changed so that if looks for genes within region
+    feats_nearby['s'] = get_feats_in_space(sgene, sfeat['seqid'], int(y.min()), int(y.max()), sbed) #looks for genes in bowtie.....
 
 
 
@@ -331,11 +331,11 @@ def main(qbed, sbed, pairs_file, pad, mask='F', ncpu=8):
             qfasta = qfastas[qfeat['seqid']]
             sfasta = sfastas[sfeat['seqid']]
 
-            qstart, qstop = max(qfeat['start'] - pad, 1), qfeat['end'] + pad
+            qstart, qstop = qfeat['start'], qfeat['end']
             sstart, sstop = max(sfeat['start'] - pad, 1), sfeat['end'] + pad
 
-            assert qstop - qstart > 2 * pad or qstart == 1, (qstop, qstart)
-            assert sstop - sstart > 2 * pad or sstart == 1, (sstop, sstart)
+            # assert qstop - qstart > 2 * pad or qstart == 1, (qstop, qstart)
+            # assert sstop - sstart > 2 * pad or sstart == 1, (sstop, sstart)
 
             cmd = bl2seq % dict(qfasta=qfasta, sfasta=sfasta, qstart=qstart,
                                 sstart=sstart, qstop=qstop, sstop=sstop)
@@ -348,15 +348,15 @@ def main(qbed, sbed, pairs_file, pad, mask='F', ncpu=8):
         for res, (cmd, qfeat, sfeat) in zip(results, cmds):
             if not res.strip(): continue
             print >>sys.stderr,  "%s %s" % (qfeat["accn"], sfeat['accn']),
-            orient = qfeat['strand'] == sfeat['strand'] and 1 or -1
+            orient = qfeat['strand'] == sfeat['strand'] and 1 or -1, res
 
-            cnss = parse_blast(res, orient, qfeat, sfeat, qbed, sbed, pad)
-            print >>sys.stderr, "(%i)" % len(cnss)
-            if len(cnss) == 0: continue
-
-            qname, sname = qfeat['accn'], sfeat['accn']
-            print >> fcnss, "%s,%s,%s,%s,%s" % (qfeat['seqid'], qname, sfeat['seqid'], sname,
-                             ",".join(map(lambda l: ",".join(map(str,l)),cnss)))
+            #cnss =  parse_blast(res, orient, qfeat, sfeat, qbed, sbed, pad)
+            # print >>sys.stderr, "(%i)" % len(cnss)
+            #            if len(cnss) == 0: continue
+            # 
+            #            qname, sname = qfeat['accn'], sfeat['accn']
+            #            print >> fcnss, "%s,%s,%s,%s,%s" % (qfeat['seqid'], qname, sfeat['seqid'], sname,
+            #                             ",".join(map(lambda l: ",".join(map(str,l)),cnss)))
 
     return None
 
