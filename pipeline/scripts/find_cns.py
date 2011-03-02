@@ -358,7 +358,7 @@ def main(qbed, sbed, pairs_file, pad, mask='F', ncpu=8):
             #            print >> fcnss, "%s,%s,%s,%s,%s" % (qfeat['seqid'], qname, sfeat['seqid'], sname,
             #                             ",".join(map(lambda l: ",".join(map(str,l)),cnss)))
 
-    return None
+#    return None
 
 if __name__ == "__main__":
     import optparse
