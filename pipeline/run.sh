@@ -31,18 +31,18 @@ python scripts/assign.py \
       --pairs $DIR/${ORGA}_${ORGB}.pairs.pck > $DIR/${ORGA}_${ORGB}.cns.assigned.csv
 
 # load orga
-python scripts/load_simpledb.py \
-    --db data/db/bsr.db \
-    --prefix $DIR/${ORGA} \
-    --comparison ${ORGA}_${ORGB} \
-    --qors q \
-   --assigned-cns $DIR/${ORGA}_${ORGB}.cns.assigned.csv
-echo "loaded orga"
-# load orgb
-python scripts/load_simpledb.py \
-    --db data/db/bsr.db \
-    --prefix $DIR/${ORGB} \
-    --comparison ${ORGA}_${ORGB} \
-    --qors s \
-    #--assigned-cns $DIR/${ORGA}_${ORGB}.cns.assigned.csv
+#python scripts/load_simpledb.py \
+#    --db data/db/bsr.db \
+#    --prefix $DIR/${ORGA} \
+#    --comparison ${ORGA}_${ORGB} \
+#    --qors q \
+#   --assigned-cns $DIR/${ORGA}_${ORGB}.cns.assigned.csv
+#echo "loaded orga"
+## load orgb
+#python scripts/load_simpledb.py \
+#    --db data/db/bsr.db \
+#    --prefix $DIR/${ORGB} \
+#    --comparison ${ORGA}_${ORGB} \
+#    --qors s \
+#    #--assigned-cns $DIR/${ORGA}_${ORGB}.cns.assigned.csv
 
