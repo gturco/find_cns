@@ -16,19 +16,19 @@ NCPU=8
 DIR=data/${ORGA}_${ORGB}/
 #
 #sh quota.sh $DIR/${ORGA} $DIR/${ORGB} $QUOTA $NCPU
-#python scripts/find_cns.py \
-#        -q $DIR/${ORGA}.fasta --qbed $DIR/${ORGA}.bed \
-#        -s $DIR/${ORGB}.fasta --sbed $DIR/${ORGB}.bed \
-#        -p $DIR/${ORGA}_${ORGB}.pairs.pck \
-#        -F T \
-#        -n 8 \
-#        --pad 12000  > $DIR/${ORGA}_${ORGB}.cns.txt
+python scripts/find_cns.py \
+        -q $DIR/${ORGA}.fasta --qbed $DIR/${ORGA}.bed \
+        -s $DIR/${ORGB}.fasta --sbed $DIR/${ORGB}.bed \
+        -p $DIR/${ORGA}_${ORGB}.pairs.pck \
+        -F T \
+        -n 8 \
+        --pad 12000  > $DIR/${ORGA}_${ORGB}.cns.txt
 
-python scripts/assign.py \
-      --qbed $DIR/${ORGA}.nolocaldups.bed \
-      --sbed $DIR/${ORGB}.nolocaldups.bed \
-      --cns $DIR/${ORGA}_${ORGB}.cns.txt \
-      --pairs $DIR/${ORGA}_${ORGB}.pairs.pck > $DIR/${ORGA}_${ORGB}.cns.assigned.csv
+#python scripts/assign.py \
+#      --qbed $DIR/${ORGA}.nolocaldups.bed \
+#      --sbed $DIR/${ORGB}.nolocaldups.bed \
+#      --cns $DIR/${ORGA}_${ORGB}.cns.txt \
+#      --pairs $DIR/${ORGA}_${ORGB}.pairs.pck > $DIR/${ORGA}_${ORGB}.cns.assigned.csv
 
 # load orga
 #python scripts/load_simpledb.py \
