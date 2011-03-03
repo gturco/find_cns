@@ -24,7 +24,6 @@ def get_feats_in_space(locs, ichr, bpmin, bpmax, bed):
         assert feats[0]['seqid'] == str(ichr)
     return [(f['start'], f['end'], f['accn']) for f in feats]
 
-
 def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, pad):
     blast = []
     slope = orient
@@ -37,50 +36,50 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, pad):
 
     sgene = sgene[::slope]
     center = sum(qgene)/2., sum(sgene)/2.
-
+    
     EXP = EXPON
     if abs(abs(qgene[1] - qgene[0]) - abs(sgene[1] - sgene[0])) > 3000:
         EXP = 0.94
-
-
+    
+    
     #intercept = (sgene[0] + sgene[1])/2.  - slope * (qgene[0] + qgene[1])/2.
     intercept = center[1] - slope * center[0]
     rngx = qgene[1] - qgene[0]
     rngy = abs(sgene[1] - sgene[0])
-
+    
     x = np.linspace(qgene[0] - pad, qgene[1] + pad, 50)
     y = slope * x + intercept
-
-
+    
+    
     xb = x + -slope * rngx/3. + -slope * np.abs(x - center[0])**EXP
     yb = y + rngy/3. + np.abs(y - center[1])**EXP
-
+    
     xy = x + slope * rngx/3. + slope * np.abs(x - center[0])**EXP
     yy = y - rngy/3. - np.abs(y - center[1])**EXP
-
+    
     if slope == 1:
         xall = np.hstack((xy[::-1], xb[::slope], xy[-1]))
         yall = np.hstack((yy[::-1],yb, yy[-1]))
     if slope == -1:
         xall = np.hstack((xy, xb[::-1], xy[0]))
         yall = np.hstack((yy,yb[::-1], yy[0]))
-
+    
     feats_nearby = {}
-    feats_nearby['q'] = get_feats_in_space(qgene, qfeat['seqid'], sfeat['start'] ,sfeat['end'], qbed) # changed so that if looks for genes within region
+    feats_nearby['q'] = get_feats_in_space(qgene, qfeat['seqid'], qfeat['start'] ,qfeat['end'], qbed) # changed so that if looks for genes within region
     feats_nearby['s'] = get_feats_in_space(sgene, sfeat['seqid'], int(y.min()), int(y.max()), sbed) #looks for genes in bowtie.....
-
-
-
+    
+    
+    
     genespace_poly = Polygon(zip(xall, yall))
-
+    
     for sub in ('q', 's'):
         if len(feats_nearby[sub]) !=0:
             feats_nearby[sub] = MultiLineString([[(0, c0),(0, c1)] for c0, c1, fname in feats_nearby[sub]])
         else:
             feats_nearby[sub] = None
-
+    
     cnss = set([])
-
+    
     qgene_poly = LineString([(0.0, qgene[0]), (0.0, qgene[1])])
     sgene_poly = LineString([(0.0, sgene[0]), (0.0, sgene[1])])
     intronic_removed = 0
@@ -113,12 +112,11 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, pad):
         yls = LineString([(0, locs[2]), (0, locs[3])])
 
         locs = tuple(locs) # make it hashable.
-        if qgene_poly.intersects(xls) and sgene_poly.intersects(yls):
-            cnss.update((locs,))
-            continue
+        # if not sgene_poly.intersects(yls):
+        #     cnss.update((locs,))
+        #     continue
 
-        # has to be both or neither.
-        if qgene_poly.intersects(xls) or sgene_poly.intersects(yls):
+        if  sgene_poly.intersects(yls):
             intronic_removed += 1
             continue
 
@@ -137,12 +135,12 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, pad):
                 intronic = True
                 break
 
-        if intronic: continue
+        if intronic: continue #(if an intron dont updat cns... go back to results(forloop) and check another intron)
 
         ##########################################################
 
         # this is the bowtie.
-        if not genespace_poly.contains(LineString(zip(xx, yy))): continue
+        # if not genespace_poly.contains(LineString(zip(xx, yy))): continue #if it is in the bowtie update... otherwise get rid of it
         cnss.update((locs,))
 
     # cant cross with < 2 cnss.
@@ -189,7 +187,7 @@ def remove_overlapping_cnss(cnss):
 
 
 def remove_crossing_cnss(cnss, qgene, sgene):
-    diff = qgene[0] - sgene[0] # adjust subject so it's in same range as query
+    diff = (sum(qgene)/2.) - (sum(sgene)/2.) # adjust subject so it's in same range as query
     cns_shapes = [LineString([((c[0] + c[1])/2., 0 ), ((c[2] + c[3])/2. + diff, 1000)]) for c in cnss]
 
     overlapping = len(cnss)
@@ -349,14 +347,14 @@ def main(qbed, sbed, pairs_file, pad, mask='F', ncpu=8):
             if not res.strip(): continue
             print >>sys.stderr,  "%s %s" % (qfeat["accn"], sfeat['accn']),
             orient = qfeat['strand'] == sfeat['strand'] and 1 or -1
-            print >> fcnss, "%s,%s,%s,%s,%s" % (qfeat['seqid'], qfeat['accn'], sfeat['seqid'], sfeat['accn'], res)
-            #cnss =  parse_blast(res, orient, qfeat, sfeat, qbed, sbed, pad)
-            # print >>sys.stderr, "(%i)" % len(cnss)
-            #            if len(cnss) == 0: continue
-            # 
-            #            qname, sname = qfeat['accn'], sfeat['accn']
-            #            print >> fcnss, "%s,%s,%s,%s,%s" % (qfeat['seqid'], qname, sfeat['seqid'], sname,
-            #                             ",".join(map(lambda l: ",".join(map(str,l)),cnss)))
+            
+            cnss =  parse_blast(res, orient, qfeat, sfeat, qbed, sbed, pad)
+            print >>sys.stderr, "(%i)" % len(cnss)
+                       if len(cnss) == 0: continue
+            
+                       qname, sname = qfeat['accn'], sfeat['accn']
+                       print >> fcnss, "%s,%s,%s,%s,%s" % (qfeat['seqid'], qname, sfeat['seqid'], sname,
+                                        ",".join(map(lambda l: ",".join(map(str,l)),cnss)))
 
     return None
 
