@@ -350,11 +350,11 @@ def main(qbed, sbed, pairs_file, pad, mask='F', ncpu=8):
             
             cnss =  parse_blast(res, orient, qfeat, sfeat, qbed, sbed, pad)
             print >>sys.stderr, "(%i)" % len(cnss)
-                       if len(cnss) == 0: continue
-            
-                       qname, sname = qfeat['accn'], sfeat['accn']
-                       print >> fcnss, "%s,%s,%s,%s,%s" % (qfeat['seqid'], qname, sfeat['seqid'], sname,
-                                        ",".join(map(lambda l: ",".join(map(str,l)),cnss)))
+            if len(cnss) == 0: continue
+                       
+            qname, sname = qfeat['accn'], sfeat['accn']
+            print >> fcnss, "%s,%s,%s,%s,%s" % (qfeat['seqid'], qname, sfeat['seqid'], sname,
+                            ",".join(map(lambda l: ",".join(map(str,l)),cnss)))
 
     return None
 
