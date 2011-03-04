@@ -24,7 +24,7 @@ def get_feats_in_space(locs, ichr, bpmin, bpmax, bed):
         assert feats[0]['seqid'] == str(ichr)
     return [(f['start'], f['end'], f['accn']) for f in feats]
 
-def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, flanking_region):
+def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, flanking_genes_file):
     blast = []
     slope = orient
 
@@ -63,7 +63,7 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, flanking_region):
     # if slope == -1:
     #     xall = np.hstack((xy, xb[::-1], xy[0]))
     #     yall = np.hstack((yy,yb[::-1], yy[0]))
-    sstrat , sstop = flaking_region
+    sstrat , sstop = grab_flanking_region(sfeat['accn'], flanking_genes_file)
     feats_nearby = {}
     feats_nearby['q'] = get_feats_in_space(qgene, qfeat['seqid'], qfeat['start'] ,qfeat['end'], qbed) # changed so that if looks for genes within region
     feats_nearby['s'] = get_feats_in_space(sgene, sfeat['seqid'], sstrat, sstop, sbed) #looks for genes in bowtie.....
@@ -346,7 +346,7 @@ def main(qbed, sbed, pairs_file, flanking_genes_file, mask='F', ncpu=8):
 
             cmd = bl2seq % dict(qfasta=qfasta, sfasta=sfasta, qstart=qstart,
                                 sstart=sstart, qstop=qstop, sstop=sstop)
-            return cmd, qfeat, sfeat, flanking_region
+            return cmd, qfeat, sfeat
 
         cmds = [c for c in map(get_cmd, [l for l in pairs if l]) if c]
         results = (r for r in pool.map(commands.getoutput, [c[0] for c in cmds]))
