@@ -357,7 +357,7 @@ def main(qbed, sbed, pairs_file, flanking_genes_file, mask='F', ncpu=8):
             print >>sys.stderr,  "%s %s" % (qfeat["accn"], sfeat['accn']),
             orient = qfeat['strand'] == sfeat['strand'] and 1 or -1
             
-            cnss =  parse_blast(res, orient, qfeat, sfeat, qbed, sbed, flanking_region)
+            cnss =  parse_blast(res, orient, qfeat, sfeat, qbed, sbed, flanking_genes_file)
             print >>sys.stderr, "(%i)" % len(cnss)
             if len(cnss) == 0: continue
                        
