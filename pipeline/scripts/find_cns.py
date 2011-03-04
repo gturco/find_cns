@@ -24,7 +24,7 @@ def get_feats_in_space(locs, ichr, bpmin, bpmax, bed):
         assert feats[0]['seqid'] == str(ichr)
     return [(f['start'], f['end'], f['accn']) for f in feats]
 
-def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, flaking_region):
+def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, flanking_region):
     blast = []
     slope = orient
 
@@ -346,7 +346,7 @@ def main(qbed, sbed, pairs_file, flanking_genes_file, mask='F', ncpu=8):
 
             cmd = bl2seq % dict(qfasta=qfasta, sfasta=sfasta, qstart=qstart,
                                 sstart=sstart, qstop=qstop, sstop=sstop)
-            return cmd, qfeat, sfeat, flaking_region
+            return cmd, qfeat, sfeat, flanking_region
 
         cmds = [c for c in map(get_cmd, [l for l in pairs if l]) if c]
         results = (r for r in pool.map(commands.getoutput, [c[0] for c in cmds]))
@@ -357,7 +357,7 @@ def main(qbed, sbed, pairs_file, flanking_genes_file, mask='F', ncpu=8):
             print >>sys.stderr,  "%s %s" % (qfeat["accn"], sfeat['accn']),
             orient = qfeat['strand'] == sfeat['strand'] and 1 or -1
             
-            cnss =  parse_blast(res, orient, qfeat, sfeat, qbed, sbed, flaking_region)
+            cnss =  parse_blast(res, orient, qfeat, sfeat, qbed, sbed, flanking_region)
             print >>sys.stderr, "(%i)" % len(cnss)
             if len(cnss) == 0: continue
                        
