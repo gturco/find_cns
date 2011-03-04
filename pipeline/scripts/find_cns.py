@@ -326,7 +326,6 @@ def main(qbed, sbed, pairs_file, flanking_genes_file, mask='F', ncpu=8):
 
     while any(pairs):
         pairs = [get_pair_gen() for i in range(ncpu)]
-        flaking_region = grab_flanking_region(sfeat['accn'], flanking_genes_file)
 
         # this helps in parallelizing.
         def get_cmd(pair, flanking_genes_file):
