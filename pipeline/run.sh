@@ -22,7 +22,7 @@ python scripts/find_cns.py \
         -p $DIR/${ORGA}_${ORGB}.pairs.pck \
         -F T \
         -n 8 \
-        --pad 12000  > $DIR/${ORGA}_${ORGB}.cns.txt
+        --flank DIR/flanking_genes.pck  > $DIR/${ORGA}_${ORGB}.cns.txt
 
 #python scripts/assign.py \
 #      --qbed $DIR/${ORGA}.nolocaldups.bed \
