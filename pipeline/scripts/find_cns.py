@@ -257,14 +257,15 @@ def remove_crossing_cnss(cnss, qgene, sgene):
         nremoved += 1
     return [c.cns for c in cns_shapes if not c.do_remove]
 
-def grab_flanking_region(sfeat , flanking_genes_file):
+def grab_flanking_region(sfeat ,flanking_genes_dict):
     "grabs the start and end postion of the nearest gene to the left \
     and right of the sfeat"
-    file= open(flanking_genes_file, "r")
-    flanking_genes_dict = pickle.load(file)
     for gene in flanking_genes_dict:
         if gene['sfeat'] == sfeat:
-            return gene['left_end'] , gene['right_start']
+            if gene['diff'] < 24000:
+                return gene['left_end'] , gene['right_start']
+            else:
+                return (sfeat['start'] - 12000) , (sfeat['end'] + 12000)
 
 def get_pair(regions , sbed):
     "grabs the pairs from the region file"
@@ -300,7 +301,7 @@ def get_masked_fastas(bed):
         fh.close()
     return fastas
 
-def main(qbed, sbed, pairs_file, flanking_genes_file, mask='F', ncpu=8):
+def main(qbed, sbed, pairs_file, flanking_genes_filename, mask='F', ncpu=8):
     """main runner for finding cnss"""
     pool = Pool(options.ncpu)
 
@@ -317,6 +318,9 @@ def main(qbed, sbed, pairs_file, flanking_genes_file, mask='F', ncpu=8):
     qfastas = get_masked_fastas(qbed)
     sfastas = get_masked_fastas(sbed) if qbed.filename != sbed.filename else qfastas
 
+    flanking_genes_file = open(flanking_genes_filename, "r")
+    flanking_genes_dict = pickle.load(flanking_genes_file)
+
     pairs = [True]
     _get_pair_gen = get_pair(pairs_file , sbed)
     # need this for parallization stuff.
@@ -331,7 +335,7 @@ def main(qbed, sbed, pairs_file, flanking_genes_file, mask='F', ncpu=8):
         def get_cmd(pair):
             if pair is None: return None
             qfeat, sfeat = pair
-            flanking_region = grab_flanking_region(sfeat['accn'], flanking_genes_file)
+            flanking_region = grab_flanking_region(sfeat['accn'], flanking_genes_dict)
             #if qfeat['accn'] != "Bradi4g01820": return None
             #print >>sys.stderr, qfeat, sfeat
 
@@ -357,7 +361,7 @@ def main(qbed, sbed, pairs_file, flanking_genes_file, mask='F', ncpu=8):
             print >>sys.stderr,  "%s %s" % (qfeat["accn"], sfeat['accn']),
             orient = qfeat['strand'] == sfeat['strand'] and 1 or -1
             
-            cnss =  parse_blast(res, orient, qfeat, sfeat, qbed, sbed, flanking_genes_file)
+            cnss =  parse_blast(res, orient, qfeat, sfeat, qbed, sbed, flanking_genes_dict)
             print >>sys.stderr, "(%i)" % len(cnss)
             if len(cnss) == 0: continue
                        
