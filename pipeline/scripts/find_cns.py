@@ -24,7 +24,7 @@ def get_feats_in_space(locs, ichr, bpmin, bpmax, bed):
         assert feats[0]['seqid'] == str(ichr)
     return [(f['start'], f['end'], f['accn']) for f in feats]
 
-def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, flanking_genes_file):
+def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, flanking_genes_dict):
     blast = []
     slope = orient
 
@@ -63,7 +63,7 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, flanking_genes_file
     # if slope == -1:
     #     xall = np.hstack((xy, xb[::-1], xy[0]))
     #     yall = np.hstack((yy,yb[::-1], yy[0]))
-    sstrat , sstop = grab_flanking_region(sfeat['accn'], flanking_genes_file)
+    sstrat , sstop = grab_flanking_region(sfeat['accn'], flanking_genes_dict)
     feats_nearby = {}
     feats_nearby['q'] = get_feats_in_space(qgene, qfeat['seqid'], qfeat['start'] ,qfeat['end'], qbed) # changed so that if looks for genes within region
     feats_nearby['s'] = get_feats_in_space(sgene, sfeat['seqid'], sstrat, sstop, sbed) #looks for genes in bowtie.....
@@ -257,16 +257,21 @@ def remove_crossing_cnss(cnss, qgene, sgene):
         nremoved += 1
     return [c.cns for c in cns_shapes if not c.do_remove]
 
-def grab_flanking_region(sfeat ,flanking_genes_dict):
+def grab_flanking_region(sfeat , flanking_genes_file):
     "grabs the start and end postion of the nearest gene to the left \
     and right of the sfeat"
+    left_padding = (sfeat['start'] - 12000)
+    right_padding = (sfeat['end'] + 12000)
     for gene in flanking_genes_dict:
-        if gene['sfeat'] == sfeat:
-            if gene['diff'] < 24000:
-                return gene['left_end'] , gene['right_start']
+        if gene['sfeat'] == sfeat['accn']:
+            left_gene = gene['left_end']
+            right_gene = gene['right_start']
+            if left_gene > left_padding and right_gene > right_padding:
+                return left_padding, right_padding
             else:
-                return (sfeat['start'] - 12000) , (sfeat['end'] + 12000)
+                return left_gene, right_gene
 
+                    
 def get_pair(regions , sbed):
     "grabs the pairs from the region file"
     # pairs = []
