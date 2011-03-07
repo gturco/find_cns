@@ -260,8 +260,8 @@ def remove_crossing_cnss(cnss, qgene, sgene):
 def grab_flanking_region(sfeat , flanking_genes_dict):
     "grabs the start and end postion of the nearest gene to the left \
     and right of the sfeat"
-    left_padding = (sfeat['start'] - 12000)
-    right_padding = (sfeat['end'] + 12000)
+    left_padding = (5 - 12000)
+    right_padding = (5 + 12000)
     for gene in flanking_genes_dict:
         if gene['sfeat'] == sfeat['accn']:
             left_gene = gene['left_end']
