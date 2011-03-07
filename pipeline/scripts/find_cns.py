@@ -257,7 +257,7 @@ def remove_crossing_cnss(cnss, qgene, sgene):
         nremoved += 1
     return [c.cns for c in cns_shapes if not c.do_remove]
 
-def grab_flanking_region(sfeat , flanking_genes_file):
+def grab_flanking_region(sfeat , flanking_genes_dict):
     "grabs the start and end postion of the nearest gene to the left \
     and right of the sfeat"
     left_padding = (sfeat['start'] - 12000)
