@@ -340,7 +340,7 @@ def main(qbed, sbed, pairs_file, flanking_genes_filename, mask='F', ncpu=8):
         def get_cmd(pair):
             if pair is None: return None
             qfeat, sfeat = pair
-            flanking_region = grab_flanking_region(sfeat['accn'], flanking_genes_dict)
+            flanking_region = grab_flanking_region(sfeat, flanking_genes_dict)
             #if qfeat['accn'] != "Bradi4g01820": return None
             #print >>sys.stderr, qfeat, sfeat
 
