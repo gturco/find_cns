@@ -316,7 +316,7 @@ def main(qbed, sbed, pairs_file, mask='F', ncpu=8):
             | grep -v 'WARNING' | grep -v 'ERROR' "
 
     fcnss = sys.stdout
-    print >> fcnss, "# qaccn,qseqid,saccn,sseqid,res,url"#"#qseqid,qaccn,sseqid,saccn,[qstart,qend,sstart,send...]"
+    print >> fcnss, "# qaccn,[qleft_gene, qright_gene],qseqid,saccn,sseqid,res,url"#"#qseqid,qaccn,sseqid,saccn,[qstart,qend,sstart,send...]"
 
     qfastas = get_masked_fastas(qbed)
     sfastas = get_masked_fastas(sbed) if qbed.filename != sbed.filename else qfastas
@@ -368,7 +368,7 @@ def main(qbed, sbed, pairs_file, mask='F', ncpu=8):
             if len(cnss) == 0: continue
                        
             qname, sname = qfeat['accn'], sfeat['accn']
-            print >> fcnss, "%s,%s,%s,%s,%s,%s" % (qname, qfeat['seqid'], sname, sfeat['seqid'],
+            print >> fcnss, "%s,%s,%s,%s,%s,%s,%s,%s" % (qname, qfeat['qlfet_gene'], qfeat['qright_gene'], qfeat['seqid'], sname, sfeat['seqid'],
                             ",".join(map(lambda l: ",".join(map(str,l)), cnss)), qfeat['url'] )
 
     return None
