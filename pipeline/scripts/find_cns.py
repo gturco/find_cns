@@ -264,7 +264,7 @@ def grab_flanking_region(sfeat , flanking_genes):
     right_padding = (sfeat['end'] + 12000)
     left_gene_end  = flanking_genes['sstart']
     right_gene_start = flanking_genes['send']
-    if left_gene_start < left_padding and right_gene_end > right_padding:
+    if left_gene_end < left_padding and right_gene_start > right_padding:
         return left_padding, right_padding
     else:
         return left_gene_end, right_gene_start
