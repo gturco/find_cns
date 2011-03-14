@@ -24,7 +24,7 @@ def get_feats_in_space(locs, ichr, bpmin, bpmax, bed):
         assert feats[0]['seqid'] == str(ichr)
     return [(f['start'], f['end'], f['accn']) for f in feats]
 
-def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, flanking_genes_dict):
+def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed):
     blast = []
     slope = orient
 
@@ -63,7 +63,7 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, flanking_genes_dict
     # if slope == -1:
     #     xall = np.hstack((xy, xb[::-1], xy[0]))
     #     yall = np.hstack((yy,yb[::-1], yy[0]))
-    sstrat , sstop = grab_flanking_region(sfeat, flanking_genes_dict)
+    sstrat , sstop = grab_flanking_region(sfeat, qfeat)
     feats_nearby = {}
     feats_nearby['q'] = get_feats_in_space(qgene, qfeat['seqid'], qfeat['start'] ,qfeat['end'], qbed) # changed so that if looks for genes within region
     feats_nearby['s'] = get_feats_in_space(sgene, sfeat['seqid'], sstrat, sstop, sbed) #looks for genes in bowtie.....
@@ -257,19 +257,17 @@ def remove_crossing_cnss(cnss, qgene, sgene):
         nremoved += 1
     return [c.cns for c in cns_shapes if not c.do_remove]
 
-def grab_flanking_region(sfeat , flanking_genes_dict):
+def grab_flanking_region(sfeat , flanking_genes):
     "grabs the start and end postion of the nearest gene to the left \
     and right of the sfeat"
     left_padding = (sfeat['start'] - 12000)
     right_padding = (sfeat['end'] + 12000)
-    for gene in flanking_genes_dict:
-        if gene['sfeat'] == sfeat['accn']:
-            left_gene = gene['left_end']
-            right_gene = gene['right_start']
-            if left_gene > left_padding and right_gene > right_padding:
-                return left_padding, right_padding
-            else:
-                return left_gene, right_gene
+    left_gene_end  = flanking_genes['sstart']
+    right_gene_ start = flanking_genes['send']
+    if left_gene_start < left_padding and right_gene_end > right_padding:
+        return left_padding, right_padding
+    else:
+        return left_gene_end, right_gene_start
 
                     
 def get_pair(regions , sbed):
@@ -306,7 +304,7 @@ def get_masked_fastas(bed):
         fh.close()
     return fastas
 
-def main(qbed, sbed, pairs_file, flanking_genes_filename, mask='F', ncpu=8):
+def main(qbed, sbed, pairs_file, mask='F', ncpu=8):
     """main runner for finding cnss"""
     pool = Pool(options.ncpu)
 
@@ -323,8 +321,7 @@ def main(qbed, sbed, pairs_file, flanking_genes_filename, mask='F', ncpu=8):
     qfastas = get_masked_fastas(qbed)
     sfastas = get_masked_fastas(sbed) if qbed.filename != sbed.filename else qfastas
 
-    flanking_genes_file = open(flanking_genes_filename, "r")
-    flanking_genes_dict = pickle.load(flanking_genes_file)
+
 
     pairs = [True]
     _get_pair_gen = get_pair(pairs_file , sbed)
@@ -340,7 +337,7 @@ def main(qbed, sbed, pairs_file, flanking_genes_filename, mask='F', ncpu=8):
         def get_cmd(pair):
             if pair is None: return None
             qfeat, sfeat = pair
-            flanking_region = grab_flanking_region(sfeat, flanking_genes_dict)
+            
             #if qfeat['accn'] != "Bradi4g01820": return None
             #print >>sys.stderr, qfeat, sfeat
 
@@ -348,7 +345,7 @@ def main(qbed, sbed, pairs_file, flanking_genes_filename, mask='F', ncpu=8):
             sfasta = sfastas[sfeat['seqid']]
 
             qstart, qstop = qfeat['start'], qfeat['end']
-            sstart, sstop = flanking_region
+            sstart, sstop = grab_flanking_region(sfeat, qfeat) # qfeat here is the final table with sfeat info from qfeat dict
 
             # assert qstop - qstart > 2 * pad or qstart == 1, (qstop, qstart)
             # assert sstop - sstart > 2 * pad or sstart == 1, (sstop, sstart)
@@ -386,7 +383,6 @@ if __name__ == "__main__":
     parser.add_option("-s", dest="sfasta", help="path to genomic subject fasta")
     parser.add_option("--sbed", dest="sbed", help="subject bed file")
     parser.add_option("-p", dest="pairs", help="the pairs file. output from dagchainer")
-    parser.add_option("--flank", dest="flank", help="flanking_genes_file" )
     (options, _) = parser.parse_args()
 
 
@@ -397,4 +393,4 @@ if __name__ == "__main__":
     sbed = Bed(options.sbed, options.sfasta); sbed.fill_dict()
     assert options.mask in 'FT'
 
-    main(qbed, sbed, options.pairs, options.flank, options.mask, options.ncpu)
+    main(qbed, sbed, options.pairs, options.mask, options.ncpu)
