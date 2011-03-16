@@ -1,3 +1,4 @@
+# warrning make sure you delete the past rice_rice_split file before re-running if u uploaded a new file!!!!!!
 import sys
 import os
 import os.path as op
@@ -316,7 +317,7 @@ def main(qbed, sbed, pairs_file, mask='F', ncpu=8):
             | grep -v 'WARNING' | grep -v 'ERROR' "
 
     fcnss = sys.stdout
-    print >> fcnss, "# qaccn,[qleft_gene, qright_gene],qseqid,saccn,sseqid,res,url"#"#qseqid,qaccn,sseqid,saccn,[qstart,qend,sstart,send...]"
+    print >> fcnss, "# qaccn,[qleft_gene, qright_gene],qseqid,sgene,sseqid,res,url"#"#qseqid,qaccn,sseqid,saccn,[qstart,qend,sstart,send...]"
 
     qfastas = get_masked_fastas(qbed)
     sfastas = get_masked_fastas(sbed) if qbed.filename != sbed.filename else qfastas
