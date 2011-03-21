@@ -369,8 +369,10 @@ def main(qbed, sbed, pairs_file, mask='F', ncpu=8):
             if len(cnss) == 0: continue
                        
             qname, sname = qfeat['accn'], sfeat['accn']
+            cnss_res = ",".join(map(lambda l: ",".join(map(str,l)), cnss)),
+            
             print >> fcnss, "%s,[%s,%s],%s,%s,%s,%s,%s" % (qname, qfeat['qleft_gene'], qfeat['qright_gene'], qfeat['seqid'], sname, sfeat['seqid'],
-                            ",".join(map(lambda l: ",".join(map(str,l)), cnss)), qfeat['url'] )
+                            cnss_res, qfeat['url'] )
 
     return None
 
