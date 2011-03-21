@@ -15,6 +15,16 @@ pool = None
 EXPON = 0.90
 
 
+def retained_cnss(accn, bed, cnss): 
+    feat = Orginal_bed.accn(accn)
+    feat_start = feat['start'] - 15000
+    feat_start = feat['stop'] + 15000
+    feat_fastas= get_masked_fastas(bed)
+    feat_fasta = feat_fastas[qfeat['seqid']]
+
+
+
+
 def assign_url(qcns, qseqid, scns, sseqid, orginal_sfeat,
                base = "http://synteny.cnr.berkeley.edu/CoGe/GEvo.pl?prog=blastn&autogo=1&"):
     "lines up coge based on the cns postion"
@@ -395,6 +405,7 @@ def main(qbed, sbed, pairs_file, mask='F', ncpu=8):
             print >> fcnss, "%s,[%s,%s],%s,%s,%s,%s,%s" % (qname, qfeat['qleft_gene'], qfeat['qright_gene'], qfeat['seqid'], sname, sfeat['seqid'],
                              ",".join(map(lambda l: ",".join(map(str,l)), cnss)), ",".join(urls))
 
+            retained_cnss(qfeat['ORG2_qfeat'], fbed, cnss)
     return None
 
 if __name__ == "__main__":
@@ -406,6 +417,8 @@ if __name__ == "__main__":
     parser.add_option("--qbed", dest="qbed", help="query bed file")
     parser.add_option("-s", dest="sfasta", help="path to genomic subject fasta")
     parser.add_option("--sbed", dest="sbed", help="subject bed file")
+    parser.add_option("--fbed", dest="fbed", help="retained feauture bed file")
+    parser.add_option("--f", dest="ffasta", help="retained feauture fasta file")
     parser.add_option("-p", dest="pairs", help="the pairs file. output from dagchainer")
     (options, _) = parser.parse_args()
 
@@ -415,6 +428,7 @@ if __name__ == "__main__":
 
     qbed = Bed(options.qbed, options.qfasta); qbed.fill_dict()
     sbed = Bed(options.sbed, options.sfasta); sbed.fill_dict()
+    fbed = Bed(options.fbed, options.ffasta); sbed.fill_dict()
     assert options.mask in 'FT'
 
-    main(qbed, sbed, options.pairs, options.mask, options.ncpu)
+    main(qbed, sbed, fbed, options.pairs, options.mask, options.ncpu)
