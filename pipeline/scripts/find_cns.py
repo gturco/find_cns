@@ -15,22 +15,22 @@ pool = None
 EXPON = 0.90
 
 
-def assign_url(qcns, qseqid, scns, sseqid,
+def assign_url(qcns, qseqid, scns, sseqid, orginal_sfeat,
                base = "http://synteny.cnr.berkeley.edu/CoGe/GEvo.pl?prog=blastn&autogo=1&"):
     "lines up coge based on the cns postion"
-    params = {'qcns' : qcns, 'qseqid' : qseqid , 'scns' : scns , 'sseqid' : sseqid }
-    inside = 'dsid1=43388&dsgid1=9109&chr1=%(qseqid)s&x1=%(qcns)s&dr1up=50000&dr1down=50000&dsid2=43388&dsgid2=9109&chr2=%(sseqid)s&x2=%(scns)s&dr2up=50000;dr2down=50000&num_seqs=2' %params
-# accn3=%(sfeat)s;dsid3=34580;dsgid3=34580;dr3up=50000;dr3down=50000;num_seqs=3;hsp_overlap_limit=0;hsp_size_limit=0' %params
+    params = {'qcns' : qcns, 'qseqid' : qseqid , 'scns' : scns , 'sseqid' : sseqid , 'sfeat' : orginal_sfeat }
+    inside = 'dsid1=43388&dsgid1=9109&chr1=%(qseqid)s&x1=%(qcns)s&dr1up=50000&dr1down=50000&dsid2=43388&dsgid2=9109&chr2=%(sseqid)s&x2=%(scns)s&dr2up=50000;dr2down=50000&num_seqs=2\
+accn3=%(sfeat)s;dsid3=34580;dsgid3=34580;dr3up=50000;dr3down=50000;num_seqs=3;hsp_overlap_limit=0;hsp_size_limit=0' %params
     url = base + inside
     return url
 
 
-def url_params(cnss, qseqid, sseqid):
+def url_params(cnss, qseqid, sseqid, orginal_sfeat):
     url_list = []
     for cns in cnss:
         qcns = cns[0]
         scns = cns[2]
-        url = assign_url(qcns, qseqid, scns, sseqid)
+        url = assign_url(qcns, qseqid, scns, sseqid, orginal_sfeat)
         url_list.append(url)
     return url_list
 
@@ -390,7 +390,7 @@ def main(qbed, sbed, pairs_file, mask='F', ncpu=8):
                        
             qname, sname = qfeat['accn'], sfeat['accn']
             
-            url = url_params(cnss, qfeat['seqid'], sfeat['seqid'])
+            url = url_params(cnss, qfeat['seqid'], sfeat['seqid'], qfeat['ORG2_qfeat'])
             
             print >> fcnss, "%s,[%s,%s],%s,%s,%s,%s,%s" % (qname, qfeat['qleft_gene'], qfeat['qright_gene'], qfeat['seqid'], sname, sfeat['seqid'],
                              ",".join(map(lambda l: ",".join(map(str,l)), cnss)), url )
