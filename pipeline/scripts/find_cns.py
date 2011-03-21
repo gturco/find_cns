@@ -372,7 +372,7 @@ def main(qbed, sbed, pairs_file, mask='F', ncpu=8):
             cnss_res = ",".join(map(lambda l: ",".join(map(str,l)), cnss)),
             
             print >> fcnss, "%s,[%s,%s],%s,%s,%s,%s,%s" % (qname, qfeat['qleft_gene'], qfeat['qright_gene'], qfeat['seqid'], sname, sfeat['seqid'],
-                            cnss_res, qfeat['url'] )
+                            cnss, qfeat['url'] )
 
     return None
 
