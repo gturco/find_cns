@@ -15,7 +15,7 @@ pool = None
 EXPON = 0.90
 
 
-def retained_cnss(accn, bed, sfeat,sfastas, cnss, mask): 
+def retained_cnss(accn, bed, sfeat, sfastas, cnss, mask): 
     feat = bed.accn(accn)
     feat_start = feat['start'] - 15000
     feat_stop = feat['end'] + 15000
@@ -26,8 +26,8 @@ def retained_cnss(accn, bed, sfeat,sfastas, cnss, mask):
     
     bl2seq = "/usr/bin/bl2seq " \
            "-p blastn -D 1 -E 2 -q -2 -r 1 -G 5 -W 7 -F %s " % mask + \
-           " -Y 812045000 -d 26195 -e 2.11 -i %(qfasta)s -j %(sfasta)s \
-              -I %(qstart)d,%(qstop)d -J %(sstart)d,%(sstop)d | grep -v '#' \
+           " -Y 812045000 -d 26195 -e 2.11 -i %(feat_fastas)s -j %(sfasta)s \
+              -I %(feat_start)d,%(feat_stop)d -J %(sstart)d,%(sstop)d | grep -v '#' \
             | grep -v 'WARNING' | grep -v 'ERROR' "
     
     
