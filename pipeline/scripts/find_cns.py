@@ -15,11 +15,11 @@ pool = None
 EXPON = 0.90
 
 
-def retained_cnss(qfeat, sfeat, ffeat, sfastas, cnss, mask):
+def retained_cnss(qfeat, sfeat, fbed, sfastas, cnss, mask):
     """makes a dict of the seq_3 start and end and fasta along with the cns start and end for bl2seq
     returns a list of the hight scoring cns in seq3"""
     accn = qfeat['ORG2_qfeat']
-    feat = bed.accn(accn)
+    feat = fbed.accn(accn)
     feat_start = feat['start'] - 15000
     feat_stop = feat['end'] + 15000
     feat_fastas= get_masked_fastas(bed)
