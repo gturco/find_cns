@@ -335,7 +335,7 @@ def get_masked_fastas(bed):
         fh.close()
     return fastas
 
-def main(qbed, sbed, pairs_file, mask='F', ncpu=8):
+def main(qbed, sbed, fbed, pairs_file, mask='F', ncpu=8):
     """main runner for finding cnss"""
     pool = Pool(options.ncpu)
 
