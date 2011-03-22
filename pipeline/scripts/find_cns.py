@@ -15,14 +15,16 @@ pool = None
 EXPON = 0.90
 
 
-def retained_cnss(accn, bed, sfeat, sfastas, cnss, mask): 
+def retained_cnss(qfeat, sfeat, ffeat, sfastas, cnss, mask):
+    """makes a dict of the seq_3 start and end and fasta along with the cns start and end for bl2seq
+    returns a list of the hight scoring cns in seq3"""
+    accn = qfeat['ORG2_qfeat']
     feat = bed.accn(accn)
     feat_start = feat['start'] - 15000
     feat_stop = feat['end'] + 15000
     feat_fastas= get_masked_fastas(bed)
     feat_fasta = feat_fastas[feat['seqid']]
-    
-    blast_res=[]
+    sfasta = sfastas[sfeat['seqid']]
     
     bl2seq = "/usr/bin/bl2seq " \
            "-p blastn -D 1 -E 2 -q -2 -r 1 -G 5 -W 7 -F %s " % mask + \
@@ -30,38 +32,44 @@ def retained_cnss(accn, bed, sfeat, sfastas, cnss, mask):
               -I %(feat_start)d,%(feat_stop)d -J %(sstart)d,%(sstop)d | grep -v '#' \
             | grep -v 'WARNING' | grep -v 'ERROR' "
     
-    
-    sfasta = sfastas[sfeat['seqid']]
     for cns in cnss:
        cns_start = cns[2]
        cns_stop  = cns[3]
        cmd = bl2seq % dict(feat_fastas=feat_fastas, sfasta=sfasta, feat_start=feat_start,
                            sstart=cns_start, feat_stop=feat_stop, sstop=cns_stop)
-       results = (commands.getoutput(cmd))
-       print >>sys.stderr, results
-       res = "%s,%s,%s" %(accn,cnss,results)
-       print >> sys.stdout, res
-       
+       retained_cns = (commands.getoutput(cmd))
+       for line in retained_cns.split("\n"):
+           if "WARNING:" in line: continue
+           if "ERROR" in line: continue
+           line = line.split("\t")
+           seq3_cns = map(int, line[6:8])
+           if len(seq3_cns) == 0: continue
+           url = url_params(cns, qfeat['seqid'], sfeat['seqid'], feat['seqid'], seq3_cns)
+           fcnss = sys.stdout
+           print >> fcnss, "# qaccn,[qleft_gene,qright_gene],qseqid,saccn,sseqid,cns,url"#"#qseqid,qaccn,sseqid,saccn,[qstart,qend,sstart,send...]"
+           print >> fcnss, "%s,[%s,%s],%s,%s,%s,%s,%s" %  (qfeat['accn'], qfeat['qleft_gene'], qfeat['qright_gene'], qfeat['seqid'], sfeat['accn'], sfeat['seqid'],cns, url)
+           
 
 
-def assign_url(qcns, qseqid, scns, sseqid, orginal_sfeat,
+def assign_url(params,
                base = "http://synteny.cnr.berkeley.edu/CoGe/GEvo.pl?prog=blastn&autogo=1&"):
     "lines up coge based on the cns postion"
-    params = {'qcns' : qcns, 'qseqid' : qseqid , 'scns' : scns , 'sseqid' : sseqid , 'sfeat' : orginal_sfeat }
-    inside = 'dsid1=43388&dsgid1=9109&chr1=%(qseqid)s&x1=%(qcns)s&dr1up=50000&dr1down=50000&dsid2=43388&dsgid2=9109&chr2=%(sseqid)s&x2=%(scns)s&dr2up=50000;dr2down=50000&\
-accn3=%(sfeat)s;dsid3=34580;dsgid3=34580;dr3up=50000;dr3down=50000;num_seqs=3;hsp_overlap_limit=0;hsp_size_limit=0' %params
+    inside = 'dsid1=43388&dsgid1=9109&chr1=%(qseqid)s&x1=%(seq1)s&dr1up=1000&dr1down=1000&dsid2=43388&dsgid2=9109&chr2=%(sseqid)s&x2=%(seq2)s&dr2up=1000;dr2down=1000&\
+dsid3=34580;dsgid3=34580;chr3=%(fseqid)s;x3=%(seq3)s;dr3up=1000;dr3down=1000;num_seqs=3;hsp_overlap_limit=0;hsp_size_limit=0' %params
     url = base + inside
     return url
 
 
-def url_params(cnss, qseqid, sseqid, orginal_sfeat):
-    url_list = []
-    for cns in cnss:
-        qcns = cns[0]
-        scns = cns[2]
-        url = assign_url(qcns, qseqid, scns, sseqid, orginal_sfeat)
-        url_list.append(url)
-    return url_list
+def url_params(cns, qseqid, sseqid, fseqid, seq_3):
+    parmas={}
+    parmas['qseqid'] = qseqid
+    parmas['sseqid'] = sseqid
+    parmas['fseqid'] = fseqid
+    parmas['seq1']= cns[0]
+    parmas['seq2'] = cns[2]
+    parmas['seq3'] = seq_3[0]
+    url = assign_url(params)
+    return url
 
 def get_feats_in_space(locs, ichr, bpmin, bpmax, bed):
     """ locs == [start, stop]
@@ -365,8 +373,8 @@ def main(qbed, sbed, fbed, pairs_file, mask='F', ncpu=8):
               -I %(qstart)d,%(qstop)d -J %(sstart)d,%(sstop)d | grep -v '#' \
             | grep -v 'WARNING' | grep -v 'ERROR' "
 
-    fcnss = sys.stdout
-    print >> fcnss, "# qaccn,res,urls"#"#qseqid,qaccn,sseqid,saccn,[qstart,qend,sstart,send...]"
+#    fcnss = sys.stdout
+#    print >> fcnss, "# qaccn,res,urls"#"#qseqid,qaccn,sseqid,saccn,[qstart,qend,sstart,send...]"
 
     qfastas = get_masked_fastas(qbed)
     sfastas = get_masked_fastas(sbed) if qbed.filename != sbed.filename else qfastas
@@ -416,15 +424,16 @@ def main(qbed, sbed, fbed, pairs_file, mask='F', ncpu=8):
             cnss =  parse_blast(res, orient, qfeat, sfeat, qbed, sbed)
             print >>sys.stderr, "(%i)" % len(cnss)
             if len(cnss) == 0: continue
-                       
-            qname, sname = qfeat['accn'], sfeat['accn']
+            retained_cnss(qfeat, sfeat, fbed, sfastas, cnss, mask)
             
-            urls = url_params(cnss, qfeat['seqid'], sfeat['seqid'], qfeat['ORG2_qfeat'])
+#            qname, sname = qfeat['accn'], sfeat['accn']
+            
+#       urls = url_params(cnss, qfeat['seqid'], sfeat['seqid'], qfeat['ORG2_qfeat'])
             
 #            print >> fcnss, "%s,[%s,%s],%s,%s,%s,%s,%s" % (qname, qfeat['qleft_gene'], qfeat['qright_gene'], qfeat['seqid'], sname, sfeat['seqid'],
 #                             ",".join(map(lambda l: ",".join(map(str,l)), cnss)), ",".join(urls))
 
-            retained_cnss(qfeat['ORG2_qfeat'], fbed, sfeat, sfastas, cnss, mask)
+
     return None
 
 if __name__ == "__main__":
