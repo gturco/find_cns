@@ -38,7 +38,7 @@ def retained_cnss(accn, bed, sfeat, sfastas, cnss, mask):
        cmd = bl2seq % dict(feat_fastas=feat_fastas, sfasta=sfasta, feat_start=feat_start,
                            sstart=cns_start, feat_stop=feat_stop, sstop=cns_stop)
        results = (commands.getoutput(cmd))
-       print >> fcnss, "%s,%s,%s" %accn,cnss,results
+       print >> sys.stdout, "%s,%s,%s" %accn,cnss,results
        
 
 
