@@ -18,10 +18,17 @@ EXPON = 0.90
 def retained_cnss(accn, bed, cnss): 
     feat = bed.accn(accn)
     feat_start = feat['start'] - 15000
-    feat_start = feat['end'] + 15000
+    feat_stop = feat['end'] + 15000
     feat_fastas= get_masked_fastas(bed)
     feat_fasta = feat_fastas[feat['seqid']]
-    print feat_start, feat_stop
+    
+    blast_res=[]
+    for cns in cnss
+       cns_start = cns[2]
+       cns_stop  = cns[3]
+       cmd = bl2seq % dict(feat_fastas=feat_fastas, sfasta=cns_start, feat_start=feat_start,
+                           sstart=cns_start, feat_stop=feat_stop, sstop=cns_stop)
+
 
 
 
