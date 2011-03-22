@@ -24,6 +24,7 @@ def retained_cnss(qfeat, sfeat, fbed, sfastas, cnss, mask):
     feat_stop = feat['end'] + 15000
     feat_fastas= get_masked_fastas(fbed)
     feat_fasta = feat_fastas[feat['seqid']]
+    print feat_fasta
     sfasta = sfastas[sfeat['seqid']]
     
     bl2seq = "/usr/bin/bl2seq " \
@@ -38,7 +39,7 @@ def retained_cnss(qfeat, sfeat, fbed, sfastas, cnss, mask):
        cns_stop  = cns[3]
        cmd = bl2seq % dict(feat_fastas=feat_fastas, sfasta=sfasta, feat_start=feat_start,
                            sstart=cns_start, feat_stop=feat_stop, sstop=cns_stop)
-       print cmd
+       #print cmd
        retained_cns = (commands.getoutput(cmd))
        for line in retained_cns.split("\n"):
            if "WARNING:" in line: continue
