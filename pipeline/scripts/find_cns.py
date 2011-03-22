@@ -23,6 +23,14 @@ def retained_cnss(accn, bed, sfeat,sfastas, cnss):
     feat_fasta = feat_fastas[feat['seqid']]
     
     blast_res=[]
+    
+    bl2seq = "/usr/bin/bl2seq " \
+           "-p blastn -D 1 -E 2 -q -2 -r 1 -G 5 -W 7 -F %s " % mask + \
+           " -Y 812045000 -d 26195 -e 2.11 -i %(qfasta)s -j %(sfasta)s \
+              -I %(qstart)d,%(qstop)d -J %(sstart)d,%(sstop)d | grep -v '#' \
+            | grep -v 'WARNING' | grep -v 'ERROR' "
+    
+    
     sfasta = sfastas[sfeat['seqid']]
     for cns in cnss:
        cns_start = cns[2]
