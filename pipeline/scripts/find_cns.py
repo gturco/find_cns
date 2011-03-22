@@ -24,7 +24,7 @@ def retained_cnss(qfeat, sfeat, fbed, sfastas, cnss, mask):
     feat_stop = feat['end'] + 15000
     feat_fastas= get_masked_fastas(fbed)
     feat_fasta = feat_fastas[feat['seqid']]
-    print feat_fasta
+    print >>sys.stderr,  "%s" % (feat_fasta)
     sfasta = sfastas[sfeat['seqid']]
     
     bl2seq = "/usr/bin/bl2seq " \
