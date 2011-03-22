@@ -15,7 +15,7 @@ pool = None
 EXPON = 0.90
 
 
-def retained_cnss(qfeat, sfeat, fbed, sfastas, cnss, mask='T', fcnss):
+def retained_cnss(qfeat, sfeat, fbed, sfastas, cnss, fcnss, mask='T'):
     """makes a dict of the seq_3 start and end and fasta along with the cns start and end for bl2seq
     returns a list of the hight scoring cns in seq3"""
     accn = qfeat['ORG2_qfeat']
@@ -426,7 +426,7 @@ def main(qbed, sbed, fbed, pairs_file, mask='T', ncpu=8):
             cnss =  parse_blast(res, orient, qfeat, sfeat, qbed, sbed)
             print >>sys.stderr, "(%i)" % len(cnss)
             if len(cnss) == 0: continue
-            retained_cnss(qfeat, sfeat, fbed, sfastas, cnss, mask, fcnss)
+            retained_cnss(qfeat, sfeat, fbed, sfastas, cnss, fcnss, mask)
             
 #            qname, sname = qfeat['accn'], sfeat['accn']
             
