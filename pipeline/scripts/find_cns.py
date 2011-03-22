@@ -363,7 +363,7 @@ def get_masked_fastas(bed):
         fh.close()
     return fastas
 
-def main(qbed, sbed, fbed, pairs_file, mask='F', ncpu=8):
+def main(qbed, sbed, fbed, pairs_file, mask='T', ncpu=8):
     """main runner for finding cnss"""
     pool = Pool(options.ncpu)
 
@@ -441,7 +441,7 @@ def main(qbed, sbed, fbed, pairs_file, mask='F', ncpu=8):
 if __name__ == "__main__":
     import optparse
     parser = optparse.OptionParser("usage: %prog [options] ")
-    parser.add_option("-F", dest="mask", help="blast mask simple sequence [default: F]", default="F")
+    parser.add_option("-F", dest="mask", help="blast mask simple sequence [default: T]", default="T")
     parser.add_option("-n", dest="ncpu", help="parallelize to this many cores", type='int', default=8)
     parser.add_option("-q", dest="qfasta", help="path to genomic query fasta")
     parser.add_option("--qbed", dest="qbed", help="query bed file")
