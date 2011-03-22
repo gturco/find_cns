@@ -43,6 +43,7 @@ def retained_cnss(qfeat, sfeat, fbed, sfastas, cnss, mask):
            if "ERROR" in line: continue
            line = line.split("\t")
            seq3_cns = map(int, line[6:8])
+           print >> sys.stdout, seq3_cns
            if len(seq3_cns) == 0: continue
            url = url_params(cns, qfeat['seqid'], sfeat['seqid'], feat['seqid'], seq3_cns)
            fcnss = sys.stdout
