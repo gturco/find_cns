@@ -33,6 +33,7 @@ def retained_cnss(qfeat, sfeat, fbed, sfastas, cnss, mask):
             | grep -v 'WARNING' | grep -v 'ERROR' "
     
     for cns in cnss:
+       print cns
        cns_start = cns[2]
        cns_stop  = cns[3]
        cmd = bl2seq % dict(feat_fastas=feat_fastas, sfasta=sfasta, feat_start=feat_start,
