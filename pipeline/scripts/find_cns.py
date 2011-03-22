@@ -37,7 +37,9 @@ def retained_cnss(accn, bed, sfeat, sfastas, cnss, mask):
        cns_stop  = cns[3]
        cmd = bl2seq % dict(feat_fastas=feat_fastas, sfasta=sfasta, feat_start=feat_start,
                            sstart=cns_start, feat_stop=feat_stop, sstop=cns_stop)
-                           
+       results = (commands.getoutput(cmd))
+       print >> fcnss, "%s,%s,%s" %accn,cnss,results
+       
 
 
 def assign_url(qcns, qseqid, scns, sseqid, orginal_sfeat,
@@ -417,8 +419,8 @@ def main(qbed, sbed, fbed, pairs_file, mask='F', ncpu=8):
             
             urls = url_params(cnss, qfeat['seqid'], sfeat['seqid'], qfeat['ORG2_qfeat'])
             
-            print >> fcnss, "%s,[%s,%s],%s,%s,%s,%s,%s" % (qname, qfeat['qleft_gene'], qfeat['qright_gene'], qfeat['seqid'], sname, sfeat['seqid'],
-                             ",".join(map(lambda l: ",".join(map(str,l)), cnss)), ",".join(urls))
+#            print >> fcnss, "%s,[%s,%s],%s,%s,%s,%s,%s" % (qname, qfeat['qleft_gene'], qfeat['qright_gene'], qfeat['seqid'], sname, sfeat['seqid'],
+#                             ",".join(map(lambda l: ",".join(map(str,l)), cnss)), ",".join(urls))
 
             retained_cnss(qfeat['ORG2_qfeat'], fbed, sfeat, sfastas, cnss, mask)
     return None
