@@ -445,7 +445,7 @@ if __name__ == "__main__":
     parser.add_option("-s", dest="sfasta", help="path to genomic subject fasta")
     parser.add_option("--sbed", dest="sbed", help="subject bed file")
     parser.add_option("--fbed", dest="fbed", help="retained feauture bed file")
-    parser.add_option("-f", dest="ffasta", help="retained feauture fasta file")
+    parser.add_option("-g", dest="ffasta", help="retained feauture fasta file")
     parser.add_option("-p", dest="pairs", help="the pairs file. output from dagchainer")
     (options, _) = parser.parse_args()
 
