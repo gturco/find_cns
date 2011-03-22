@@ -33,19 +33,16 @@ def retained_cnss(qfeat, sfeat, fbed, sfastas, cnss, fcnss, mask='T'):
             | grep -v 'WARNING' | grep -v 'ERROR' "
     
     for cns in cnss:
-       print cns
        cns_start = cns[2]
        cns_stop  = cns[3]
        cmd = bl2seq % dict(feat_fasta=feat_fasta, sfasta=sfasta, feat_start=feat_start,
                            sstart=cns_start, feat_stop=feat_stop, sstop=cns_stop)
-       print cmd
        retained_cns = (commands.getoutput(cmd))
        for line in retained_cns.split("\n"):
            if "WARNING:" in line: continue
            if "ERROR" in line: continue
            line = line.split("\t")
            seq3_cns = map(int, line[6:8])
-           print >> sys.stderr, seq3_cns
            if len(seq3_cns) == 0: continue
            url = url_params(cns, qfeat['seqid'], sfeat['seqid'], feat['seqid'], seq3_cns)
            print >> fcnss, "%s,[%s,%s],%s,%s,%s,%s,%s" %  (qfeat['accn'], qfeat['qleft_gene'], qfeat['qright_gene'], qfeat['seqid'], sfeat['accn'], sfeat['seqid'],cns, url)
