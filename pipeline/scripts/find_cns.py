@@ -45,7 +45,7 @@ def retained_cnss(qfeat, sfeat, fbed, sfastas, cnss, fcnss, mask='T'):
            if "ERROR" in line: continue
            line = line.split("\t")
            seq3_cns = map(int, line[6:8])
-           print >> sys.stdout, seq3_cns
+           print >> sys.stderr, seq3_cns
            if len(seq3_cns) == 0: continue
            url = url_params(cns, qfeat['seqid'], sfeat['seqid'], feat['seqid'], seq3_cns)
            print >> fcnss, "%s,[%s,%s],%s,%s,%s,%s,%s" %  (qfeat['accn'], qfeat['qleft_gene'], qfeat['qright_gene'], qfeat['seqid'], sfeat['accn'], sfeat['seqid'],cns, url)
