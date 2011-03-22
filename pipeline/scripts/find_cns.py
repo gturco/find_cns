@@ -26,6 +26,7 @@ def retained_cnss(qfeat, sfeat, fbed, sfastas, cnss, mask):
     feat_fasta = feat_fastas[feat['seqid']]
     print >>sys.stderr,  "%s" % (feat_fasta)
     sfasta = sfastas[sfeat['seqid']]
+    print >>sys.stderr,  "%s" % (sfasta)
     
     bl2seq = "/usr/bin/bl2seq " \
            "-p blastn -D 1 -E 2 -q -2 -r 1 -G 5 -W 7 -F %s " % mask + \
