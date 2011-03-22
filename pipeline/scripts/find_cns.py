@@ -15,7 +15,7 @@ pool = None
 EXPON = 0.90
 
 
-def retained_cnss(qfeat, sfeat, fbed, sfastas, cnss, mask='T'):
+def retained_cnss(qfeat, sfeat, fbed, sfastas, cnss, mask='T', fcnss):
     """makes a dict of the seq_3 start and end and fasta along with the cns start and end for bl2seq
     returns a list of the hight scoring cns in seq3"""
     accn = qfeat['ORG2_qfeat']
@@ -48,8 +48,6 @@ def retained_cnss(qfeat, sfeat, fbed, sfastas, cnss, mask='T'):
            print >> sys.stdout, seq3_cns
            if len(seq3_cns) == 0: continue
            url = url_params(cns, qfeat['seqid'], sfeat['seqid'], feat['seqid'], seq3_cns)
-           fcnss = sys.stdout
-           print >> fcnss, "# qaccn,[qleft_gene,qright_gene],qseqid,saccn,sseqid,cns,url"#"#qseqid,qaccn,sseqid,saccn,[qstart,qend,sstart,send...]"
            print >> fcnss, "%s,[%s,%s],%s,%s,%s,%s,%s" %  (qfeat['accn'], qfeat['qleft_gene'], qfeat['qright_gene'], qfeat['seqid'], sfeat['accn'], sfeat['seqid'],cns, url)
            
 
@@ -376,8 +374,9 @@ def main(qbed, sbed, fbed, pairs_file, mask='F', ncpu=8):
               -I %(qstart)d,%(qstop)d -J %(sstart)d,%(sstop)d | grep -v '#' \
             | grep -v 'WARNING' | grep -v 'ERROR' "
 
-#    fcnss = sys.stdout
-#    print >> fcnss, "# qaccn,res,urls"#"#qseqid,qaccn,sseqid,saccn,[qstart,qend,sstart,send...]"
+    fcnss = sys.stdout
+    print >> fcnss, "# qaccn,[qleft_gene,qright_gene],qseqid,saccn,sseqid,cns,url"#"#qseqid,qaccn,sseqid,saccn,[qstart,qend,sstart,send...]"
+
 
     qfastas = get_masked_fastas(qbed)
     sfastas = get_masked_fastas(sbed) if qbed.filename != sbed.filename else qfastas
@@ -427,7 +426,7 @@ def main(qbed, sbed, fbed, pairs_file, mask='F', ncpu=8):
             cnss =  parse_blast(res, orient, qfeat, sfeat, qbed, sbed)
             print >>sys.stderr, "(%i)" % len(cnss)
             if len(cnss) == 0: continue
-            retained_cnss(qfeat, sfeat, fbed, sfastas, cnss, mask)
+            retained_cnss(qfeat, sfeat, fbed, sfastas, cnss, mask, fcnss)
             
 #            qname, sname = qfeat['accn'], sfeat['accn']
             
