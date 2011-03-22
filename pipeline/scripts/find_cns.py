@@ -24,13 +24,11 @@ def retained_cnss(qfeat, sfeat, fbed, sfastas, cnss, mask):
     feat_stop = feat['end'] + 15000
     feat_fastas= get_masked_fastas(fbed)
     feat_fasta = feat_fastas[feat['seqid']]
-    print >>sys.stderr,  "%s" % (feat_fasta)
     sfasta = sfastas[sfeat['seqid']]
-    print >>sys.stderr,  "%s" % (sfasta)
     
     bl2seq = "/usr/bin/bl2seq " \
            "-p blastn -D 1 -E 2 -q -2 -r 1 -G 5 -W 7 -F %s " % mask + \
-           " -Y 812045000 -d 26195 -e 2.11 -i %(feat_fastas)s -j %(sfasta)s \
+           " -Y 812045000 -d 26195 -e 2.11 -i %(feat_fasta)s -j %(sfasta)s \
               -I %(feat_start)d,%(feat_stop)d -J %(sstart)d,%(sstop)d | grep -v '#' \
             | grep -v 'WARNING' | grep -v 'ERROR' "
     
@@ -38,9 +36,9 @@ def retained_cnss(qfeat, sfeat, fbed, sfastas, cnss, mask):
        print cns
        cns_start = cns[2]
        cns_stop  = cns[3]
-       cmd = bl2seq % dict(feat_fastas=feat_fastas, sfasta=sfasta, feat_start=feat_start,
+       cmd = bl2seq % dict(feat_fasta=feat_fasta, sfasta=sfasta, feat_start=feat_start,
                            sstart=cns_start, feat_stop=feat_stop, sstop=cns_stop)
-       #print cmd
+       print cmd
        retained_cns = (commands.getoutput(cmd))
        for line in retained_cns.split("\n"):
            if "WARNING:" in line: continue
