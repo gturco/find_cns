@@ -16,7 +16,7 @@ EXPON = 0.90
 
 
 def retained_cnss(accn, bed, cnss): 
-    feat = Orginal_bed.accn(accn)
+    feat = bed.accn(accn)
     feat_start = feat['start'] - 15000
     feat_start = feat['stop'] + 15000
     feat_fastas= get_masked_fastas(bed)
