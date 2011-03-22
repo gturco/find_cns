@@ -15,7 +15,7 @@ pool = None
 EXPON = 0.90
 
 
-def retained_cnss(qfeat, sfeat, fbed, sfastas, cnss, mask):
+def retained_cnss(qfeat, sfeat, fbed, sfastas, cnss, mask='T'):
     """makes a dict of the seq_3 start and end and fasta along with the cns start and end for bl2seq
     returns a list of the hight scoring cns in seq3"""
     accn = qfeat['ORG2_qfeat']
@@ -64,13 +64,13 @@ dsid3=34580;dsgid3=34580;chr3=%(fseqid)s;x3=%(seq3)s;dr3up=1000;dr3down=1000;num
 
 
 def url_params(cns, qseqid, sseqid, fseqid, seq_3):
-    parmas={}
-    parmas['qseqid'] = qseqid
-    parmas['sseqid'] = sseqid
-    parmas['fseqid'] = fseqid
-    parmas['seq1']= cns[0]
-    parmas['seq2'] = cns[2]
-    parmas['seq3'] = seq_3[0]
+    params={}
+    params['qseqid'] = qseqid
+    params['sseqid'] = sseqid
+    params['fseqid'] = fseqid
+    params['seq1']= cns[0]
+    params['seq2'] = cns[2]
+    params['seq3'] = seq_3[0]
     url = assign_url(params)
     return url
 
