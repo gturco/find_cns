@@ -364,7 +364,7 @@ def main(qbed, sbed, fbed, pairs_file, mask='F', ncpu=8):
             | grep -v 'WARNING' | grep -v 'ERROR' "
 
     fcnss = sys.stdout
-    print >> fcnss, "# qaccn,[qleft_gene, qright_gene],qseqid,sgene,sseqid,res,urls"#"#qseqid,qaccn,sseqid,saccn,[qstart,qend,sstart,send...]"
+    print >> fcnss, "# qaccn,res,urls"#"#qseqid,qaccn,sseqid,saccn,[qstart,qend,sstart,send...]"
 
     qfastas = get_masked_fastas(qbed)
     sfastas = get_masked_fastas(sbed) if qbed.filename != sbed.filename else qfastas
