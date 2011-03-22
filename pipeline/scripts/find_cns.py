@@ -20,7 +20,7 @@ def retained_cnss(accn, bed, cnss):
     feat_start = feat['start'] - 15000
     feat_start = feat['end'] + 15000
     feat_fastas= get_masked_fastas(bed)
-    feat_fasta = feat_fastas[qfeat['seqid']]
+    feat_fasta = feat_fastas[feat['seqid']]
     print feat_start, feat_stop
 
 
