@@ -15,7 +15,7 @@ pool = None
 EXPON = 0.90
 
 
-def retained_cnss(accn, bed, cnss): 
+def retained_cnss(accn, bed, sfeat, cnss): 
     feat = bed.accn(accn)
     feat_start = feat['start'] - 15000
     feat_stop = feat['end'] + 15000
@@ -23,7 +23,8 @@ def retained_cnss(accn, bed, cnss):
     feat_fasta = feat_fastas[feat['seqid']]
     
     blast_res=[]
-    for cns in cnss
+    sfasta = sfastas[sfeat['seqid']]
+    for cns in cnss:
        cns_start = cns[2]
        cns_stop  = cns[3]
        cmd = bl2seq % dict(feat_fastas=feat_fastas, sfasta=cns_start, feat_start=feat_start,
@@ -412,7 +413,7 @@ def main(qbed, sbed, fbed, pairs_file, mask='F', ncpu=8):
             print >> fcnss, "%s,[%s,%s],%s,%s,%s,%s,%s" % (qname, qfeat['qleft_gene'], qfeat['qright_gene'], qfeat['seqid'], sname, sfeat['seqid'],
                              ",".join(map(lambda l: ",".join(map(str,l)), cnss)), ",".join(urls))
 
-            retained_cnss(qfeat['ORG2_qfeat'], fbed, cnss)
+            retained_cnss(qfeat['ORG2_qfeat'], fbed, sfeat, cnss)
     return None
 
 if __name__ == "__main__":
