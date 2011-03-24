@@ -19,8 +19,8 @@ def assign_url(qcns, qseqid, scns, sseqid, orginal_sfeat,
                base = "http://synteny.cnr.berkeley.edu/CoGe/GEvo.pl?prog=blastn&autogo=1&"):
     "lines up coge based on the cns postion"
     params = {'qcns' : qcns, 'qseqid' : qseqid , 'scns' : scns , 'sseqid' : sseqid , 'sfeat' : orginal_sfeat }
-    inside = 'dsid1=43388&dsgid1=9109&chr1=%(qseqid)s&x1=%(qcns)s&dr1up=50000&dr1down=50000&dsid2=43388&dsgid2=9109&chr2=%(sseqid)s&x2=%(scns)s&dr2up=50000;dr2down=50000&\
-accn3=%(sfeat)s;dsid3=34580;dsgid3=34580;dr3up=50000;dr3down=50000;num_seqs=3;hsp_overlap_limit=0;hsp_size_limit=0' %params
+    inside = 'dsid1=43388&dsgid1=9109&chr1=%(qseqid)s&x1=%(qcns)s&dr1up=15000&dr1down=15000&dsid2=43388&dsgid2=9109&chr2=%(sseqid)s&x2=%(scns)s&dr2up=15000;dr2down=15000&\
+accn3=%(sfeat)s;dsid3=34580;dsgid3=34580;dr3up=15000;dr3down=15000;num_seqs=3;hsp_overlap_limit=0;hsp_size_limit=0' %params
     url = base + inside
     return url
 
@@ -283,12 +283,11 @@ def grab_flanking_region(sfeat , flanking_genes):
     and right of the sfeat"
     left_padding = (sfeat['start'] - 12000)
     right_padding = (sfeat['end'] + 12000)
-    left_gene_end  = flanking_genes['sstart']
-    right_gene_start = flanking_genes['send']
-    if left_gene_end < left_padding and right_gene_start > right_padding:
-        return left_padding, right_padding
-    else:
-        return left_gene_end, right_gene_start
+    left_flgene  = flanking_genes['sstart']
+    right_flgene = flanking_genes['send']
+    left_cut_off = max(left_flgene , left_padding)
+    right_cut_off = min(right_flgene, right_padding)
+    return left_cut_off, right_cut_off
 
                     
 def get_pair(regions , sbed):
