@@ -15,59 +15,24 @@ pool = None
 EXPON = 0.90
 
 
-def retained_cnss(qfeat, sfeat, fbed, sfastas, cnss, fcnss, mask='T'):
-    """makes a dict of the seq_3 start and end and fasta along with the cns start and end for bl2seq
-    returns a list of the hight scoring cns in seq3"""
-    accn = qfeat['ORG2_qfeat']
-    feat = fbed.accn(accn)
-    feat_start = feat['start'] - 15000
-    feat_stop = feat['end'] + 15000
-    feat_fastas= get_masked_fastas(fbed)
-    feat_fasta = feat_fastas[feat['seqid']]
-    sfasta = sfastas[sfeat['seqid']]
-    
-    bl2seq = "/usr/bin/bl2seq " \
-           "-p blastn -D 1 -E 2 -q -2 -r 1 -G 5 -W 7 -F %s " % mask + \
-           " -Y 812045000 -d 26195 -e 2.11 -i %(feat_fasta)s -j %(sfasta)s \
-              -I %(feat_start)d,%(feat_stop)d -J %(sstart)d,%(sstop)d | grep -v '#' \
-            | grep -v 'WARNING' | grep -v 'ERROR' "
-    
-    for cns in cnss:
-       cns_start = cns[2]
-       cns_stop  = cns[3]
-       cmd = bl2seq % dict(feat_fasta=feat_fasta, sfasta=sfasta, feat_start=feat_start,
-                           sstart=cns_start, feat_stop=feat_stop, sstop=cns_stop)
-       retained_cns = (commands.getoutput(cmd))
-       for line in retained_cns.split("\n"):
-           if "WARNING:" in line: continue
-           if "ERROR" in line: continue
-           line = line.split("\t")
-           seq3_cns = map(int, line[6:8])
-           if len(seq3_cns) == 0: continue
-           url = url_params(cns, qfeat['seqid'], sfeat['seqid'], feat['seqid'], seq3_cns)
-           print >> fcnss, "%s,[%s,%s],%s,%s,%s,%s,%s" %  (qfeat['accn'], qfeat['qleft_gene'], qfeat['qright_gene'], qfeat['seqid'], sfeat['accn'], sfeat['seqid'],cns, url)
-           
-
-
-def assign_url(params,
+def assign_url(qcns, qseqid, scns, sseqid, orginal_sfeat,
                base = "http://synteny.cnr.berkeley.edu/CoGe/GEvo.pl?prog=blastn&autogo=1&"):
     "lines up coge based on the cns postion"
-    inside = 'dsid1=43388&dsgid1=9109&chr1=%(qseqid)s&x1=%(seq1)s&dr1up=1000&dr1down=1000&dsid2=43388&dsgid2=9109&chr2=%(sseqid)s&x2=%(seq2)s&dr2up=1000;dr2down=1000&\
-dsid3=34580;chr3=%(fseqid)s;x3=%(seq3)s;dr3up=1000;dr3down=1000;num_seqs=3;hsp_overlap_limit=0;hsp_size_limit=0' %params
+    params = {'qcns' : qcns, 'qseqid' : qseqid , 'scns' : scns , 'sseqid' : sseqid , 'sfeat' : orginal_sfeat }
+    inside = 'dsid1=43388&dsgid1=9109&chr1=%(qseqid)s&x1=%(qcns)s&dr1up=50000&dr1down=50000&dsid2=43388&dsgid2=9109&chr2=%(sseqid)s&x2=%(scns)s&dr2up=50000;dr2down=50000&\
+accn3=%(sfeat)s;dsid3=34580;dsgid3=34580;dr3up=50000;dr3down=50000;num_seqs=3;hsp_overlap_limit=0;hsp_size_limit=0' %params
     url = base + inside
     return url
 
 
-def url_params(cns, qseqid, sseqid, fseqid, seq_3):
-    params={}
-    params['qseqid'] = qseqid
-    params['sseqid'] = sseqid
-    params['fseqid'] = fseqid
-    params['seq1']= cns[0]
-    params['seq2'] = cns[2]
-    params['seq3'] = seq_3[0]
-    url = assign_url(params)
-    return url
+def url_params(cnss, qseqid, sseqid, orginal_sfeat):
+    url_list = []
+    for cns in cnss:
+        qcns = cns[0]
+        scns = cns[2]
+        url = assign_url(qcns, qseqid, scns, sseqid, orginal_sfeat)
+        url_list.append(url)
+    return url_list
 
 def get_feats_in_space(locs, ichr, bpmin, bpmax, bed):
     """ locs == [start, stop]
@@ -360,7 +325,7 @@ def get_masked_fastas(bed):
         fh.close()
     return fastas
 
-def main(qbed, sbed, fbed, pairs_file, mask='T', ncpu=8):
+def main(qbed, sbed, pairs_file, mask='F', ncpu=8):
     """main runner for finding cnss"""
     pool = Pool(options.ncpu)
 
@@ -372,8 +337,7 @@ def main(qbed, sbed, fbed, pairs_file, mask='T', ncpu=8):
             | grep -v 'WARNING' | grep -v 'ERROR' "
 
     fcnss = sys.stdout
-    print >> fcnss, "# qaccn,[qleft_gene,qright_gene],qseqid,saccn,sseqid,cns,url"#"#qseqid,qaccn,sseqid,saccn,[qstart,qend,sstart,send...]"
-
+    print >> fcnss, "# qaccn,[qleft_gene, qright_gene],qseqid,sgene,sseqid,res,urls"#"#qseqid,qaccn,sseqid,saccn,[qstart,qend,sstart,send...]"
 
     qfastas = get_masked_fastas(qbed)
     sfastas = get_masked_fastas(sbed) if qbed.filename != sbed.filename else qfastas
@@ -423,29 +387,25 @@ def main(qbed, sbed, fbed, pairs_file, mask='T', ncpu=8):
             cnss =  parse_blast(res, orient, qfeat, sfeat, qbed, sbed)
             print >>sys.stderr, "(%i)" % len(cnss)
             if len(cnss) == 0: continue
-            retained_cnss(qfeat, sfeat, fbed, sfastas, cnss, fcnss, mask)
+                       
+            qname, sname = qfeat['accn'], sfeat['accn']
             
-#            qname, sname = qfeat['accn'], sfeat['accn']
+            urls = url_params(cnss, qfeat['seqid'], sfeat['seqid'], qfeat['ORG2_qfeat'])
             
-#       urls = url_params(cnss, qfeat['seqid'], sfeat['seqid'], qfeat['ORG2_qfeat'])
-            
-#            print >> fcnss, "%s,[%s,%s],%s,%s,%s,%s,%s" % (qname, qfeat['qleft_gene'], qfeat['qright_gene'], qfeat['seqid'], sname, sfeat['seqid'],
-#                             ",".join(map(lambda l: ",".join(map(str,l)), cnss)), ",".join(urls))
-
+            print >> fcnss, "%s,[%s,%s],%s,%s,%s,%s,%s" % (qname, qfeat['qleft_gene'], qfeat['qright_gene'], qfeat['seqid'], sname, sfeat['seqid'],
+                             ",".join(map(lambda l: ",".join(map(str,l)), cnss)), ",".join(urls))
 
     return None
 
 if __name__ == "__main__":
     import optparse
     parser = optparse.OptionParser("usage: %prog [options] ")
-    parser.add_option("-F", dest="mask", help="blast mask simple sequence [default: T]", default="T")
+    parser.add_option("-F", dest="mask", help="blast mask simple sequence [default: F]", default="F")
     parser.add_option("-n", dest="ncpu", help="parallelize to this many cores", type='int', default=8)
     parser.add_option("-q", dest="qfasta", help="path to genomic query fasta")
     parser.add_option("--qbed", dest="qbed", help="query bed file")
     parser.add_option("-s", dest="sfasta", help="path to genomic subject fasta")
     parser.add_option("--sbed", dest="sbed", help="subject bed file")
-    parser.add_option("--fbed", dest="fbed", help="retained feauture bed file")
-    parser.add_option("-f", dest="ffasta", help="retained feauture fasta file")
     parser.add_option("-p", dest="pairs", help="the pairs file. output from dagchainer")
     (options, _) = parser.parse_args()
 
@@ -455,7 +415,6 @@ if __name__ == "__main__":
 
     qbed = Bed(options.qbed, options.qfasta); qbed.fill_dict()
     sbed = Bed(options.sbed, options.sfasta); sbed.fill_dict()
-    fbed = Bed(options.fbed, options.ffasta); sbed.fill_dict()
     assert options.mask in 'FT'
 
-    main(qbed, sbed, fbed, options.pairs, options.mask, options.ncpu)
+    main(qbed, sbed, options.pairs, options.mask, options.ncpu)
