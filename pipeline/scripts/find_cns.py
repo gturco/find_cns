@@ -18,7 +18,7 @@ EXPON = 0.90
 def assign_url(qcns, qseqid, scns, sseqid, orginal_sfeat,
                base = "http://synteny.cnr.berkeley.edu/CoGe/GEvo.pl?prog=blastn&autogo=1&"):
     "lines up coge based on the cns postion"
-    params = {'qcns' : qcns, 'qseqid' : qseqid , 'scns' : scns , 'sseqid' : sseqid , 'sfeat' : orginal_sfeat }
+    params = {'qcns' : scns, 'qseqid' : qseqid , 'scns' : qcns , 'sseqid' : sseqid , 'sfeat' : orginal_sfeat }
     inside = 'dsid1=43388&dsgid1=9109&chr1=%(qseqid)s&x1=%(qcns)s&dr1up=15000&dr1down=15000&dsid2=43388&dsgid2=9109&chr2=%(sseqid)s&x2=%(scns)s&dr2up=15000;dr2down=15000&\
 accn3=%(sfeat)s;dsid3=34580;dsgid3=34580;dr3up=15000;dr3down=15000;num_seqs=3;hsp_overlap_limit=0;hsp_size_limit=0' %params
     url = base + inside

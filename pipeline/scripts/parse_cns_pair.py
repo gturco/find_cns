@@ -17,7 +17,8 @@ def parse_cns_pair(cns_pairs):
             handle.write(line)
     handle.close()
              
-handle = open('/Users/gturco/find_regions_data/output/3_23_11/rice_v6_rice_v6_cns/rice_v6_rice_v6.cns.txt','r')
+handle = open('/Users/gturco/rice_v6_rice_v6.cns.txt','r')
 l = handle.readlines()        
 x = l[:10]
+print x
 m= parse_cns_pair(l)
