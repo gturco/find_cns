@@ -331,8 +331,8 @@ def main(qbed, sbed, pairs_file, mask='F', ncpu=8):
 
     bl2seq = "/usr/bin/bl2seq " \
            "-p blastn -D 1 -E 2 -q -2 -r 1 -G 5 -W 7 -F %s " % mask + \
-           " -Y 812045000 -d 26195 -e 2.11 -i %(qfasta)s -j %(sfasta)s \
-              -I %(qstart)d,%(qstop)d -J %(sstart)d,%(sstop)d | grep -v '#' \
+           " -Y 812045000 -d 26195 -e 2.11 -i %(sfasta)s -j %(qfasta)s \
+              -I %(sstart)d,%(sstop)d -J %(qstart)d,%(qstop)d | grep -v '#' \
             | grep -v 'WARNING' | grep -v 'ERROR' "
 
     fcnss = sys.stdout
