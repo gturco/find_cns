@@ -13,20 +13,13 @@ def cns_id(cns_dict):
            (c['qaccn'], c['qchr'], c['qstart'], c['qstop'], c['qstrand'],
             c['saccn'], c['schr'], c['sstart'], c['sstop'], c['sstrand'])))
 
-def cns_link(cns_dict, qorg, sorg, base="http://syntelog.com/icns/bsr/?"):
-    d = cns_dict.copy()
-    d['qstart'] -= 2000
-    d['qstop']  += 2000
-    d['sstart'] -= 2000
-    d['sstop']  += 2000
+def cns_link(cns_dict, qorg, sorg, base=" http://synteny.cnr.berkeley.edu/CoGe/GEvo.pl?prog=blastn&autogo=1&"):
     d['qorg'] = qorg
     d['sorg'] = sorg
-
-    qurl = "locs=%(qorg)s..%(qchr)s..%(qstart)i..%(qstop)i&"
-    surl = qurl.replace('q', 's')
-    return base + (qurl % d) + (surl % d)
-
-
+    
+    url = "'dsid1=%(qorg)s&chr1=%(qchr)s&x1=%(qstart)s&dr1up=2000&dr1down=2000&\
+dsid1=%(sorg)s;chr2=%(schr)s;x2=%(sstart)s;dr2up=2000;dr2down=2000;num_seqs=2;hsp_overlap_limit=0;hsp_size_limit=0'"
+    return base + (url % d) 
 
 def get_cns_dict(cnsfile):
     cnss = collections.defaultdict(list)
@@ -131,7 +124,7 @@ def assign(cnsdict, qbed, sbed, qpair_map, spair_map):
             break
         
         
-def main(cnsfile, qbed_file, sbed_file, pairsfile):
+def main(cnsfile, qbed_file, sbed_file, pairsfile, pairs_fmt, qorg, sorg):
     qcns_file = qbed_file.replace(".bed", "_cns.gff")
     assert qcns_file != qbed_file
     qcns_gff = open(qcns_file, 'w')
@@ -149,14 +142,12 @@ def main(cnsfile, qbed_file, sbed_file, pairsfile):
 
 
     cnsdict = get_cns_dict(cnsfile)
-    qpair_map, spair_map = make_pair_maps(pairsfile, sbed)
+    qpair_map, spair_map = make_pair_maps(pairsfile, pairs_fmt, qbed, sbed)
     out = sys.stdout
 
     fmt = "%(cns_id)s,%(qaccn)s,%(qchr)s,%(qstart)i,%(qstop)i,%(qstrand)s," + \
                        "%(saccn)s,%(schr)s,%(sstart)i,%(sstop)i,%(sstrand)s,%(link)s"
 
-    qorg = op.splitext(op.basename(qbed_file))[0]
-    sorg = op.splitext(op.basename(sbed_file))[0]
     print >>out, "#" + fmt.replace("%(","").replace(")s","").replace(")i","")
     for cns, qfeat, sfeat in assign(cnsdict, qbed, sbed, qpair_map, spair_map):
         d = cns_fmt_dict(cns, qfeat, sfeat)
@@ -177,25 +168,14 @@ def write_gff(d, qcns_gff, scns_gff):
     print >>qcns_gff, qfmt %d
     print >>scns_gff, sfmt %d
 
-def get_pair_names(regions , sbed):
-    "grabs the pairs from the region file"
-    # pairs = []
-    file= open(regions, "r")
-    region_dict = pickle.load(file)
-    for row in region_dict:
-        qfeat_name = row['accn']
-        sfeat_name = row['sfeat']
-        pair = qfeat_name, sfeat_name
-        yield pair
-
-def make_pair_maps(regions, sbed):
+def make_pair_maps(pair_file, fmt, qbed, sbed):
     """
     make dicts of q => s and s => q
     """
     qmap = collections.defaultdict(list) # key is query, value is a list of subject hits
     smap = collections.defaultdict(list)
-    print >>sys.stderr, "pair file:", regions
-    for pair in get_pair_names(regions, sbed):
+    print >>sys.stderr, "pair file:", pair_file
+    for pair in get_pair(pair_file, fmt, qbed, sbed):
         if pair is None: break
         (qname, sname) = pair
         qmap[qname].append(sname)
@@ -214,13 +194,18 @@ if __name__ == "__main__":
     parser.add_option("--sbed", dest="sbed", help="bed file of the subject")
     parser.add_option("--cns", dest="cns", help="path to the cns file created by find_cns.py")
     parser.add_option("--pairs", dest="pairs", help="path pairs file")
-
+    choices = ("dag", "cluster", "pair", "qa")
+    parser.add_option("--pair_fmt", dest="pair_fmt", default='dag',
+                      help="format of the pairs, one of: %s" % str(choices),
+                      choices=choices)
+    parser.add_option("--qorg", dest="qorg", help="dsid number in coge for the query (same as export to bed input)")
+    parser.add_option("--sorg", dest="sorg", help="dsid number in coge for the subject (same as export to bed input)")
 
     (options, _) = parser.parse_args()
 
-    if not (options.qbed and options.sbed and options.cns and options.pairs):
+    if not (options.qbed and options.sbed and options.cns and options.pairs and options.qorg and options.sorg):
         sys.exit(parser.print_help())
 
-    res = main(options.cns, options.qbed, options.sbed,  options.pairs)
+    res = main(options.cns, options.qbed, options.sbed,  options.pairs, options.pair_fmt, options.qorg, options.sorg )
 
 
