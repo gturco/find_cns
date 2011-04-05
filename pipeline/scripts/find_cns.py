@@ -372,7 +372,7 @@ def main(qbed, sbed, pairs_file, mask='F', ncpu=8):
             if m > 30000: # if the database is large keep e_value at 2.11 else change it to something smaller
                 e_value = 2.11
             else:
-                e_value = m*n*(2^(-28.51974)) # bit score above 15/15 noise
+                e_value = m*n*(2**(-28.51974)) # bit score above 15/15 noise
                 assert e_value > 0
 
             cmd = bl2seq % dict(qfasta=qfasta, sfasta=sfasta, qstart=qstart,
