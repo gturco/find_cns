@@ -331,8 +331,8 @@ def main(qbed, sbed, pairs_file, mask='F', ncpu=8):
 
     bl2seq = "~/src/blast-2.2.25/bin/bl2seq " \
            "-p blastn -D 1 -E 2 -q -2 -r 1 -G 5 -W 7 -F %s " % mask + \
-           " -e 2.11 -i %(sfasta)s -j %(qfasta)s \
-              -I %(sstart)d,%(sstop)d -J %(qstart)d,%(qstop)d | grep -v '#' \
+           " -e %(e_value)d -i %(sfasta)s -j %(qfasta)s \
+             -I %(sstart)d,%(sstop)d -J %(qstart)d,%(qstop)d | grep -v '#' \
             | grep -v 'WARNING' | grep -v 'ERROR' "
 
     fcnss = sys.stdout
@@ -366,12 +366,17 @@ def main(qbed, sbed, pairs_file, mask='F', ncpu=8):
 
             qstart, qstop = qfeat['start'], qfeat['end']
             sstart, sstop = grab_flanking_region(sfeat, qfeat) # qfeat here is the final table with sfeat info from qfeat dict
-
-            # assert qstop - qstart > 2 * pad or qstart == 1, (qstop, qstart)
-            # assert sstop - sstart > 2 * pad or sstart == 1, (sstop, sstart)
+            
+            n = qstop - qstart
+            m = sstop - sstart
+            if m > 30000: # if the database is large keep e_value at 2.11 else change it to something smaller
+                e_value = 2.11
+            else:
+                e_value = m*n*(2^(-28.51974)) # bit score above 15/15 noise
+                assert e_value > 0
 
             cmd = bl2seq % dict(qfasta=qfasta, sfasta=sfasta, qstart=qstart,
-                                sstart=sstart, qstop=qstop, sstop=sstop)
+                                sstart=sstart, qstop=qstop, sstop=sstop, e_value=e_value)
             return cmd, qfeat, sfeat
 
         cmds = [c for c in map(get_cmd, [l for l in pairs if l]) if c]
