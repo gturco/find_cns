@@ -4,6 +4,7 @@ import sys
 import os
 import os.path as op
 sys.path.insert(0, os.path.dirname(__file__))
+from find_cns import get_pair
 import pickle 
 
 def cns_id(cns_dict):
@@ -198,12 +199,12 @@ if __name__ == "__main__":
     parser.add_option("--pair_fmt", dest="pair_fmt", default='dag',
                       help="format of the pairs, one of: %s" % str(choices),
                       choices=choices)
-    parser.add_option("--qorg", dest="qorg", help="dsid number in coge for the query (same as export to bed input)")
-    parser.add_option("--sorg", dest="sorg", help="dsid number in coge for the subject (same as export to bed input)")
+    parser.add_option("--qorg", dest="qorg", type="int", help="dsid number in coge for the query (same as export to bed input)")
+    parser.add_option("--sorg", dest="sorg", type="int", help="dsid number in coge for the subject (same as export to bed input)")
 
     (options, _) = parser.parse_args()
 
-    if not (options.qbed and options.sbed and options.cns and options.pairs and options.qorg and options.sorg):
+    if not (options.qbed and options.sbed and options.cns and options.pairs):
         sys.exit(parser.print_help())
 
     res = main(options.cns, options.qbed, options.sbed,  options.pairs, options.pair_fmt, options.qorg, options.sorg )
