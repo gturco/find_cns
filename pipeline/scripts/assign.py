@@ -15,6 +15,7 @@ def cns_id(cns_dict):
             c['saccn'], c['schr'], c['sstart'], c['sstop'], c['sstrand'])))
 
 def cns_link(cns_dict, qorg, sorg, base=" http://synteny.cnr.berkeley.edu/CoGe/GEvo.pl?prog=blastn&autogo=1&"):
+    d = cns_dict.copy()
     d['qorg'] = qorg
     d['sorg'] = sorg
     
