@@ -19,8 +19,8 @@ def cns_link(cns_dict, qorg, sorg, base=" http://synteny.cnr.berkeley.edu/CoGe/G
     d['qorg'] = qorg
     d['sorg'] = sorg
     
-    url = "'dsid1=%(qorg)s&chr1=%(qchr)s&x1=%(qstart)s&dr1up=2000&dr1down=2000&\
-dsid1=%(sorg)s;chr2=%(schr)s;x2=%(sstart)s;dr2up=2000;dr2down=2000;num_seqs=2;hsp_overlap_limit=0;hsp_size_limit=0'"
+    url = "dsid1=%(qorg)s&chr1=%(qchr)s&x1=%(qstart)s&dr1up=15000&dr1down=15000&\
+dsid2=%(sorg)s;chr2=%(schr)s;x2=%(sstart)s;dr2up=15000;dr2down=15000;num_seqs=2;hsp_overlap_limit=0;hsp_size_limit=0"
     return base + (url % d) 
 
 def get_cns_dict(cnsfile):
