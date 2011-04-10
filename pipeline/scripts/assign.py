@@ -253,7 +253,7 @@ if __name__ == "__main__":
     # if not (options.qbed and options.sbed and options.cns and optio# ns.pairs):
     #     # sys.exit(parser.print_help())
 
-    res = main(options.cns, options.qbed, options.sbed,  options.pairs, options.pair_fmt, options.qorg, options.sorg )
+    res = main(options.cns, options.sbed,  options.pairs, options.qorg, options.sorg )
 
 
 
