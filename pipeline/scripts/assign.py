@@ -23,6 +23,26 @@ import pickle
 # dsid2=%(sorg)s;chr2=%(schr)s;x2=%(sstart)s;dr2up=15000;dr2down=15000;num_seqs=2;hsp_overlap_limit=0;hsp_size_limit=0"
 #     return base + (url % d) 
 
+
+
+def assign_url(qcns, qseqid, scns, sseqid, sfeat, pairsfile, sbed,
+               base = "http://synteny.cnr.berkeley.edu/CoGe/GEvo.pl?prog=blastn&autogo=1&"):
+    "lines up coge based on the cns postion"
+    params = {'qcns' : scns, 'qseqid' : qseqid , 'scns' : qcns , 'sseqid' : sseqid}
+    params['sfeat'] = get_homeolog(sfeat,pairsfile, sbed)
+    inside = 'dsid1=43388&dsgid1=9109&chr1=%(qseqid)s&x1=%(qcns)s&dr1up=15000&dr1down=15000&dsid2=43388&dsgid2=9109&chr2=%(sseqid)s&x2=%(scns)s&dr2up=15000;dr2down=15000&\
+accn3=%(sfeat)s;dsid3=34580;dsgid3=34580;dr3up=15000;dr3down=15000;num_seqs=3;hsp_overlap_limit=0;hsp_size_limit=0' %params
+    url = base + inside
+    return url
+
+def get_homeolog(sfeat,pairsfile, sbed):
+    for region, sregion in get_pair(pairsfile, sbed):
+        if region['sfeat'] == sfeat[3]:
+            return region['ORG2_qfeat']
+
+
+#assign_url(cns.qstart, cns.qchr, cns.sstart, cns.schr, orginal_sfeat)
+
 def get_cns_dict(cnsfile):
     cnss = collections.defaultdict(list)
     for line in open(cnsfile):
@@ -76,7 +96,7 @@ def get_nearby_features(feat, cns_start_stop, bed):
     return [f for f in inters if f["accn"] != feat["accn"]]
 
 
-def assign(cnsdict, sbed,spair_map):
+def assign(cnsdict, sbed, spair_map):
 
     for cnsinfo, accns in cnsdict.iteritems():
         cns = CNS(cnsinfo)
@@ -150,22 +170,21 @@ def main(cnsfile, sbed_file, pairsfile, qorg, sorg):
 
     cnsdict = get_cns_dict(cnsfile)
     spair_map = make_pair_maps(pairsfile, sbed)
-    #out = sys.stdout
+    out = sys.stdout
     # 
     fmt = "%(accn)s,%(qaccnL)s,%(qaccnR)s,%(qchr)s,%(qstart)i,%(qstop)i," + \
-                       "%(saccn)s,%(schr)s,%(sstart)i,%(sstop)i" 
+                       "%(saccn)s,%(schr)s,%(sstart)i,%(sstop)i,%(link)s" 
    
     # 
     # print >>out, "#" + fmt.replace("%(","").replace(")s","").replace(")i","")
     for cns, sfeat, accn, qaccn_l, qaccn_r in assign(cnsdict, sbed, spair_map):
         d = cns_fmt_dict(cns, sfeat, accn, qaccn_l, qaccn_r)
-    
+        d['link'] = assign_url(cns.qstart, cns.qchr, cns.sstart, cns.schr,sfeat, pairsfile, sbed)
     #     d['cns_id'] = cns_id(d)
     #     if d['sstop'] < d['sstart']:
     #         d['sstop'], d['sstart'] = d['sstart'], d['sstop']
     #     d['link'] = cns_link(d, qorg, sorg)
-    #    print >>out, 
-    print fmt % d
+        print >>out, fmt % d
     #     write_gff(d, qcns_gff, scns_gff)
 
 # def write_gff(d, qcns_gff, scns_gff):
@@ -189,7 +208,7 @@ def get_pair(pairsfile , sbed):
         accn = row['sfeat']
         sfeat = sbed.d[accn]
         pair = region, accn
-        yield pair 
+        yield pair
     #     pairs.append(pair)
     # return pairs
 
@@ -212,31 +231,31 @@ def make_pair_maps(pairsfile, sbed):
 
 
 
-# DEBUG=False
-# 
-# if __name__ == "__main__":
-# 
-#     import optparse
-#     parser = optparse.OptionParser()
-#     parser.add_option("--qbed", dest="qbed", help="bed file of the query")
-#     parser.add_option("--sbed", dest="sbed", help="bed file of the subject")
-#     parser.add_option("--cns", dest="cns", help="path to the cns file created by find_cns.py")
-#     parser.add_option("--pairs", dest="pairs", help="path pairs file")
-#     choices = ("dag", "cluster", "pair", "qa")
-#     parser.add_option("--pair_fmt", dest="pair_fmt", default='dag',
-#                       help="format of the pairs, one of: %s" % str(choices),
-#                       choices=choices)
-#     parser.add_option("--qorg", dest="qorg", type="int", help="dsid number in coge for the query (same as export to bed input)")
-#     parser.add_option("--sorg", dest="sorg", type="int", help="dsid number in coge for the subject (same as export to bed input)")
-# 
-#     (options, _) = parser.parse_args()
-# 
-#     if not (options.qbed and options.sbed and options.cns and optio# ns.pairs):
-#         # sys.exit(parser.print_help())
-# 
-#     res = main(options.cns, options.qbed, options.sbed,  options.pairs, options.pair_fmt, options.qorg, options.sorg )
+DEBUG=False
+
+if __name__ == "__main__":
+
+    import optparse
+    parser = optparse.OptionParser()
+    parser.add_option("--qbed", dest="qbed", help="bed file of the query")
+    parser.add_option("--sbed", dest="sbed", help="bed file of the subject")
+    parser.add_option("--cns", dest="cns", help="path to the cns file created by find_cns.py")
+    parser.add_option("--pairs", dest="pairs", help="path pairs file")
+    choices = ("dag", "cluster", "pair", "qa")
+    parser.add_option("--pair_fmt", dest="pair_fmt", default='dag',
+                      help="format of the pairs, one of: %s" % str(choices),
+                      choices=choices)
+    parser.add_option("--qorg", dest="qorg", type="int", help="dsid number in coge for the query (same as export to bed input)")
+    parser.add_option("--sorg", dest="sorg", type="int", help="dsid number in coge for the subject (same as export to bed input)")
+
+    (options, _) = parser.parse_args()
+
+    # if not (options.qbed and options.sbed and options.cns and optio# ns.pairs):
+    #     # sys.exit(parser.print_help())
+
+    res = main(options.cns, options.qbed, options.sbed,  options.pairs, options.pair_fmt, options.qorg, options.sorg )
 
 
 
 
-main('/Users/gturco/rice_v6_cns_res/04_08_10/test_mine/testassign.txt', '/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6.bed' , '/Users/gturco/rice_v6_cns_res/04_08_10/test_mine/rice_v6_rice_v6.pairs.pck', 'qorg', 'sorg')
+#main('/Users/gturco/rice_v6_cns_res/04_08_10/test_mine/testassign.txt', '/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6.bed' , '/Users/gturco/rice_v6_cns_res/04_08_10/test_mine/rice_v6_rice_v6.pairs.pck', 'qorg', 'sorg')
