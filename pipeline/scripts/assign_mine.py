@@ -111,30 +111,29 @@ def main(cnsfile, sbed_file, pairsfile, qorg, sorg):
     for cns, accn, qaccn_l, qaccn_r, sfeat in assign(cnsdict, sbed, spair_map): 
         d = cns_fmt_dict(cns, sfeat, accn, qaccn_l, qaccn_r)
         d['link'] = assign_url(cns.qstart, cns.qchr, cns.sstart, cns.schr,sfeat, pairsfile, sbed, qbed)
-        print cns.schr, cns.sstart
         print >>out, fmt % d
         
         
-# DEBUG=False
-# 
-# if __name__ == "__main__":
-# 
-#     import optparse
-#     parser = optparse.OptionParser()
-#     parser.add_option("--qbed", dest="qbed", help="bed file of the query")
-#     parser.add_option("--sbed", dest="sbed", help="bed file of the subject")
-#     parser.add_option("--cns", dest="cns", help="path to the cns file created by find_cns.py")
-#     parser.add_option("--pairs", dest="pairs", help="path pairs file")
-#     choices = ("dag", "cluster", "pair", "qa")
-#     parser.add_option("--pair_fmt", dest="pair_fmt", default='dag',
-#                       help="format of the pairs, one of: %s" % str(choices),
-#                       choices=choices)
-#     parser.add_option("--qorg", dest="qorg", type="int", help="dsid number in coge for the query (same as export to bed input)")
-#     parser.add_option("--sorg", dest="sorg", type="int", help="dsid number in coge for the subject (same as export to bed input)")
-# 
-#     (options, _) = parser.parse_args()
-# 
-#     res = main(options.cns, options.sbed,  options.pairs, options.qorg, options.sorg )
+DEBUG=False
+
+if __name__ == "__main__":
+
+    import optparse
+    parser = optparse.OptionParser()
+    parser.add_option("--qbed", dest="qbed", help="bed file of the query")
+    parser.add_option("--sbed", dest="sbed", help="bed file of the subject")
+    parser.add_option("--cns", dest="cns", help="path to the cns file created by find_cns.py")
+    parser.add_option("--pairs", dest="pairs", help="path pairs file")
+    choices = ("dag", "cluster", "pair", "qa")
+    parser.add_option("--pair_fmt", dest="pair_fmt", default='dag',
+                      help="format of the pairs, one of: %s" % str(choices),
+                      choices=choices)
+    parser.add_option("--qorg", dest="qorg", type="int", help="dsid number in coge for the query (same as export to bed input)")
+    parser.add_option("--sorg", dest="sorg", type="int", help="dsid number in coge for the subject (same as export to bed input)")
+
+    (options, _) = parser.parse_args()
+
+    res = main(options.cns, options.sbed,  options.pairs, options.qorg, options.sorg )
 
             
-main('/Users/gturco/rice_v6_cns_res/04_08_10/test_mine/testassign.txt', '/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6.bed' , '/Users/gturco/rice_v6_cns_res/04_08_10/test_mine/rice_v6_rice_v6.pairs.pck', 'qorg', 'sorg')
+#main('/Users/gturco/rice_v6_cns_res/04_08_10/test_mine/testassign.txt', '/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6.bed' , '/Users/gturco/rice_v6_cns_res/04_08_10/test_mine/rice_v6_rice_v6.pairs.pck', 'qorg', 'sorg')
