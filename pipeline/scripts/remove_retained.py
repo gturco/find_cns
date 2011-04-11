@@ -139,8 +139,8 @@ def main(cnsfile, sbed_file, pairsfile, qorg, sorg):
     spair_map = make_pair_maps(pairsfile, 'pair', qbed, sbed)
     out = sys.stdout
     
-    fmt = "%(accn)s,%(qaccnL)s,%(qaccnR)s,%(qchr)s,%(qstart)i,%(qstop)i," + \
-                     "%(saccn)s,%(schr)s,%(sstart)i,%(sstop)i" 
+    fmt = "%(accn)s,%(qaccnL)s,%(qaccnR)s,%(qchr)s,%(saccn)s,%(schr)s," + \
+                     "%(qstart)i,%(qstop)i,%(sstart)i,%(sstop)i" 
                      
     print >>out, "#" + fmt.replace("%(","").replace(")s","").replace(")i","")
     for cns, accn, qaccn_l, qaccn_r, sfeat in assign(cnsdict, sbed, pairsfile, qbed, spair_map): 
