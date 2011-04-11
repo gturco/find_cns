@@ -290,19 +290,50 @@ def grab_flanking_region(sfeat , flanking_genes):
     return left_cut_off, right_cut_off
 
                     
-def get_pair(regions , sbed):
-    "grabs the pairs from the region file"
-    # pairs = []
-    file= open(regions, "r")
-    region_dict = pickle.load(file)
-    for row in region_dict:
-        region = row
-        accn = row['sfeat']
-        sfeat = sbed.accn(accn)
-        pair = region, sfeat
-        yield pair 
-    #     pairs.append(pair)
-    # return pairs
+def get_pair(pair_file, fmt, qbed, sbed, seen={}):
+    """ read a line and make sure it's unique handles
+    dag, cluster, and pair formats."""
+    skipped = open('data/skipped.txt', 'w')
+    fh = open(pair_file)
+    if fmt == 'pck':
+        pck_file = pickle.load(fh)
+        for row in pck_file:
+            region = row
+            accn = row['sfeat']
+            sfeat = sbed.accn(accn)
+            pair = region, sfeat
+            yield pair
+    else:        
+        for line in open(pair_file):
+            if line[0] == "#": continue
+            line = line.strip().split("\t")
+            if fmt == 'dag':
+                assert len(line) > 5, line
+                pair = line[1], line[5]
+            elif fmt in ('cluster', 'qa', 'raw'):
+                assert len(line) == 5, line
+                pair = line[1], line[3]
+            elif fmt == 'pair':
+                if len(line) == 1:
+                    line = line.split(",")
+                assert len(line) >= 2, "dont know how to handle %s" % line
+                pair = line[0], line[1]
+
+            if fmt in ('qa', 'raw'):
+                pair = int(pair[0]), int(pair[1])
+            pair = tuple(pair)
+            if pair in seen:
+                continue
+            seen[pair] = True
+            try:
+                if isinstance(pair[0], (int, long)):
+                    yield qbed[pair[0]], sbed[pair[1]]
+                else:
+                    yield qbed.d[pair[0]], sbed.d[pair[1]]
+            except KeyError, IndexError:
+                print >>skipped, "%s\t%s" % pair
+                print >>sys.stderr, "skipped %s %s" % pair
+                continue
 
 def get_masked_fastas(bed):
     """
@@ -324,7 +355,7 @@ def get_masked_fastas(bed):
         fh.close()
     return fastas
 
-def main(qbed, sbed, pairs_file, mask='F', ncpu=8):
+def main(qbed, sbed, pairs_file, pair_fmt, mask='F', ncpu=8):
     """main runner for finding cnss"""
     pool = Pool(options.ncpu)
 
@@ -344,7 +375,7 @@ def main(qbed, sbed, pairs_file, mask='F', ncpu=8):
 
 
     pairs = [True]
-    _get_pair_gen = get_pair(pairs_file , sbed)
+    _get_pair_gen = get_pair(pairs_file , pair_fmt, sbed, qbed)
     # need this for parallization stuff.
     def get_pair_gen():
         try: return _get_pair_gen.next()
@@ -411,6 +442,10 @@ if __name__ == "__main__":
     parser.add_option("-s", dest="sfasta", help="path to genomic subject fasta")
     parser.add_option("--sbed", dest="sbed", help="subject bed file")
     parser.add_option("-p", dest="pairs", help="the pairs file. output from dagchainer")
+    choices = ("dag", "cluster", "pair", 'qa', 'raw', 'pck')
+        parser.add_option("--pair_fmt", dest="pair_fmt", default='raw',
+                          help="format of the pairs, one of: %s" % str(choices),
+                          choices=choices)
     (options, _) = parser.parse_args()
 
 
@@ -421,4 +456,4 @@ if __name__ == "__main__":
     sbed = Bed(options.sbed, options.sfasta); sbed.fill_dict()
     assert options.mask in 'FT'
 
-    main(qbed, sbed, options.pairs, options.mask, options.ncpu)
+    main(qbed, sbed, options.pairs, options.pair_fmt, options.mask, options.ncpu)
