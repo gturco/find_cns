@@ -443,7 +443,7 @@ if __name__ == "__main__":
     parser.add_option("--sbed", dest="sbed", help="subject bed file")
     parser.add_option("-p", dest="pairs", help="the pairs file. output from dagchainer")
     choices = ("dag", "cluster", "pair", 'qa', 'raw', 'pck')
-        parser.add_option("--pair_fmt", dest="pair_fmt", default='raw',
+    parser.add_option("--pair_fmt", dest="pair_fmt", default='raw',
                           help="format of the pairs, one of: %s" % str(choices),
                           choices=choices)
     (options, _) = parser.parse_args()
