@@ -368,6 +368,7 @@ def main(qbed, sbed, pairs_file, pad, pair_fmt, mask='F', ncpu=8):
 
             cmd = bl2seq % dict(qfasta=qfasta, sfasta=sfasta, qstart=qstart,
                                 sstart=sstart, qstop=qstop, sstop=sstop, e_value=e_value)
+            print >>sys.stderr,  "%s" % (cmd)
             return cmd, qfeat, sfeat
 
         cmds = [c for c in map(get_cmd, [l for l in pairs if l]) if c]
@@ -376,7 +377,7 @@ def main(qbed, sbed, pairs_file, pad, pair_fmt, mask='F', ncpu=8):
 
         for res, (cmd, qfeat, sfeat) in zip(results, cmds):
             if not res.strip(): continue
-            print >>sys.stderr,  "%s %s %s" % (qfeat["accn"], sfeat['accn'], cmd),
+            print >>sys.stderr,  "%s %s" % (qfeat["accn"], sfeat['accn']),
             orient = qfeat['strand'] == sfeat['strand'] and 1 or -1
 
             cnss = parse_blast(res, orient, qfeat, sfeat, qbed, sbed, pad)
