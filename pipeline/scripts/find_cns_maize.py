@@ -369,7 +369,7 @@ def main(qbed, sbed, pairs_file, pad, pair_fmt, mask='F', ncpu=8):
             cmd = bl2seq % dict(qfasta=qfasta, sfasta=sfasta, qstart=qstart,
                                 sstart=sstart, qstop=qstop, sstop=sstop, e_value=e_value)
                                 
-            print >>sys.stderr,  "%s" % (cmd
+            print >>sys.stderr,  "%s" % (cmd)
                                 
             return cmd, qfeat, sfeat
 
