@@ -141,8 +141,8 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, pad):
         ##########################################################
 
         # this is the bowtie.
-        if not genespace_poly.contains(LineString(zip(xx, yy))): continue
-        cnss.update((locs,))
+        # if not genespace_poly.contains(LineString(zip(xx, yy))): continue
+        # cnss.update((locs,))
 
     # cant cross with < 2 cnss.
     # get rid of the eval, bitscore stuff.
