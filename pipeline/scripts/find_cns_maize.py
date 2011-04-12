@@ -320,7 +320,7 @@ def main(qbed, sbed, pairs_file, pad, pair_fmt, mask='F', ncpu=8):
     pool = Pool(options.ncpu)
 
 
-    bl2seq = "/usr/bin/bl2seq " \
+    bl2seq = "~/src/blast-2.2.25/bin/bl2seq " \
            "-p blastn -D 1 -E 2 -q -2 -r 1 -G 5 -W 7 -F %s " % mask + \
            " -e %(e_value).2f -i %(qfasta)s -j %(sfasta)s \
               -I %(qstart)d,%(qstop)d -J %(sstart)d,%(sstop)d | grep -v '#' \
