@@ -367,10 +367,8 @@ def main(qbed, sbed, pairs_file, pad, pair_fmt, mask='F', ncpu=8):
                 assert e_value > 0
 
             cmd = bl2seq % dict(qfasta=qfasta, sfasta=sfasta, qstart=qstart,
-                                sstart=sstart, qstop=qstop, sstop=sstop, e_value=e_value)
-                                
-            print >>sys.stderr,  "%s" % (cmd)
-                                
+                                sstart=sstart, qstop=qstop, sstop=sstop, e_value=e_value)                    
+            print >>sys.stderr,  "%s" % (cmd)                                
             return cmd, qfeat, sfeat
 
         cmds = [c for c in map(get_cmd, [l for l in pairs if l]) if c]
