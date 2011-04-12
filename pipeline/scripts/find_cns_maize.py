@@ -376,7 +376,7 @@ def main(qbed, sbed, pairs_file, pad, pair_fmt, mask='F', ncpu=8):
 
         for res, (cmd, qfeat, sfeat) in zip(results, cmds):
             if not res.strip(): continue
-            print >>sys.stderr,  "%s %s" % (qfeat["accn"], sfeat['accn']),
+            print >>sys.stderr,  "%s %s %s" % (qfeat["accn"], sfeat['accn'], cmd),
             orient = qfeat['strand'] == sfeat['strand'] and 1 or -1
 
             cnss = parse_blast(res, orient, qfeat, sfeat, qbed, sbed, pad)
