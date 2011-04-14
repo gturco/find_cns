@@ -104,8 +104,8 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, pad):
             if slope == -1 and locs[2] < locs[3]:
                 start= locs[2]
                 stop= locs[3]
-                locus[2] = stop
-                locus[3] = start
+                locs[2] = stop
+                locs[3] = start
         except:
             print >>sys.stderr, blast_str
             raise
