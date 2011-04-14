@@ -161,8 +161,8 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, pad):
         sgene[1] *= -1
 
     #cnss = [l[:4] for l in remove_crossing_cnss(cnss, qgene, sgene)]
-    if orient == -1:
-        cnss = [(c[0], c[1], -c[2], -c[3]) for c in cnss]
+    # if orient == -1:
+    #     cnss = [(c[0], c[1], -c[2], -c[3]) for c in cnss]
     return cnss
 
 
