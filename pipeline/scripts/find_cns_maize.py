@@ -95,12 +95,12 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, pad):
         yy = locs[2:4]
 
         # get rid of stuff on the wrong strand
-        try:
-            if slope == 1 and locs[2] > locs[3]: continue
-            if slope == -1 and locs[2] < locs[3]: continue
-        except:
-            print >>sys.stderr, blast_str
-            raise
+        # try:
+        #     if slope == 1 and locs[2] > locs[3]: continue
+        #     if slope == -1 and locs[2] < locs[3]: continue
+        # except:
+        #     print >>sys.stderr, blast_str
+        #     raise
 
         # to be saved. a hit must either be in an intron in both
         # genes, or in neither.
