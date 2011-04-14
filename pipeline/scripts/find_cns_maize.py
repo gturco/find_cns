@@ -159,10 +159,10 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, pad):
             cnss[i] = tuple(cns)
             sgene[0] *= -1
             sgene[1] *= -1
-    cnss = [l[:4] for l in remove_crossing_cnss(cnss, qgene, sgene)]
+    #cnss = [l[:4] for l in remove_crossing_cnss(cnss, qgene, sgene)]
+    cnss = cns_opp_strand(cnss, qgene, sgene) # alternitive for cns on opp strand
     if orient == -1:
         cnss = [(c[0], c[1], -c[2], -c[3]) for c in cnss]
-    #cnss = cns_opp_strand(cnss, qgene, sgene) # alternitive for cns on opp strand
     return cnss
 
 def cns_opp_strand(cnss, qgene, sgene):
