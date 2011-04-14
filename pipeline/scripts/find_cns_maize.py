@@ -94,7 +94,7 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, pad):
         xx = locs[:2]
         yy = locs[2:4]
 
-        get rid of stuff on the wrong strand
+        #get rid of stuff on the wrong strand
         try:
             if slope == 1 and locs[2] > locs[3]: 
                 stop = locs[2]
