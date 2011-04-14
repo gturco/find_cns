@@ -94,13 +94,21 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, pad):
         xx = locs[:2]
         yy = locs[2:4]
 
-        # get rid of stuff on the wrong strand
-        # try:
-        #     if slope == 1 and locs[2] > locs[3]: continue
-        #     if slope == -1 and locs[2] < locs[3]: continue
-        # except:
-        #     print >>sys.stderr, blast_str
-        #     raise
+        get rid of stuff on the wrong strand
+        try:
+            if slope == 1 and locs[2] > locs[3]: 
+                stop = locs[2]
+                start = locus[3]
+                locs[2] = start
+                locs[3] = stop
+            if slope == -1 and locs[2] < locs[3]:
+                start= locs[2]
+                stop= locus[3]
+                locus[2] = stop
+                locus[3] = start
+        except:
+            print >>sys.stderr, blast_str
+            raise
 
         # to be saved. a hit must either be in an intron in both
         # genes, or in neither.
@@ -160,7 +168,7 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, pad):
         sgene[0] *= -1
         sgene[1] *= -1
 
-    #cnss = [l[:4] for l in remove_crossing_cnss(cnss, qgene, sgene)]
+    cnss = [l[:4] for l in remove_crossing_cnss(cnss, qgene, sgene)]
     if orient == -1:
         cnss = [(c[0], c[1], -c[2], -c[3]) for c in cnss]
     return cnss
@@ -185,78 +193,78 @@ def remove_overlapping_cnss(cnss):
                         remove.append(i)
     remove = frozenset(remove)
     return [cns for i, cns in enumerate(cnss) if not i in remove]
-# 
-# 
-# def remove_crossing_cnss(cnss, qgene, sgene):
-#     diff = qgene[0] - sgene[0] # adjust subject so it's in same range as query
-#     cns_shapes = [LineString([((c[0] + c[1])/2., 0 ), ((c[2] + c[3])/2. + diff, 1000)]) for c in cnss]
-# 
-#     overlapping = len(cnss)
-#     cnss = remove_overlapping_cnss(cnss)
-#     overlapping -= len(cnss)
-#     cns_shapes = [LineString([((c[0] + c[1])/2., 0 ), ((c[2] + c[3])/2. + diff, 1000)]) for c in cnss]
-# 
-# 
-#     # and save a reference to the orginal cnss as that's the data we want.
-#     for cs, cns in zip(cns_shapes, cnss):
-#         cs.cns = cns
-#         # hold the number of times an hsp crosses any other.
-#         cs.cross_list = set([])
-#         # mark for removal.
-#         cs.do_remove = False
-# 
-# 
-#     for csi in cns_shapes:
-#         for csj in cns_shapes:
-#             if csi == csj: continue
-#             if csi.crosses(csj):
-#                 csi.cross_list.update([csj])
-#                 csj.cross_list.update([csi])
-# 
-#     ######################################################################
-#     # first remove anything that cross more than 5 other cnss.
-#     ######################################################################
-#     nremoved = 0
-#     any_removed = True
-#     while any_removed:
-#         # need this outer loop to refresh the sorting.
-#         cns_shapes = sorted(cns_shapes, reverse=True, cmp=lambda a, b: cmp(len(a.cross_list), len(b.cross_list)))[:]
-#         any_removed = False
-#         for i, cs in enumerate(cns_shapes):
-#             if len(cs.cross_list) > 3:
-#                 # remove this from all other lists as it's a bad guy.
-#                 for crossed in cs.cross_list:
-#                     crossed.cross_list.difference_update(set([cs]))
-#                 cs.do_remove = True
-#                 any_removed = True
-#                 nremoved += 1
-#                 del cns_shapes[i]
-#                 break
-# 
-#     ######################################################################
-#     # then remove crosses one-by-one, keeping the < evalue, > bitscore.
-#     ######################################################################
-#     for csi in cns_shapes:
-#         if csi.do_remove or len(csi.cross_list) == 0: continue
-#         for csj in cns_shapes:
-#             if csj.do_remove or len(csj.cross_list) == 0: continue
-#             if csi.do_remove or len(csi.cross_list) == 0: continue
-#             if csi.crosses(csj):
-#                 # access the assocated cns.
-#                 # evalue: less is better       bitscore: more is better
-#                 if csi.cns[-2] < csj.cns[-2] or csi.cns[-1] > csj.cns[-1]:
-#                     csj.do_remove = 1
-#                     map(lambda crossed: crossed.cross_list.difference_update(set([csj])), csj.cross_list)
-# 
-#                 else:
-#                     csi.do_remove = 1
-#                     map(lambda crossed: crossed.cross_list.difference_update(set([csi])), csi.cross_list)
-#                     break
-# 
-#     for c in cns_shapes:
-#         if not c.do_remove: continue
-#         nremoved += 1
-#     return [c.cns for c in cns_shapes if not c.do_remove]
+
+
+def remove_crossing_cnss(cnss, qgene, sgene):
+    diff = qgene[0] - sgene[0] # adjust subject so it's in same range as query
+    cns_shapes = [LineString([((c[0] + c[1])/2., 0 ), ((c[2] + c[3])/2. + diff, 1000)]) for c in cnss]
+
+    overlapping = len(cnss)
+    cnss = remove_overlapping_cnss(cnss)
+    overlapping -= len(cnss)
+    cns_shapes = [LineString([((c[0] + c[1])/2., 0 ), ((c[2] + c[3])/2. + diff, 1000)]) for c in cnss]
+
+
+    # and save a reference to the orginal cnss as that's the data we want.
+    for cs, cns in zip(cns_shapes, cnss):
+        cs.cns = cns
+        # hold the number of times an hsp crosses any other.
+        cs.cross_list = set([])
+        # mark for removal.
+        cs.do_remove = False
+
+
+    for csi in cns_shapes:
+        for csj in cns_shapes:
+            if csi == csj: continue
+            if csi.crosses(csj):
+                csi.cross_list.update([csj])
+                csj.cross_list.update([csi])
+
+    ######################################################################
+    # first remove anything that cross more than 5 other cnss.
+    ######################################################################
+    nremoved = 0
+    any_removed = True
+    while any_removed:
+        # need this outer loop to refresh the sorting.
+        cns_shapes = sorted(cns_shapes, reverse=True, cmp=lambda a, b: cmp(len(a.cross_list), len(b.cross_list)))[:]
+        any_removed = False
+        for i, cs in enumerate(cns_shapes):
+            if len(cs.cross_list) > 3:
+                # remove this from all other lists as it's a bad guy.
+                for crossed in cs.cross_list:
+                    crossed.cross_list.difference_update(set([cs]))
+                cs.do_remove = True
+                any_removed = True
+                nremoved += 1
+                del cns_shapes[i]
+                break
+
+    ######################################################################
+    # then remove crosses one-by-one, keeping the < evalue, > bitscore.
+    ######################################################################
+    for csi in cns_shapes:
+        if csi.do_remove or len(csi.cross_list) == 0: continue
+        for csj in cns_shapes:
+            if csj.do_remove or len(csj.cross_list) == 0: continue
+            if csi.do_remove or len(csi.cross_list) == 0: continue
+            if csi.crosses(csj):
+                # access the assocated cns.
+                # evalue: less is better       bitscore: more is better
+                if csi.cns[-2] < csj.cns[-2] or csi.cns[-1] > csj.cns[-1]:
+                    csj.do_remove = 1
+                    map(lambda crossed: crossed.cross_list.difference_update(set([csj])), csj.cross_list)
+
+                else:
+                    csi.do_remove = 1
+                    map(lambda crossed: crossed.cross_list.difference_update(set([csi])), csi.cross_list)
+                    break
+
+    for c in cns_shapes:
+        if not c.do_remove: continue
+        nremoved += 1
+    return [c.cns for c in cns_shapes if not c.do_remove]
 
 
 def get_pair(pair_file, fmt, qbed, sbed, seen={}):
