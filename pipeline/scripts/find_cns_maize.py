@@ -147,25 +147,25 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, pad):
     # cant cross with < 2 cnss.
     # get rid of the eval, bitscore stuff.
     if len(cnss) < 2: return [l[:4] for l in cnss]
-# 
-#     cnss = list(cnss)
-#     # need to flip to negative so the overlapping stuff still works.
-#     if orient == -1:
-#         cnss = list(cnss)
-#         for i, cns in enumerate(cnss):
-#             cns = list(cns)
-#             cns[2] *= - 1
-#             cns[3] *= - 1
-#             cnss[i] = tuple(cns)
-#         sgene[0] *= -1
-#         sgene[1] *= -1
-# 
-#     cnss = [l[:4] for l in remove_crossing_cnss(cnss, qgene, sgene)]
-#     if orient == -1:
-#         cnss = [(c[0], c[1], -c[2], -c[3]) for c in cnss]
-     return cnss
-# 
-# 
+
+    cnss = list(cnss)
+    # need to flip to negative so the overlapping stuff still works.
+    if orient == -1:
+        cnss = list(cnss)
+        for i, cns in enumerate(cnss):
+            cns = list(cns)
+            cns[2] *= - 1
+            cns[3] *= - 1
+            cnss[i] = tuple(cns)
+        sgene[0] *= -1
+        sgene[1] *= -1
+
+    #cnss = [l[:4] for l in remove_crossing_cnss(cnss, qgene, sgene)]
+    if orient == -1:
+        cnss = [(c[0], c[1], -c[2], -c[3]) for c in cnss]
+    return cnss
+
+
 def remove_overlapping_cnss(cnss):
     """for cases when there is nearly the same cns, but with 1
     basepair shfit up/down. that create many cnss stacked on top
