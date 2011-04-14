@@ -98,12 +98,12 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, pad):
         try:
             if slope == 1 and locs[2] > locs[3]: 
                 stop = locs[2]
-                start = locus[3]
+                start = locs[3]
                 locs[2] = start
                 locs[3] = stop
             if slope == -1 and locs[2] < locs[3]:
                 start= locs[2]
-                stop= locus[3]
+                stop= locs[3]
                 locus[2] = stop
                 locus[3] = start
         except:
