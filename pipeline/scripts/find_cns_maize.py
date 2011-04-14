@@ -146,8 +146,7 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, pad):
 
     # cant cross with < 2 cnss.
     # get rid of the eval, bitscore stuff.
-    #if len(cnss) < 2: 
-    return [l[:4] for l in cnss]
+    if len(cnss) < 2: return [l[:4] for l in cnss]
 
     cnss = list(cnss)
     # need to flip to negative so the overlapping stuff still works.
