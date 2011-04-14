@@ -94,21 +94,13 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, pad):
         xx = locs[:2]
         yy = locs[2:4]
 
-        #get rid of stuff on the wrong strand
-        try:
-            if slope == 1 and locs[2] > locs[3]: 
-                stop = locs[2]
-                start = locs[3]
-                locs[2] = start
-                locs[3] = stop
-            if slope == -1 and locs[2] < locs[3]:
-                start= locs[2]
-                stop= locs[3]
-                locs[2] = stop
-                locs[3] = start
-        except:
-            print >>sys.stderr, blast_str
-            raise
+        # get rid of stuff on the wrong strand
+        # try:
+        #     if slope == 1 and locs[2] > locs[3]: continue
+        #     if slope == -1 and locs[2] < locs[3]: continue
+        # except:
+        #     print >>sys.stderr, blast_str
+        #     raise
 
         # to be saved. a hit must either be in an intron in both
         # genes, or in neither.
@@ -165,14 +157,27 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, pad):
             cns[2] *= - 1
             cns[3] *= - 1
             cnss[i] = tuple(cns)
+            sgene[0] *= -1
+            sgene[1] *= -1
+    cnss = [l[:4] for l in remove_crossing_cnss(cnss, qgene, sgene)]
+    if orient == -1:
+        cnss = [(c[0], c[1], -c[2], -c[3]) for c in cnss]
+    #cnss = cns_opp_strand(cnss, qgene, sgene) # alternitive for cns on opp strand
+    return cnss
+
+def cns_opp_strand(cnss, qgene, sgene):
+    cnss = list(cnss)
+    for i, cns in enumerate(cnss):
+        cns = list(cns)
+        cns[2] *= - 1
+        cns[3] *= - 1
+        cnss[i] = tuple(cns)
         sgene[0] *= -1
         sgene[1] *= -1
 
     cnss = [l[:4] for l in remove_crossing_cnss(cnss, qgene, sgene)]
-    if orient == -1:
-        cnss = [(c[0], c[1], -c[2], -c[3]) for c in cnss]
-    return cnss
-
+    cnss_fixed = [(c[0], c[1], -c[2], -c[3]) for c in cnss]
+    return cnss_fixed
 
 def remove_overlapping_cnss(cnss):
     """for cases when there is nearly the same cns, but with 1
