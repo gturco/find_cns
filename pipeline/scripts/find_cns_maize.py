@@ -143,11 +143,10 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, pad):
         # this is the bowtie.
         # if not genespace_poly.contains(LineString(zip(xx, yy))): continue
         cnss.update((locs,))
-    return cnss
 
     # cant cross with < 2 cnss.
     # get rid of the eval, bitscore stuff.
-#     if len(cnss) < 2: return [l[:4] for l in cnss]
+    if len(cnss) < 2: return [l[:4] for l in cnss]
 # 
 #     cnss = list(cnss)
 #     # need to flip to negative so the overlapping stuff still works.
@@ -164,28 +163,28 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, pad):
 #     cnss = [l[:4] for l in remove_crossing_cnss(cnss, qgene, sgene)]
 #     if orient == -1:
 #         cnss = [(c[0], c[1], -c[2], -c[3]) for c in cnss]
-#     return cnss
+     return cnss
 # 
 # 
-# def remove_overlapping_cnss(cnss):
-#     """for cases when there is nearly the same cns, but with 1
-#     basepair shfit up/down. that create many cnss stacked on top
-#     of each other. this reduces those down to one."""
-#     qcnss = [LineString([(0, cns[0]), (0, cns[1])]) for i, cns in enumerate(cnss)]
-#     scnss = [LineString([(0, cns[2]), (0, cns[3])]) for i, cns in enumerate(cnss)]
-# 
-#     remove = []
-#     for zcnss in (qcnss, scnss):
-#         for i, csi in enumerate(zcnss[:-1]):
-#             for _j, csj in enumerate(zcnss[i + 1:]):
-#                 j = i + _j + 1 # cause enumerate starts at 0
-#                 if csi.overlaps(csj):
-#                     if cnss[i][-2] < cnss[j][-2] or cnss[i][-1] > cnss[j][-2] or csi.y < csj.y:
-#                         remove.append(j)
-#                     else:
-#                         remove.append(i)
-#     remove = frozenset(remove)
-#     return [cns for i, cns in enumerate(cnss) if not i in remove]
+def remove_overlapping_cnss(cnss):
+    """for cases when there is nearly the same cns, but with 1
+    basepair shfit up/down. that create many cnss stacked on top
+    of each other. this reduces those down to one."""
+    qcnss = [LineString([(0, cns[0]), (0, cns[1])]) for i, cns in enumerate(cnss)]
+    scnss = [LineString([(0, cns[2]), (0, cns[3])]) for i, cns in enumerate(cnss)]
+
+    remove = []
+    for zcnss in (qcnss, scnss):
+        for i, csi in enumerate(zcnss[:-1]):
+            for _j, csj in enumerate(zcnss[i + 1:]):
+                j = i + _j + 1 # cause enumerate starts at 0
+                if csi.overlaps(csj):
+                    if cnss[i][-2] < cnss[j][-2] or cnss[i][-1] > cnss[j][-2] or csi.y < csj.y:
+                        remove.append(j)
+                    else:
+                        remove.append(i)
+    remove = frozenset(remove)
+    return [cns for i, cns in enumerate(cnss) if not i in remove]
 # 
 # 
 # def remove_crossing_cnss(cnss, qgene, sgene):
