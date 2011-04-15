@@ -17,7 +17,7 @@ def assign_url(scns, sseqid, qcns, qseqid, qfeat, pairsfile, sbed, qbed, sorg, q
     url = base + inside
     return url
 
-def get_homeolog(qfeat,pairsfile, sbed, qbed):
+def get_homeolog(qfeat,pck, sbed, qbed):
     for region, sregion in get_pair(pairsfile, 'pck', sbed, qbed):
         if region['sfeat'] == qfeat[3]:
             return region['ORG2_qfeat']
@@ -56,9 +56,9 @@ def make_pair_maps(pair_file, fmt, qbed, sbed):
     qmap_tuple = []
     for pair in get_pair(pair_file,fmt, qbed, sbed):
         if pair is None: break
-        (qname, sname) = pair
-        smap_tuple.append((sname,qname))
+        (sname, qname) = pair
         smap_tuple.append((qname,sname))
+        smap_tuple.append((sname,qname))
     return qmap_tuple
 #         
 # def get_nearby_features(feat, bed, p0, p1):
@@ -112,7 +112,7 @@ def assign(cnsdict, qbed, qpair_map):
 
         
             
-def main(cnsfile, qbed_file, sbed_file, pairsfile, qorg, sorg, padding):
+def main(cnsfile, qbed_file, sbed_file, pairsfile, pck, qorg, sorg, padding):
     qbed = Bed(qbed_file); qbed.fill_dict()
     sbed = Bed(sbed_file); sbed.fill_dict()
     cnsdict = get_cns_dict(cnsfile)
@@ -125,7 +125,7 @@ def main(cnsfile, qbed_file, sbed_file, pairsfile, qorg, sorg, padding):
     print >>out, "#" + fmt.replace("%(","").replace(")s","").replace(")i","")
     for cns, saccn, saccn_l, saccn_r, qfeat in assign(cnsdict, qbed, qpair_map): 
         d = cns_fmt_dict(cns, qfeat, saccn, saccn_l, saccn_r)
-        d['link'] = assign_url(cns.sstart, cns.schr, cns.qstart, cns.qchr,qfeat, pairsfile, sbed, qbed, sorg, qorg, padding)
+        d['link'] = assign_url(cns.sstart, cns.schr, cns.qstart, cns.qchr,qfeat, pck, sbed, qbed, sorg, qorg, padding)
         print >>out, fmt % d
         
         
@@ -147,9 +147,10 @@ if __name__ == "__main__":
     parser.add_option("--sorg", dest="sorg", type="int", help="dsid number in coge for the subject (same as export to bed input)")
     parser.add_option("--pad", dest="pad", type='int', default=12000,
                       help="how far from the end of each gene to set the padding for the link of the cnss")
+    parser.add_option("--pck", dest="pck", help="pairs_file for pck/cns/region")
     (options, _) = parser.parse_args()
 
-    res = main(options.cns, options.qbed, options.sbed, options.pairs, options.qorg, options.sorg, options.pad)
+    res = main(options.cns, options.qbed, options.sbed, options.pairs, options.pck, options.qorg, options.sorg, options.pad)
 
             
 #main('/Users/gturco/rice_v6_cns_res/04_08_10/test_mine/testassign.txt', '/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6.bed', '/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6.bed' , '/Users/gturco/rice_v6_cns_res/04_08_10/test_mine/rice_v6_rice_v6.pairs.pck', '9109', '9109', 1000)
