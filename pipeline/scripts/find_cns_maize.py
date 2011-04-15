@@ -24,7 +24,7 @@ def get_feats_in_space(locs, ichr, bpmin, bpmax, bed):
     return [(f['start'], f['end'], f['accn']) for f in feats]
 
 
-def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, pad):
+def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
     blast = []
     slope = orient
 
@@ -47,7 +47,7 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, pad):
     rngx = qgene[1] - qgene[0]
     rngy = abs(sgene[1] - sgene[0])
 
-    x = np.linspace(qgene[0] - pad, qgene[1] + pad, 50)
+    x = np.linspace(qgene[0] - qpad, qgene[1] + qpad, 50)
     y = slope * x + intercept
 
 
@@ -328,7 +328,7 @@ def get_masked_fastas(bed):
         fh.close()
     return fastas
 
-def main(qbed, sbed, pairs_file, pad, pair_fmt, mask='F', ncpu=8):
+def main(qbed, sbed, pairs_file, qpad, spad, pair_fmt, mask='F', ncpu=8):
     """main runner for finding cnss"""
     pool = Pool(options.ncpu)
 
@@ -365,11 +365,11 @@ def main(qbed, sbed, pairs_file, pad, pair_fmt, mask='F', ncpu=8):
             qfasta = qfastas[qfeat['seqid']]
             sfasta = sfastas[sfeat['seqid']]
 
-            qstart, qstop = max(qfeat['start'] - pad, 1), qfeat['end'] + pad
-            sstart, sstop = max(sfeat['start'] - pad, 1), sfeat['end'] + pad
+            qstart, qstop = max(qfeat['start'] - qpad, 1), qfeat['end'] + qpad
+            sstart, sstop = max(sfeat['start'] - spad, 1), sfeat['end'] + spad
 
-            assert qstop - qstart > 2 * pad or qstart == 1, (qstop, qstart)
-            assert sstop - sstart > 2 * pad or sstart == 1, (sstop, sstart)
+            assert qstop - qstart > 2 * qpad or qstart == 1, (qstop, qstart)
+            assert sstop - sstart > 2 * spad or sstart == 1, (sstop, sstart)
             
             m = qstop - qstart
             n = sstop - sstart
@@ -393,7 +393,7 @@ def main(qbed, sbed, pairs_file, pad, pair_fmt, mask='F', ncpu=8):
             print >>sys.stderr,  "%s %s" % (qfeat["accn"], sfeat['accn']),
             orient = qfeat['strand'] == sfeat['strand'] and 1 or -1
 
-            cnss = parse_blast(res, orient, qfeat, sfeat, qbed, sbed, pad)
+            cnss = parse_blast(res, orient, qfeat, sfeat, qbed, sbed, qpad, spad)
             print >>sys.stderr, "(%i)" % len(cnss)
             if len(cnss) == 0: continue
 
@@ -417,8 +417,10 @@ if __name__ == "__main__":
     parser.add_option("--pair_fmt", dest="pair_fmt", default='raw',
                       help="format of the pairs, one of: %s" % str(choices),
                       choices=choices)
-    parser.add_option("--pad", dest="pad", type='int', default=12000,
-                      help="how far from the end of each gene to look for cnss")
+    parser.add_option("--qpad", dest="qpad", type='int', default=12000,
+                      help="how far from the end of the query gene to look for cnss")
+    parser.add_option("--spad", dest="spad", type='int', default=26000,
+                    help="how far from the end of the subject gene to look for cnss")
     (options, _) = parser.parse_args()
 
 
@@ -429,4 +431,4 @@ if __name__ == "__main__":
     sbed = Bed(options.sbed, options.sfasta); sbed.fill_dict()
     assert options.mask in 'FT'
 
-    main(qbed, sbed, options.pairs, options.pad, options.pair_fmt, options.mask, options.ncpu)
+    main(qbed, sbed, options.pairs, options.qpad, options.spad, options.pair_fmt, options.mask, options.ncpu)
