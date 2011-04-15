@@ -57,8 +57,8 @@ def make_pair_maps(pair_file, fmt, qbed, sbed):
     for pair in get_pair(pair_file,fmt, qbed, sbed):
         if pair is None: break
         (sname, qname) = pair
-        smap_tuple.append((qname,sname))
-        smap_tuple.append((sname,qname))
+        qmap_tuple.append((qname,sname))
+        qmap_tuple.append((sname,qname))
     return qmap_tuple
 #         
 # def get_nearby_features(feat, bed, p0, p1):
