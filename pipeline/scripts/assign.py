@@ -112,13 +112,13 @@ def assign(cnsdict, qbed, qpair_map):
             except KeyError:
                 print >>sys.stderr, "skipped non top-level features:", qaccn , saccn
                 raise
-        qfeat_start_stops = [(qfeat['start'], qfeat['end']) for qfeat,saccn,saccn_l,saccn_r in qfeats]
-        pos = nearest_feat(qfeat_start_stops, cns.qstart, cns.qstop)
-        qfeat,saccn,saccn_l,saccn_r = qfeats[pos]
+            qfeat_start_stops = [(qfeat['start'], qfeat['end']) for qfeat,saccn,saccn_l,saccn_r in qfeats]
+            pos = nearest_feat(qfeat_start_stops, cns.qstart, cns.qstop)
+            qfeat,saccn,saccn_l,saccn_r = qfeats[pos]
     # genes_inbetween = get_nearby_features(qfeat,qbed, p0, p1) # these are the gene inbtween the nearest feat
     #         nsretained = sum(1 for gene in genes_inbetween if gene['accn'] in qpair_map)
     #         if nsretained > 0 : continue # if a gene inbetween the two is in the qpairmap then remove that cns from that gene
-        yield cns, saccn, saccn_l, saccn_r, qfeat
+            yield cns, saccn, saccn_l, saccn_r, qfeat
 
         
             
