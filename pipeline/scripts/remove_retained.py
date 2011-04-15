@@ -132,7 +132,7 @@ def assign(cnsdict, qbed, pairsfile, sbed, qpair_map):
 
         
             
-def main(cnsfile, qbed_file, pairsfile, qorg, sorg):
+def main(cnsfile, qbed_file, pairsfile):
     qbed = Bed(qbed_file); qbed.fill_dict()
     sbed = qbed
     cnsdict = get_cns_dict(cnsfile)
@@ -162,12 +162,9 @@ if __name__ == "__main__":
     parser.add_option("--pair_fmt", dest="pair_fmt", default='dag',
                       help="format of the pairs, one of: %s" % str(choices),
                       choices=choices)
-    parser.add_option("--qorg", dest="qorg", type="int", help="dsid number in coge for the query (same as export to bed input)")
-    parser.add_option("--sorg", dest="sorg", type="int", help="dsid number in coge for the subject (same as export to bed input)")
-
     (options, _) = parser.parse_args()
 
-    res = main(options.cns, options.sbed,  options.pairs, options.qorg, options.sorg )
+    res = main(options.cns, options.qbed,  options.pairs)
 
             
 #main('/Users/gturco/rice_v6_cns_res/04_08_10/test_mine/testassign.txt', '/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6.bed' , '/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6_rice_v6.pairs.txt', 'qorg', 'sorg')
