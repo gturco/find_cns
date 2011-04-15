@@ -426,7 +426,7 @@ def main(qbed, sbed, pairs_file, pair_fmt, mask='F', ncpu=8):
             
             #urls = url_params(cnss, qfeat['seqid'], sfeat['seqid'], qfeat['ORG2_qfeat'])
             
-            print >> fcnss, "%s,[%s,%s],%s,%s,%s,%s" % (qname, qfeat['seqid'], sname, sfeat['qleft_gene'], sfeat['qright_gene'], sfeat['seqid'],
+            print >> fcnss, "%s,%s,%s,[%s,%s],%s,%s" % (qname, qfeat['seqid'], sname, sfeat['qleft_gene'], sfeat['qright_gene'], sfeat['seqid'],
                              ",".join(map(lambda l: ",".join(map(str,l)), cnss)))
 
     return None
