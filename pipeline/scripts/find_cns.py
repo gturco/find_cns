@@ -84,7 +84,7 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed):
     # if slope == -1:
     #     xall = np.hstack((xy, xb[::-1], xy[0]))
     #     yall = np.hstack((yy,yb[::-1], yy[0]))
-    sstrat , sstop = grab_flanking_region(sfeat, qfeat)
+    qstrat , qstop = grab_flanking_region(qfeat, sfeat)
     feats_nearby = {}
     feats_nearby['q'] = get_feats_in_space(qgene, qfeat['seqid'], qstrat, qstop, qbed) #looks for genes in bowtie.....
     feats_nearby['s'] = get_feats_in_space(sgene, sfeat['seqid'], sfeat['start'] ,sfeat['end'], sbed) # changed so that if looks for genes within region
@@ -366,7 +366,7 @@ def main(qbed, sbed, pairs_file, pair_fmt, mask='F', ncpu=8):
             | grep -v 'WARNING' | grep -v 'ERROR' "
 
     fcnss = sys.stdout
-    print >> fcnss, "#qaccn,qseqid,saccn,[sleft_gene,sright_gene],sseqid,res"#"#qseqid,qaccn,sseqid,saccn,[qstart,qend,sstart,send...]"
+    print >> fcnss, "#qaccn,qseqid,saccn,[sleft_gene,sright_gene],sseqid,res"#"qseqid,qaccn,sseqid,saccn,[qstart,qend,sstart,send...]"
 
     qfastas = get_masked_fastas(qbed)
     sfastas = get_masked_fastas(sbed) if qbed.filename != sbed.filename else qfastas
