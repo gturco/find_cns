@@ -17,8 +17,8 @@ def assign_url(scns, sseqid, qcns, qseqid, qfeat, pairsfile, sbed, qbed, sorg, q
     url = base + inside
     return url
 
-def get_homeolog(qfeat,pck, sbed, qbed):
-    for region, sregion in get_pair(pck, 'pck', sbed, qbed):
+def get_homeolog(qfeat,pairsfile, sbed, qbed):
+    for region, sregion in get_pair(pairsfile, 'pck', sbed, qbed):
         if region['sfeat'] == qfeat[3]:
             return region['ORG2_qfeat']
            
@@ -82,10 +82,10 @@ def nearest_feat(feats, cns_start, cns_stop):
     return dist_min[0]
     
 def same_chr_feat(feat_list, qbed, cns):
+    print feat_list
     f_list = []
     for f in feat_list:
-        feat_bed = qbed.accn(f)
-        if feat_bed['seqid'] == cns.qchr:
+        if f['seqid'] == cns.qchr:
             f_list.append(f)    
     return f_list[0]
     
@@ -97,18 +97,18 @@ def assign(cnsdict, qbed, qpair_map):
         cns = CNS(cnsinfo)
         qfeats = []
         for qaccn, saccn, saccn_l, saccn_r in accns:
-            left_retained = [l for (k,l) in qpair_map if saccn_r[:-1] in k]
+            left_retained = ([l for (k,l) in qpair_map if saccn_r[:-1] in k])
             left_retained_one = same_chr_feat(left_retained, qbed, cns)
             right_retained = [l for (k,l) in qpair_map if saccn_l[1:] in k]
             right_retained_one = same_chr_feat(right_retained, qbed, cns)
             left_feat,right_feat = qbed.accn(left_retained_one), qbed.accn(right_retained_one)
             qfeat1 = qbed.accn(qaccn)
-            h_feats = [left_feat['accn'], right_feat['accn'], qfeat1['accn']]
-            homeolog_feats = [(left_feat['start'],left_feat['end']), (right_feat['start'],right_feat['end']), (qfeat1['start'], qfeat['end'])]
+            h_feats = [left_retained_one['accn'], right_retained_one['accn'], qfeat1['accn']]
+            homeolog_feats = [(left_retained_one['start'],left_retained_one['end']), (right_retained_one['start'],right_retained_one['end']), (qfeat1['start'], qfeat1['end'])]
             dist_min = nearest_feat(homeolog_feats, cns.qstart, cns.qstop)
             if dist_min < 2: continue
             try:
-                qfeats.append(qbed.d[qaccn],saccn,saccn_l,saccn_r)
+                qfeats.append((qbed.d[qaccn],saccn,saccn_l,saccn_r))
             except KeyError:
                 print >>sys.stderr, "skipped non top-level features:", qaccn , saccn
                 raise
@@ -163,4 +163,4 @@ if __name__ == "__main__":
     res = main(options.cns, options.qbed, options.sbed, options.pairs, options.pck, options.qorg, options.sorg, options.pad)
 
             
-#main('/Users/gturco/rice_v6_cns_res/04_08_10/test_mine/testassign.txt', '/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6.bed', '/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6.bed' , '/Users/gturco/rice_v6_cns_res/04_08_10/test_mine/rice_v6_rice_v6.pairs.pck', '9109', '9109', 1000)
+#main('/Users/gturco/rice_v6_cns_res/04_08_10/test_mine/testassign.txt', '/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6.bed','/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6.bed', '/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6_rice_v6.pairs.txt', '/Users/gturco/rice_v6_cns_res/04_08_10/test_mine/rice_v6_rice_v6.pairs.pck', '9109', '9109', 1000)
