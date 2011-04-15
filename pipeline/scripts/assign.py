@@ -18,7 +18,7 @@ def assign_url(scns, sseqid, qcns, qseqid, qfeat, pairsfile, sbed, qbed, sorg, q
     return url
 
 def get_homeolog(qfeat,pck, sbed, qbed):
-    for region, sregion in get_pair(pairsfile, 'pck', sbed, qbed):
+    for region, sregion in get_pair(pck, 'pck', sbed, qbed):
         if region['sfeat'] == qfeat[3]:
             return region['ORG2_qfeat']
            
