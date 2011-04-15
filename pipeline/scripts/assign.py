@@ -8,12 +8,12 @@ import os.path as op
 sys.path.insert(0, os.path.dirname(__file__))
 from find_cns import get_pair
 
-def assign_url(scns, sseqid, qcns, qseqid, qfeat, pairsfile, sbed, qbed, sorg, qorg,
+def assign_url(scns, sseqid, qcns, qseqid, qfeat, pairsfile, sbed, qbed, sorg, qorg, padding,
                base = "http://synteny.cnr.berkeley.edu/CoGe/GEvo.pl?prog=blastn&autogo=1&"):
     "lines up coge based on the cns postion"
     sfeat = get_homeolog(qfeat,pairsfile, sbed, qbed)
-    inside = "dsgid1={5}&chr1={0}&x1={1}&dr1up=15000&dr1down=15000&dsgid2={6}&chr2={2}&x2={3}&dr2up=15000;dr2down=15000&"\
-             "accn3={4};dr3up=15000;dr3down=15000;num_seqs=3;hsp_overlap_limit=0;hsp_size_limit=0".format(sseqid, scns, qseqid, qcns, sfeat, sorg, qorg)
+    inside = "dsgid1={5}&chr1={0}&x1={1}&dr1up={7}&dr1down={7}&dsgid2={6}&chr2={2}&x2={3}&dr2up={7};dr2down={7}&"\
+             "accn3={4};dr3up=15000;dr3down=15000;num_seqs=3;hsp_overlap_limit=0;hsp_size_limit=0".format(sseqid, scns, qseqid, qcns, sfeat, sorg, qorg, padding)
     url = base + inside
     return url
 
@@ -102,7 +102,7 @@ def assign(cnsdict, qbed):
 
         
             
-def main(cnsfile, qbed_file, sbed_file, pairsfile, qorg, sorg):
+def main(cnsfile, qbed_file, sbed_file, pairsfile, qorg, sorg, padding):
     qbed = Bed(qbed_file); qbed.fill_dict()
     sbed = Bed(sbed_file); sbed.fill_dict()
     cnsdict = get_cns_dict(cnsfile)
@@ -115,7 +115,7 @@ def main(cnsfile, qbed_file, sbed_file, pairsfile, qorg, sorg):
     print >>out, "#" + fmt.replace("%(","").replace(")s","").replace(")i","")
     for cns, saccn, saccn_l, saccn_r, qfeat in assign(cnsdict, qbed): 
         d = cns_fmt_dict(cns, qfeat, saccn, saccn_l, saccn_r)
-        d['link'] = assign_url(cns.sstart, cns.schr, cns.qstart, cns.qchr,qfeat, pairsfile, sbed, qbed, sorg, qorg)
+        d['link'] = assign_url(cns.sstart, cns.schr, cns.qstart, cns.qchr,qfeat, pairsfile, sbed, qbed, sorg, qorg, padding)
         print >>out, fmt % d
         
         
@@ -135,10 +135,11 @@ if __name__ == "__main__":
                       choices=choices)
     parser.add_option("--qorg", dest="qorg", type="int", help="dsid number in coge for the query (same as export to bed input)")
     parser.add_option("--sorg", dest="sorg", type="int", help="dsid number in coge for the subject (same as export to bed input)")
-
+    parser.add_option("--pad", dest="pad", type='int', default=12000,
+                      help="how far from the end of each gene to set the padding for the link of the cnss")
     (options, _) = parser.parse_args()
 
     res = main(options.cns, options.qbed, options.sbed, options.pairs, options.qorg, options.sorg )
 
             
-#main('/Users/gturco/rice_v6_cns_res/04_08_10/test_mine/testassign.txt', '/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6.bed', '/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6.bed' , '/Users/gturco/rice_v6_cns_res/04_08_10/test_mine/rice_v6_rice_v6.pairs.pck', '9109', '9109')
+#main('/Users/gturco/rice_v6_cns_res/04_08_10/test_mine/testassign.txt', '/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6.bed', '/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6.bed' , '/Users/gturco/rice_v6_cns_res/04_08_10/test_mine/rice_v6_rice_v6.pairs.pck', '9109', '9109', 1000)
