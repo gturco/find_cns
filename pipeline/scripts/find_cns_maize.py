@@ -381,7 +381,7 @@ def main(qbed, sbed, pairs_file, qpad, spad, pair_fmt, mask='F', ncpu=8):
 
             cmd = bl2seq % dict(qfasta=qfasta, sfasta=sfasta, qstart=qstart,
                                 sstart=sstart, qstop=qstop, sstop=sstop, e_value=e_value)
-            print >>sys.stderr,  "%s" % (cmd)
+            #print >>sys.stderr,  "%s" % (cmd)
             return cmd, qfeat, sfeat
 
         cmds = [c for c in map(get_cmd, [l for l in pairs if l]) if c]
