@@ -86,9 +86,8 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed):
     #     yall = np.hstack((yy,yb[::-1], yy[0]))
     sstrat , sstop = grab_flanking_region(sfeat, qfeat)
     feats_nearby = {}
-    feats_nearby['q'] = get_feats_in_space(qgene, qfeat['seqid'], qfeat['start'] ,qfeat['end'], qbed) # changed so that if looks for genes within region
-    feats_nearby['s'] = get_feats_in_space(sgene, sfeat['seqid'], sstrat, sstop, sbed) #looks for genes in bowtie.....
-    
+    feats_nearby['q'] = get_feats_in_space(qgene, qfeat['seqid'], qstrat, qstop, qbed) #looks for genes in bowtie.....
+    feats_nearby['s'] = get_feats_in_space(sgene, sfeat['seqid'], sfeat['start'] ,sfeat['end'], sbed) # changed so that if looks for genes within region
     
     
     # genespace_poly = Polygon(zip(xall, yall))
@@ -137,7 +136,7 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed):
         #     cnss.update((locs,))
         #     continue
 
-        if  sgene_poly.intersects(yls):
+        if  qgene_poly.intersects(xls):
             intronic_removed += 1
             continue
 
@@ -278,11 +277,11 @@ def remove_crossing_cnss(cnss, qgene, sgene):
         nremoved += 1
     return [c.cns for c in cns_shapes if not c.do_remove]
 
-def grab_flanking_region(sfeat , flanking_genes):
+def grab_flanking_region(qfeat , flanking_genes):
     "grabs the start and end postion of the nearest gene to the left \
     and right of the sfeat"
-    left_padding = (sfeat['start'] - 12000)
-    right_padding = (sfeat['end'] + 12000)
+    left_padding = (qfeat['start'] - 12000)
+    right_padding = (qfeat['end'] + 12000)
     left_flgene  = flanking_genes['sstart']
     right_flgene = flanking_genes['send']
     left_cut_off = max(left_flgene , left_padding)
@@ -293,15 +292,15 @@ def grab_flanking_region(sfeat , flanking_genes):
 def get_pair(pair_file, fmt, qbed, sbed, seen={}):
     """ read a line and make sure it's unique handles
     dag, cluster, and pair formats."""
-    skipped = open('data/skipped.txt', 'w')
+    #skipped = open('data/skipped.txt', 'w')
     fh = open(pair_file)
     if fmt == 'pck':
         pck_file = pickle.load(fh)
         for row in pck_file:
             region = row
             accn = row['sfeat']
-            sfeat = sbed.accn(accn)
-            pair = region, sfeat
+            qfeat = qbed.accn(accn)
+            pair = region, qfeat
             yield pair
     else:        
         for line in open(pair_file):
@@ -362,12 +361,12 @@ def main(qbed, sbed, pairs_file, pair_fmt, mask='F', ncpu=8):
 
     bl2seq = "~/src/blast-2.2.25/bin/bl2seq " \
            "-p blastn -D 1 -E 2 -q -2 -r 1 -G 5 -W 7 -F %s " % mask + \
-           " -e %(e_value).2f -i %(sfasta)s -j %(qfasta)s \
-             -I %(sstart)d,%(sstop)d -J %(qstart)d,%(qstop)d | grep -v '#' \
+           " -e %(e_value).2f -i %(qfasta)s -j %(sfasta)s \
+             -I %(qstart)d,%(qstop)d -J %(sstart)d,%(sstop)d | grep -v '#' \
             | grep -v 'WARNING' | grep -v 'ERROR' "
 
     fcnss = sys.stdout
-    print >> fcnss, "# qaccn,[qleft_gene, qright_gene],qseqid,sgene,sseqid,res"#"#qseqid,qaccn,sseqid,saccn,[qstart,qend,sstart,send...]"
+    print >> fcnss, "#qaccn,qseqid,saccn,[sleft_gene,sright_gene],sseqid,res"#"#qseqid,qaccn,sseqid,saccn,[qstart,qend,sstart,send...]"
 
     qfastas = get_masked_fastas(qbed)
     sfastas = get_masked_fastas(sbed) if qbed.filename != sbed.filename else qfastas
@@ -387,7 +386,7 @@ def main(qbed, sbed, pairs_file, pair_fmt, mask='F', ncpu=8):
         # this helps in parallelizing.
         def get_cmd(pair):
             if pair is None: return None
-            qfeat, sfeat = pair
+            sfeat, qfeat = pair
             
             #if qfeat['accn'] != "Bradi4g01820": return None
             #print >>sys.stderr, qfeat, sfeat
@@ -395,11 +394,11 @@ def main(qbed, sbed, pairs_file, pair_fmt, mask='F', ncpu=8):
             qfasta = qfastas[qfeat['seqid']]
             sfasta = sfastas[sfeat['seqid']]
 
-            qstart, qstop = qfeat['start'], qfeat['end'] #region gets no padding
-            sstart, sstop = grab_flanking_region(sfeat, qfeat) # qfeat here is the final table with sfeat info from qfeat dict
+            sstart, sstop = sfeat['start'], sfeat['end'] #region gets no padding
+            qstart, qstop = grab_flanking_region(qfeat, sfeat) # sfeat here is the final table with sfeat info from qfeat dict
             
-            m = qstop - qstart
-            n = sstop - sstart
+            m = sstop - sstart
+            n = qstop - qstart
             if (m*n) >= 812045000: # if the database and query is large keep e_value at 2.11 else change it to something smaller
                 e_value = 2.11
             else:
@@ -427,7 +426,7 @@ def main(qbed, sbed, pairs_file, pair_fmt, mask='F', ncpu=8):
             
             #urls = url_params(cnss, qfeat['seqid'], sfeat['seqid'], qfeat['ORG2_qfeat'])
             
-            print >> fcnss, "%s,[%s,%s],%s,%s,%s,%s" % (qname, qfeat['qleft_gene'], qfeat['qright_gene'], qfeat['seqid'], sname, sfeat['seqid'],
+            print >> fcnss, "%s,[%s,%s],%s,%s,%s,%s" % (qname, qfeat['seqid'], sname, sfeat['qleft_gene'], sfeat['qright_gene'], sfeat['seqid'],
                              ",".join(map(lambda l: ",".join(map(str,l)), cnss)))
 
     return None
