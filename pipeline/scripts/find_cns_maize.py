@@ -162,9 +162,9 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
     cnss_same_strand = [l[:4] for l in remove_crossing_cnss(cnss, qgene, sgene)]
     cnss_opp_strand = cns_opp_strand(cnss, qgene, sgene) # alternitive for cns on opp strand
     if len(cnss_same_strand) < len(cnss_opp_strand):
-        cnss = cns_opp_strand
+        cnss = cnss_opp_strand
     else: # what about if they are the , use non reverse complment
-        cnss = cns_same_strand
+        cnss = cnss_same_strand
     if orient == -1:
         cnss = [(c[0], c[1], -c[2], -c[3]) for c in cnss]
     return cnss
