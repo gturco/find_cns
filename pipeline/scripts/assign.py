@@ -69,6 +69,8 @@ def make_pair_maps(pair_file, fmt, qbed, sbed):
 #         inters = bed.get_features_in_region(feat['seqid'], p1, p0)
 #     return [f for f in inters if f["accn"] != feat["accn"]]   
  
+
+
 def nearest_feat(feats, cns_start, cns_stop):
     "imputs:a list of feature start and stop postions and a cns start or stop postion\
      output: the feature start or stop postion that is closest to the cbs "
@@ -78,6 +80,14 @@ def nearest_feat(feats, cns_start, cns_stop):
     #params_row = params[dist_min[0]]
     #p0, p1 =  feats[dist_min[1]]
     return dist_min[0]
+    
+def same_chr_feat(feat_list, qbed, cns):
+    f_list = []
+    for f in feat_list:
+        feat_bed = qbed.accn(f)
+        if feat_bed['seqid'] == cns.qchr:
+            f_list.append(f)
+    return f_list[0]
     
 
 def assign(cnsdict, qbed, qpair_map):
@@ -95,8 +105,8 @@ def assign(cnsdict, qbed, qpair_map):
             qfeat1 = qbed.accn(qaccn)
             h_feats = [left_feat['accn'], right_feat['accn'], qfeat1['accn']]
             homeolog_feats = [(left_feat['start'],left_feat['end']), (right_feat['start'],right_feat['end']), (qfeat1['start'], qfeat['end'])]
-            dist_array, dist_min = nearest_feat(homeolog_feats, cns.qstart)
-            if dist_min[0] < 2: continue
+            dist_min = nearest_feat(homeolog_feats, cns.qstart, cns.qstop)
+            if dist_min < 2: continue
             try:
                 qfeats.append(qbed.d[qaccn],saccn,saccn_l,saccn_r)
             except KeyError:
