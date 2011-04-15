@@ -105,8 +105,8 @@ def main(cnsfile, qbed_file, sbed_file, pairsfile, qorg, sorg, padding):
     #qpair_map = make_pair_maps(cnsfile)
     out = sys.stdout
     
-    fmt = "%(saccn)s,%(saccnL)s,%(saccnR)s,%(schr)s,%(sstart)i,%(sstop)i," + \
-                     "%(qaccn)s,%(qchr)s,%(qstart)i,%(qstop)i,%(link)s" 
+    fmt = "%(qaccn)s,%(qchr)s,%(qstart)i,%(qstop)i,%(qstrand)s," + \
+                       "%(saccn)s,%(schr)s,%(sstart)i,%(sstop)i,%(sstrand)s,%(link)s"
                      
     print >>out, "#" + fmt.replace("%(","").replace(")s","").replace(")i","")
     for cns, qfeat, sfeat in assign(cnsdict, qbed, sbed): 
