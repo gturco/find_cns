@@ -17,8 +17,8 @@ def get_pair(pair_file, fmt, qbed, sbed, seen={}):
         for row in pck_file:
             region = row
             accn = row['sfeat']
-            sfeat = sbed.accn(accn)
-            pair = region, sfeat
+            qfeat = qbed.accn(accn)
+            pair = qfeat, region
             yield pair
     else:        
         for line in open(pair_file):
@@ -57,39 +57,39 @@ def get_cns_dict(cnsfile):
     for line in open(cnsfile):
         if line[0] == "#":continue
         line = line.rstrip().split(",")
-        accn, qaccn_l, qaccn_r, qchr, saccn, schr = line[0:6]
+        saccn, schr, qaccn, qaccn_l, qaccn_r, qchr = line[0:6]
         cnslocs = map(int, line[6:])
         if len(cnslocs) % 4: raise
 
         for i in range(0, len(cnslocs), 4):
-            key = (qchr, schr, tuple(cnslocs[i:i + 4]))
-            cnss[key].append((accn, qaccn_l, qaccn_r ,saccn))
+            key = (schr, qchr, tuple(cnslocs[i:i + 4]))
+            cnss[key].append((qaccn, saccn, saccn_l, saccn_r))
     return cnss
     
-    
-def cns_fmt_dict(cns, sfeat, accn, qaccn_l, qaccn_r):
-    # accn, qaccnL, qaccnR, qchr, qstart, qstop,saccn, schr, sstart, sstop,link
-    d = dict(accn=accn, qaccnL=qaccn_l,qaccnR=qaccn_r,qchr=cns.qchr,
-        qstart=cns.qstart, qstop=cns.qstop,
-        saccn=sfeat['accn'], schr=sfeat['seqid'],
-        sstart=cns.sstart, sstop=cns.sstop)
+
+def cns_fmt_dict(cns, qfeat, saccn, saccn_l, saccn_r):
+    # saccn, schr, qaccn, qaccnL, qaccnR, qstart, qstop,saccn, schr, sstart, sstop,link
+    d = dict(accn=saccn, saccnL=saccn_l,saccnR=saccn_r,schr=cns.schr,
+        sstart=cns.sstart, sstop=cns.sstop,
+        qaccn=qfeat['accn'], qchr=qfeat['seqid'],
+        qstart=cns.qstart, qstop=cns.qstop)
     return d
     
  
 class CNS(object):
     __slots__ = ("qchr", "schr", "qstart", "qstop", "sstart", "sstop")
     def __init__(self, cnsinfo):
-        self.qchr, self.schr, (self.sstart, self.sstop, self.qstart, self.qstop) = cnsinfo  
+        self.qchr, self.schr, (self.qstart, self.qstop, self.sstart, self.sstop) = cnsinfo  
         
 def make_pair_maps(pair_file, fmt, qbed, sbed):
     """make dicts of q => s and s => q"""
-    smap_tuple = []
+    qmap_tuple = []
     for pair in get_pair(pair_file, fmt, qbed, sbed):
         if pair is None: break
         (qname, sname) = pair
         smap_tuple.append((sname,qname))
         smap_tuple.append((qname,sname))
-    return smap_tuple
+    return qmap_tuple
         
 
  
@@ -103,48 +103,48 @@ def nearest_feat(feats, cns_start):
     return dist, dist_min
     
     
-def same_chr_feat(feat_list, sbed, cns):
+def same_chr_feat(feat_list, qbed, cns):
     f_list = []
     for f in feat_list:
-        feat_bed = sbed.accn(f)
-        if feat_bed['seqid'] == cns.schr:
+        feat_bed = qbed.accn(f)
+        if feat_bed['seqid'] == cns.qchr:
             f_list.append(f)
     return f_list[0]
     
 
-def assign(cnsdict, sbed, pairsfile, qbed, spair_map):
+def assign(cnsdict, qbed, pairsfile, sbed, qpair_map):
     "returns cns only if they are the closet of the spair_map"
     
     for cnsinfo, accns in cnsdict.iteritems():
         cns = CNS(cnsinfo)
-        for accn, qaccn_l, qaccn_r, saccn in accns:
-            left_retained = [l for (k,l) in spair_map if qaccn_r[:-1] in k]
-            left_retained_one = same_chr_feat(left_retained, sbed, cns)
-            right_retained = [l for (k,l) in spair_map if qaccn_l[1:] in k]
-            right_retained_one = same_chr_feat(right_retained, sbed, cns)
-            left_feat,right_feat = sbed.accn(left_retained_one), sbed.accn(right_retained_one)
-            sfeat = sbed.accn(saccn)
-            h_feats = [left_feat['accn'], right_feat['accn'], sfeat['accn']]
-            homeolog_feats = [(left_feat['start'],left_feat['end']), (right_feat['start'],right_feat['end']), (sfeat['start'], sfeat['end'])]
-            dist_array, dist_min = nearest_feat(homeolog_feats, cns.sstart)
+        for qaccn, saccn, saccn_l, saccn_r in accns:
+            left_retained = [l for (k,l) in qpair_map if saccn_r[:-1] in k]
+            left_retained_one = same_chr_feat(left_retained, qbed, cns)
+            right_retained = [l for (k,l) in qpair_map if saccn_l[1:] in k]
+            right_retained_one = same_chr_feat(right_retained, qbed, cns)
+            left_feat,right_feat = qbed.accn(left_retained_one), qbed.accn(right_retained_one)
+            qfeat = qbed.accn(qaccn)
+            h_feats = [left_feat['accn'], right_feat['accn'], qfeat['accn']]
+            homeolog_feats = [(left_feat['start'],left_feat['end']), (right_feat['start'],right_feat['end']), (qfeat['start'], qfeat['end'])]
+            dist_array, dist_min = nearest_feat(homeolog_feats, cns.qstart)
             if dist_min[0] < 2: continue
-            yield cns, accn, qaccn_l, qaccn_r, sfeat
+            yield cns, saccn, saccn_l, saccn_r, qfeat
 
         
             
-def main(cnsfile, sbed_file, pairsfile, qorg, sorg):
-    sbed = Bed(sbed_file); sbed.fill_dict()
-    qbed = sbed
+def main(cnsfile, qbed_file, pairsfile, qorg, sorg):
+    qbed = Bed(qbed_file); qbed.fill_dict()
+    sbed = qbed
     cnsdict = get_cns_dict(cnsfile)
-    spair_map = make_pair_maps(pairsfile, 'pair', qbed, sbed)
+    qpair_map = make_pair_maps(pairsfile, 'pair', qbed, sbed) # map of all pairs that q and sbed in file
     out = sys.stdout
     
-    fmt = "%(accn)s,%(qaccnL)s,%(qaccnR)s,%(qchr)s,%(saccn)s,%(schr)s," + \
-                     "%(qstart)i,%(qstop)i,%(sstart)i,%(sstop)i" 
+    fmt = "%(accn)s,%(saccnL)s,%(saccnR)s,%(schr)s,%(qaccn)s,%(qchr)s," + \
+                     "%(sstart)i,%(sstop)i,%(qstart)i,%(qstop)i" 
                      
     print >>out, "#" + fmt.replace("%(","").replace(")s","").replace(")i","")
-    for cns, accn, qaccn_l, qaccn_r, sfeat in assign(cnsdict, sbed, pairsfile, qbed, spair_map): 
-        d = cns_fmt_dict(cns, sfeat, accn, qaccn_l, qaccn_r)
+    for cns, saccn, saccn_l, saccn_r, qfeat in assign(cnsdict, qbed, pairsfile, sbed, qpair_map): 
+        d = cns_fmt_dict(cns, qfeat, saccn, saccn_l, saccn_r)
         print >>out, fmt % d
 
         
