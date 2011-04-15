@@ -85,7 +85,7 @@ def same_chr_feat(feat_list, qbed, cns):
     for f in feat_list:
         feat_bed = qbed.accn(f)
         if feat_bed['seqid'] == cns.qchr:
-            f_list.append(f)
+            f_list.append(f)    
     return f_list[0]
     
 
@@ -96,9 +96,9 @@ def assign(cnsdict, qbed, qpair_map):
         cns = CNS(cnsinfo)
         qfeats = []
         for qaccn, saccn, saccn_l, saccn_r in accns:
-            left_retained = [l for (k,l) in qpair_map if saccn_r[:-1] in k]
+            left_retained = [k for (k,l) in qpair_map if saccn_r[:-1] in k]
             left_retained_one = same_chr_feat(left_retained, qbed, cns)
-            right_retained = [l for (k,l) in qpair_map if saccn_l[1:] in k]
+            right_retained = [k for (k,l) in qpair_map if saccn_l[1:] in k]
             right_retained_one = same_chr_feat(right_retained, qbed, cns)
             left_feat,right_feat = qbed.accn(left_retained_one), qbed.accn(right_retained_one)
             qfeat1 = qbed.accn(qaccn)
