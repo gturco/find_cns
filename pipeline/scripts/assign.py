@@ -51,15 +51,15 @@ class CNS(object):
     def __init__(self, cnsinfo):
         self.qchr, self.schr, (self.qstart, self.qstop, self.sstart, self.sstop) = cnsinfo  
         
-# def make_pair_maps(cnsfile):
-#     """makes a list of query accns from the cns_file"""
-#     qmap = []
-#     for line in open(cnsfile):
-#         if line[0] == "#":continue
-#         line = line.rstrip().split(",")
-#         qname = line[4]
-#         qmap.append(qname)
-#     return qmap 
+def make_pair_maps(pair_file, fmt, qbed, sbed):
+    """make dicts of q => s and s => q"""
+    qmap_tuple = []
+    for pair in get_pair(pair_file,fmt, qbed, sbed):
+        if pair is None: break
+        (qname, sname) = pair
+        smap_tuple.append((sname,qname))
+        smap_tuple.append((qname,sname))
+    return qmap_tuple
 #         
 # def get_nearby_features(feat, bed, p0, p1):
 #     "grabs all features inbtween two postions (chr#, start, stop)"
@@ -80,24 +80,34 @@ def nearest_feat(feats, cns_start, cns_stop):
     return dist_min[0]
     
 
-def assign(cnsdict, qbed):
+def assign(cnsdict, qbed, qpair_map):
     "finds the nearest qfeat for each duplicat cns qstart qstop, sstart, sstop pos"
     
     for cnsinfo, accns in cnsdict.iteritems():
         cns = CNS(cnsinfo)
         qfeats = []
         for qaccn, saccn, saccn_l, saccn_r in accns:
+            left_retained = [l for (k,l) in qpair_map if saccn_r[:-1] in k]
+            left_retained_one = same_chr_feat(left_retained, qbed, cns)
+            right_retained = [l for (k,l) in qpair_map if saccn_l[1:] in k]
+            right_retained_one = same_chr_feat(right_retained, qbed, cns)
+            left_feat,right_feat = qbed.accn(left_retained_one), qbed.accn(right_retained_one)
+            qfeat1 = qbed.accn(qaccn)
+            h_feats = [left_feat['accn'], right_feat['accn'], qfeat1['accn']]
+            homeolog_feats = [(left_feat['start'],left_feat['end']), (right_feat['start'],right_feat['end']), (qfeat1['start'], qfeat['end'])]
+            dist_array, dist_min = nearest_feat(homeolog_feats, cns.qstart)
+            if dist_min[0] < 2: continue
             try:
-                qfeats.append(qbed.d[qaccn])
+                qfeats.append(qbed.d[qaccn],saccn,saccn_l,saccn_r)
             except KeyError:
                 print >>sys.stderr, "skipped non top-level features:", qaccn , saccn
                 raise
-        qfeat_start_stops = [(qfeat['start'], qfeat['end']) for qfeat in qfeats]
+        qfeat_start_stops = [(qfeat['start'], qfeat['end']) for qfeat,saccn,saccn_l,saccn_r in qfeats]
         pos = nearest_feat(qfeat_start_stops, cns.qstart, cns.qstop)
-        nearest_qfeat = qfeats[pos]
-        # genes_inbetween = get_nearby_features(qfeat,qbed, p0, p1) # these are the gene inbtween the nearest feat
-        #         nsretained = sum(1 for gene in genes_inbetween if gene['accn'] in qpair_map)
-        #         if nsretained > 0 : continue # if a gene inbetween the two is in the qpairmap then remove that cns from that gene
+        qfeat,saccn,saccn_l,saccn_r = qfeats[pos]
+    # genes_inbetween = get_nearby_features(qfeat,qbed, p0, p1) # these are the gene inbtween the nearest feat
+    #         nsretained = sum(1 for gene in genes_inbetween if gene['accn'] in qpair_map)
+    #         if nsretained > 0 : continue # if a gene inbetween the two is in the qpairmap then remove that cns from that gene
         yield cns, saccn, saccn_l, saccn_r, qfeat
 
         
@@ -106,14 +116,14 @@ def main(cnsfile, qbed_file, sbed_file, pairsfile, qorg, sorg, padding):
     qbed = Bed(qbed_file); qbed.fill_dict()
     sbed = Bed(sbed_file); sbed.fill_dict()
     cnsdict = get_cns_dict(cnsfile)
-    #qpair_map = make_pair_maps(cnsfile)
+    qpair_map = make_pair_maps(pairsfile, 'pair', qbed, sbed)
     out = sys.stdout
     
     fmt = "%(saccn)s,%(saccnL)s,%(saccnR)s,%(schr)s,%(sstart)i,%(sstop)i," + \
                      "%(qaccn)s,%(qchr)s,%(qstart)i,%(qstop)i,%(link)s" 
                      
     print >>out, "#" + fmt.replace("%(","").replace(")s","").replace(")i","")
-    for cns, saccn, saccn_l, saccn_r, qfeat in assign(cnsdict, qbed): 
+    for cns, saccn, saccn_l, saccn_r, qfeat in assign(cnsdict, qbed, qpair_map): 
         d = cns_fmt_dict(cns, qfeat, saccn, saccn_l, saccn_r)
         d['link'] = assign_url(cns.sstart, cns.schr, cns.qstart, cns.qchr,qfeat, pairsfile, sbed, qbed, sorg, qorg, padding)
         print >>out, fmt % d
