@@ -139,7 +139,7 @@ if __name__ == "__main__":
                       help="how far from the end of each gene to set the padding for the link of the cnss")
     (options, _) = parser.parse_args()
 
-    res = main(options.cns, options.qbed, options.sbed, options.pairs, options.qorg, options.sorg )
+    res = main(options.cns, options.qbed, options.sbed, options.pairs, options.qorg, options.sorg, options.pad)
 
             
 #main('/Users/gturco/rice_v6_cns_res/04_08_10/test_mine/testassign.txt', '/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6.bed', '/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6.bed' , '/Users/gturco/rice_v6_cns_res/04_08_10/test_mine/rice_v6_rice_v6.pairs.pck', '9109', '9109', 1000)
