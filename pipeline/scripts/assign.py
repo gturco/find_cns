@@ -58,6 +58,7 @@ def make_pair_maps(pair_file, fmt, qbed, sbed):
         if pair is None: break
         (sname, qname) = pair
         qmap_tuple.append((qname,sname))
+        qmap_tuple.append((sname,qname))
     return qmap_tuple
 #         
 # def get_nearby_features(feat, bed, p0, p1):
@@ -96,9 +97,9 @@ def assign(cnsdict, qbed, qpair_map):
         cns = CNS(cnsinfo)
         qfeats = []
         for qaccn, saccn, saccn_l, saccn_r in accns:
-            left_retained = [k for (k,l) in qpair_map if saccn_r[:-1] in k]
+            left_retained = [l for (k,l) in qpair_map if saccn_r[:-1] in k]
             left_retained_one = same_chr_feat(left_retained, qbed, cns)
-            right_retained = [k for (k,l) in qpair_map if saccn_l[1:] in k]
+            right_retained = [l for (k,l) in qpair_map if saccn_l[1:] in k]
             right_retained_one = same_chr_feat(right_retained, qbed, cns)
             left_feat,right_feat = qbed.accn(left_retained_one), qbed.accn(right_retained_one)
             qfeat1 = qbed.accn(qaccn)
