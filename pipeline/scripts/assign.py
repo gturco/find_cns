@@ -82,7 +82,6 @@ def nearest_feat(feats, cns_start, cns_stop):
     return dist_min[0]
     
 def same_chr_feat(feat_list, qbed, cns):
-    print feat_list
     f_list = []
     for f in feat_list:
         if f['seqid'] == cns.qchr:
