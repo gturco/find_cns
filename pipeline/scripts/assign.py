@@ -107,17 +107,20 @@ def assign(cnsdict, qbed, qpair_map):
             dist_min = nearest_feat(homeolog_feats, cns.qstart, cns.qstop)
             if dist_min < 2: continue
             try:
-                qfeats.append((qbed.d[qaccn],saccn,saccn_l,saccn_r))
+                qbed_value = qbed.d[qaccn]
+                qfeats.append((qbed_value,saccn,saccn_l,saccn_r))
             except KeyError:
                 print >>sys.stderr, "skipped non top-level features:", qaccn , saccn
                 raise
-            qfeat_start_stops = [(qfeat['start'], qfeat['end']) for qfeat,saccn,saccn_l,saccn_r in qfeats]
-            pos = nearest_feat(qfeat_start_stops, cns.qstart, cns.qstop)
-            qfeat,saccn,saccn_l,saccn_r = qfeats[pos]
+        qfeat_start_stops = [(qfeat['start'], qfeat['end']) for qfeat, saccn,saccn_l,saccn_r in qfeats]
+            #print qfeat_start_stops
+        pos = nearest_feat(qfeat_start_stops, cns.qstart, cns.qstop)
+        qfeat, saccn,saccn_l,saccn_r = qfeats[pos]
+            #print qfeats[pos]
     # genes_inbetween = get_nearby_features(qfeat,qbed, p0, p1) # these are the gene inbtween the nearest feat
     #         nsretained = sum(1 for gene in genes_inbetween if gene['accn'] in qpair_map)
     #         if nsretained > 0 : continue # if a gene inbetween the two is in the qpairmap then remove that cns from that gene
-            yield cns, saccn, saccn_l, saccn_r, qfeat
+        yield cns, saccn, saccn_l, saccn_r, qfeat
 
         
             
@@ -161,5 +164,6 @@ if __name__ == "__main__":
 
     res = main(options.cns, options.qbed, options.sbed, options.pairs, options.pck, options.qorg, options.sorg, options.pad)
 
-            
-#main('/Users/gturco/rice_v6_cns_res/04_08_10/test_mine/testassign.txt', '/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6.bed','/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6.bed', '/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6_rice_v6.pairs.txt', '/Users/gturco/rice_v6_cns_res/04_08_10/test_mine/rice_v6_rice_v6.pairs.pck', '9109', '9109', 1000)
+    
+# if __name__ == "__main__":
+#     main('/Users/gturco/rice_v6_cns_res/04_08_10/test_mine/testassign.txt', '/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6.bed','/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6.bed', '/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6_rice_v6.pairs.txt', '/Users/gturco/rice_v6_cns_res/04_08_10/test_mine/rice_v6_rice_v6.pairs.pck', '9109', '9109', 1000)
