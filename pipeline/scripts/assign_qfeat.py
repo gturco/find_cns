@@ -88,10 +88,10 @@ def assign(cnsdict, qbed, sbed):
             except KeyError:
                 print >>sys.stderr, "skipped non top-level features:", qaccn , saccn
                 raise
-    qfeat_start_stops = [(qfeat['start'], qfeat['end']) for qfeat,sfeat in qfeats]
-    pos = nearest_feat(qfeat_start_stops, cns.qstart, cns.qstop)
-    qfeat,sfeat = qfeats[pos]
-    yield cns, qfeat, sfeat
+        qfeat_start_stops = [(qfeat['start'], qfeat['end']) for qfeat,sfeat in qfeats]
+        pos = nearest_feat(qfeat_start_stops, cns.qstart, cns.qstop)
+        qfeat,sfeat = qfeats[pos]
+        yield cns, qfeat, sfeat
 
         
             
