@@ -57,12 +57,12 @@ def get_cns_dict(cnsfile):
     for line in open(cnsfile):
         if line[0] == "#":continue
         line = line.rstrip().split(",")
-        saccn, schr, qaccn, qaccn_l, qaccn_r, qchr = line[0:6]
+        qaccn, qchr, saccn, saccn_l, saccn_r, schr = line[0:6]
         cnslocs = map(int, line[6:])
         if len(cnslocs) % 4: raise
 
         for i in range(0, len(cnslocs), 4):
-            key = (schr, qchr, tuple(cnslocs[i:i + 4]))
+            key = (qchr, schr, tuple(cnslocs[i:i + 4]))
             cnss[key].append((qaccn, saccn, saccn_l, saccn_r))
     return cnss
     
@@ -123,9 +123,9 @@ def assign(cnsdict, qbed, pairsfile, sbed, qpair_map):
             right_retained = [l for (k,l) in qpair_map if saccn_l[1:] in k]
             right_retained_one = same_chr_feat(right_retained, qbed, cns)
             left_feat,right_feat = qbed.accn(left_retained_one), qbed.accn(right_retained_one)
-            qfeat = qbed.accn(qaccn)
-            h_feats = [left_feat['accn'], right_feat['accn'], qfeat['accn']]
-            homeolog_feats = [(left_feat['start'],left_feat['end']), (right_feat['start'],right_feat['end']), (qfeat['start'], qfeat['end'])]
+            qfeat1 = qbed.accn(qaccn)
+            h_feats = [left_feat['accn'], right_feat['accn'], qfeat1['accn']]
+            homeolog_feats = [(left_feat['start'],left_feat['end']), (right_feat['start'],right_feat['end']), (qfeat1['start'], qfeat['end'])]
             dist_array, dist_min = nearest_feat(homeolog_feats, cns.qstart)
             if dist_min[0] < 2: continue
             yield cns, saccn, saccn_l, saccn_r, qfeat
@@ -167,4 +167,4 @@ if __name__ == "__main__":
     res = main(options.cns, options.qbed,  options.pairs)
 
             
-#main('/Users/gturco/rice_v6_cns_res/04_08_10/test_mine/testassign.txt', '/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6.bed' , '/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6_rice_v6.pairs.txt', 'qorg', 'sorg')
+#main('/Users/gturco/rice_v6_cns_res/04_08_10/test_mine/testassign.txt', '/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6.bed' , '/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6_rice_v6.pairs.txt')
