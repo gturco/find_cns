@@ -75,7 +75,7 @@ def nearest_feat(feats, cns_start, cns_stop):
     "imputs:a list of feature start and stop postions and a cns start or stop postion\
      output: the feature start or stop postion that is closest to the cbs "
     if len(feats) == 0:
-        print 'ERROR: 'cns_start, cns_stop 
+        print 'ERROR:', cns_start, cns_stop 
     dist = array([[abs(x - cns_start),abs(y - cns_start)] for x,y in feats])
     params = [[(x , cns_start),(y , cns_start),(x , cns_stop),(y , cns_stop)] for x,y in feats]
     dist_min = numpy.unravel_index(dist.argmin(), dist.shape)
@@ -143,29 +143,29 @@ def main(cnsfile, qbed_file, sbed_file, pairsfile, pck, qorg, sorg, padding):
         print >>out, fmt % d
         
         
-# DEBUG=False
-# 
-# if __name__ == "__main__":
-# 
-#     import optparse
-#     parser = optparse.OptionParser()
-#     parser.add_option("--qbed", dest="qbed", help="bed file of the query")
-#     parser.add_option("--sbed", dest="sbed", help="bed file of the subject")
-#     parser.add_option("--cns", dest="cns", help="path to the cns file created by find_cns.py")
-#     parser.add_option("--pairs", dest="pairs", help="path pairs file")
-#     choices = ("dag", "cluster", "pair", "qa", "pck")
-#     parser.add_option("--pair_fmt", dest="pair_fmt", default='dag',
-#                       help="format of the pairs, one of: %s" % str(choices),
-#                       choices=choices)
-#     parser.add_option("--qorg", dest="qorg", type="int", help="dsid number in coge for the query (same as export to bed input)")
-#     parser.add_option("--sorg", dest="sorg", type="int", help="dsid number in coge for the subject (same as export to bed input)")
-#     parser.add_option("--pad", dest="pad", type='int', default=12000,
-#                       help="how far from the end of each gene to set the padding for the link of the cnss")
-#     parser.add_option("--pck", dest="pck", help="pairs_file for pck/cns/region")
-#     (options, _) = parser.parse_args()
-# 
-#     res = main(options.cns, options.qbed, options.sbed, options.pairs, options.pck, options.qorg, options.sorg, options.pad)
+DEBUG=False
+
+if __name__ == "__main__":
+
+    import optparse
+    parser = optparse.OptionParser()
+    parser.add_option("--qbed", dest="qbed", help="bed file of the query")
+    parser.add_option("--sbed", dest="sbed", help="bed file of the subject")
+    parser.add_option("--cns", dest="cns", help="path to the cns file created by find_cns.py")
+    parser.add_option("--pairs", dest="pairs", help="path pairs file")
+    choices = ("dag", "cluster", "pair", "qa", "pck")
+    parser.add_option("--pair_fmt", dest="pair_fmt", default='dag',
+                      help="format of the pairs, one of: %s" % str(choices),
+                      choices=choices)
+    parser.add_option("--qorg", dest="qorg", type="int", help="dsid number in coge for the query (same as export to bed input)")
+    parser.add_option("--sorg", dest="sorg", type="int", help="dsid number in coge for the subject (same as export to bed input)")
+    parser.add_option("--pad", dest="pad", type='int', default=12000,
+                      help="how far from the end of each gene to set the padding for the link of the cnss")
+    parser.add_option("--pck", dest="pck", help="pairs_file for pck/cns/region")
+    (options, _) = parser.parse_args()
+
+    res = main(options.cns, options.qbed, options.sbed, options.pairs, options.pck, options.qorg, options.sorg, options.pad)
 
     
-if __name__ == "__main__":
-    main('/Users/gturco/rice_v6_cns_res/04_08_10/test_mine/testassign.txt', '/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6.bed','/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6.bed', '/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6_rice_v6.pairs.txt', '/Users/gturco/rice_v6_cns_res/04_08_10/test_mine/rice_v6_rice_v6.pairs.pck', '9109', '9109', 1000)
+# if __name__ == "__main__":
+#     main('/Users/gturco/rice_v6_cns_res/04_08_10/test_mine/testassign.txt', '/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6.bed','/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6.bed', '/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6_rice_v6.pairs.txt', '/Users/gturco/rice_v6_cns_res/04_08_10/test_mine/rice_v6_rice_v6.pairs.pck', '9109', '9109', 1000)
