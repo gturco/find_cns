@@ -399,11 +399,11 @@ def main(qbed, sbed, pairs_file, pair_fmt, mask='F', ncpu=8):
             
             m = sstop - sstart
             n = qstop - qstart
-            if (m*n) >= 812045000: # if the database and query is large keep e_value at 2.11 else change it to something smaller
-                e_value = 2.11
-            else:
-                e_value = m*n*(2**(-28.51974)) # bit score above 15/15 noise
-                assert e_value > 0
+            # if (m*n) >= 812045000: # if the database and query is large keep e_value at 2.11 else change it to something smaller
+            #     e_value = 2.11
+            # else:
+            e_value = m*n*(2**(-28.51974)) # bit score above 15/15 noise
+            assert e_value > 0
 
             cmd = bl2seq % dict(qfasta=qfasta, sfasta=sfasta, qstart=qstart,
                                 sstart=sstart, qstop=qstop, sstop=sstop, e_value=e_value)
