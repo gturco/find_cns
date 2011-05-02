@@ -94,14 +94,6 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
         xx = locs[:2]
         yy = locs[2:4]
 
-        # get rid of stuff on the wrong strand
-        # try:
-        #     if slope == 1 and locs[2] > locs[3]: continue
-        #     if slope == -1 and locs[2] < locs[3]: continue
-        # except:
-        #     print >>sys.stderr, blast_str
-        #     raise
-
         # to be saved. a hit must either be in an intron in both
         # genes, or in neither.
 
@@ -115,12 +107,10 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
         if qgene_poly.intersects(xls) and sgene_poly.intersects(yls):
             cnss.update((locs,))
             continue
-
         # has to be both or neither.
         if qgene_poly.intersects(xls) or sgene_poly.intersects(yls):
             intronic_removed += 1
             continue
-
         ##########################################################
 
         ###############################################################
@@ -135,7 +125,6 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
             if feats.contains(Point(0, start)) or feats.contains(Point(0, stop)):
                 intronic = True
                 break
-
         if intronic: continue
 
         ##########################################################
@@ -149,6 +138,19 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
     if len(cnss) < 2: return [l[:4] for l in cnss]
 
     cnss = list(cnss)
+            
+    # # group stuff based on strand
+    opp_strand = []
+    same_strand = []
+    for cns in cnss:
+        print cns[2], cns[3]
+        if slope == 1 and cns[2] > cns[3]: 
+            opp_strand.append(cns)
+        elif slope == -1 and locs[2] < locs[3]: 
+            opp_strand.append(cns)
+        else:
+            same_strand.append(cns)
+    
     # need to flip to negative so the overlapping stuff still works.
     if orient == -1:
         cnss = list(cnss)
@@ -159,8 +161,11 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
             cnss[i] = tuple(cns)
             sgene[0] *= -1
             sgene[1] *= -1
-    cnss_same_strand = [l[:4] for l in remove_crossing_cnss(cnss, qgene, sgene)]
-    cnss_opp_strand = cns_opp_strand(cnss, qgene, sgene) # alternitive for cns on opp strand
+    
+            
+    cnss_same_strand = [l[:4] for l in remove_crossing_cnss(same_strand, qgene, sgene)]
+    cnss_opp_strand = cns_opp_strand(opp_strand, qgene, sgene) # alternitive for cns on opp strand
+    #print cnss_same_strand
     if len(cnss_same_strand) < len(cnss_opp_strand):
         cnss = cnss_opp_strand
     else: # what about if they are the , use non reverse complment
