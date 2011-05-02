@@ -143,7 +143,6 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
     opp_strand = []
     same_strand = []
     for cns in cnss:
-        print cns[2], cns[3]
         if slope == 1 and cns[2] > cns[3]: 
             opp_strand.append(cns)
         elif slope == -1 and locs[2] < locs[3]: 
