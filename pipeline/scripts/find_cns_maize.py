@@ -138,7 +138,6 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
     if len(cnss) < 2: return [l[:4] for l in cnss]
 
     cnss = list(cnss)
-            
     # # group stuff based on strand
     opp_strand = []
     same_strand = []
@@ -149,22 +148,18 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
             opp_strand.append(cns)
         else:
             same_strand.append(cns)
-    
     # need to flip to negative so the overlapping stuff still works.
+   
     if orient == -1:
-        cnss = list(cnss)
-        for i, cns in enumerate(cnss):
-            cns = list(cns)
-            cns[2] *= - 1
-            cns[3] *= - 1
-            cnss[i] = tuple(cns)
-            sgene[0] *= -1
-            sgene[1] *= -1
-    
-            
+        same_strand = list(same_strand)
+        opp_strand = list(opp_strand)
+        same_strand = map(change_orient, same_strand)
+        opp_strand = map(change_orient, opp_strand)    
+        sgene[0] *= -1
+        sgene[1] *= -1
+        
     cnss_same_strand = [l[:4] for l in remove_crossing_cnss(same_strand, qgene, sgene)]
     cnss_opp_strand = cns_opp_strand(opp_strand, qgene, sgene) # alternitive for cns on opp strand
-    #print cnss_same_strand
     if len(cnss_same_strand) < len(cnss_opp_strand):
         cnss = cnss_opp_strand
     else: # what about if they are the , use non reverse complment
@@ -172,16 +167,15 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
     if orient == -1:
         cnss = [(c[0], c[1], -c[2], -c[3]) for c in cnss]
     return cnss
+    
+def change_orient(cns):
+       return (cns[0], cns[1], cns[2] * -1, cns[3] * -1)
 
 def cns_opp_strand(cnss, qgene, sgene):
     cnss = list(cnss)
-    for i, cns in enumerate(cnss):
-        cns = list(cns)
-        cns[2] *= - 1
-        cns[3] *= - 1
-        cnss[i] = tuple(cns)
-        sgene[0] *= -1
-        sgene[1] *= -1
+    cnss = map(change_orient,cnss)
+    sgene[0] *= -1
+    sgene[1] *= -1
 
     cnss = [l[:4] for l in remove_crossing_cnss(cnss, qgene, sgene)]
     cnss_fixed = [(c[0], c[1], -c[2], -c[3]) for c in cnss]
