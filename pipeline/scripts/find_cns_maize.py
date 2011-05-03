@@ -169,7 +169,7 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
     return cnss
     
 def change_orient(cns):
-       return (cns[0], cns[1], cns[2] * -1, cns[3] * -1)
+    return (cns[0], cns[1], cns[2] * -1, cns[3] * -1, cns[4], cns[5])
 
 def cns_opp_strand(cnss, qgene, sgene):
     cnss = list(cnss)
