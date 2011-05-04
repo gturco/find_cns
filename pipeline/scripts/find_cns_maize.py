@@ -145,10 +145,10 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad, unmaske
     def group_cns(cnss, group):
       """input list of cns and list of groups , this puts the cns in a dictionary fmt key = group
       values = cns that fall within range of group"""
-        for cns in cnss:
-            if cns[2] in range(group[0],group[1]): # group start and end pos
-                key = group
-                cns_groups.setdefault(key, []).append(cns)
+      for cns in cnss:
+        if cns[2] in range(group[0],group[1]): # group start and end pos
+          key = group
+          cns_groups.setdefault(key, []).append(cns)
 
     cns_groups = {}
     inversion_groups = find_inversions(unmasked_fasta, sfeat, spad)
