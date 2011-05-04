@@ -5,6 +5,8 @@ import numpy as np
 import commands
 from shapely.geometry import Point, Polygon, LineString, MultiLineString
 from flatfeature import Bed
+from pyfasta import Fasta
+import re
 
 from processing import Pool
 pool = None
@@ -24,7 +26,7 @@ def get_feats_in_space(locs, ichr, bpmin, bpmax, bed):
     return [(f['start'], f['end'], f['accn']) for f in feats]
 
 
-def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
+def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad, unmasked_fasta):
     blast = []
     slope = orient
 
@@ -136,38 +138,71 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
     # cant cross with < 2 cnss.
     # get rid of the eval, bitscore stuff.
     if len(cnss) < 2: return [l[:4] for l in cnss]
-
     cnss = list(cnss)
-    # # group stuff based on strand
-    opp_strand = []
-    same_strand = []
-    for cns in cnss:
-        if slope == 1 and cns[2] > cns[3]: 
-            opp_strand.append(cns)
-        elif slope == -1 and locs[2] < locs[3]: 
-            opp_strand.append(cns)
-        else:
-            same_strand.append(cns)
-    # need to flip to negative so the overlapping stuff still works.
-   
+    ####################################################################################
+    #########split cns into groups based on inversion, seq marks in maize ##########
+    #################################################################################
+    def group_cns(cnss, group):
+      """input list of cns and list of groups , this puts the cns in a dictionary fmt key = group
+      values = cns that fall within range of group"""
+        for cns in cnss:
+            if cns[2] in range(group[0],group[1]): # group start and end pos
+                key = group
+                cns_groups.setdefault(key, []).append(cns)
+
+    cns_groups = {}
+    inversion_groups = find_inversions(unmasked_fasta, sfeat, spad)
+    [group_cns(cnss, group) for group in inversion_groups] # creates dict where key = group value is appended cns
+    # for each goup of cns values run the followiung
+    cns_by_group = []
+    for values in cns_groups.values():
+      # # first group, groups into smaller groups on strand
+      opp_strand = []
+      same_strand = []
+      for cns in values:
+          if slope == 1 and cns[2] > cns[3]:
+              opp_strand.append(cns)
+          elif slope == -1 and cns[2] < cns[3]:
+              opp_strand.append(cns)
+          else:
+              same_strand.append(cns)
+
+      # need to flip to negative so the overlapping stuff still works.
+      if orient == -1:
+          same_strand = list(same_strand)
+          opp_strand = list(opp_strand)
+          same_strand = map(change_orient, same_strand)
+          opp_strand = map(change_orient, opp_strand)
+          sgene[0] *= -1
+          sgene[1] *= -1
+
+      cnss_same_strand = [l[:4] for l in remove_crossing_cnss(same_strand, qgene, sgene)]
+      cnss_opp_strand = cns_opp_strand(opp_strand, qgene, sgene) # alternitive for cns on opp strand
+      if len(cnss_same_strand) < len(cnss_opp_strand):
+          map(cns_by_group.append, cnss_opp_strand)
+      else: # what about if they are the same, use non reverse complment
+          map(cns_by_group.append, cnss_same_strand)
     if orient == -1:
-        same_strand = list(same_strand)
-        opp_strand = list(opp_strand)
-        same_strand = map(change_orient, same_strand)
-        opp_strand = map(change_orient, opp_strand)    
-        sgene[0] *= -1
-        sgene[1] *= -1
-        
-    cnss_same_strand = [l[:4] for l in remove_crossing_cnss(same_strand, qgene, sgene)]
-    cnss_opp_strand = cns_opp_strand(opp_strand, qgene, sgene) # alternitive for cns on opp strand
-    if len(cnss_same_strand) < len(cnss_opp_strand):
-        cnss = cnss_opp_strand
-    else: # what about if they are the , use non reverse complment
-        cnss = cnss_same_strand
-    if orient == -1:
-        cnss = [(c[0], c[1], -c[2], -c[3]) for c in cnss]
-    return cnss
+        cns_by_group = [(c[0], c[1], -c[2], -c[3]) for c in cns_by_group]
+
+    return cns_by_group
     
+##########################################################################################################
+def find_inversions(unmasked_fasta, sfeat, spad):
+  """finds all the invered/cut of seq regions in maize and creates a start stop tuple for each region
+  input: unmasked fasta, sfeat and padding used for searching for NNNNNNs """
+  chrm = sfeat['seqid']
+  chr_seq = unmasked_fasta[chrm]
+  sstart, sstop = max(sfeat['start'] - spad, 1), sfeat['end'] + spad
+  search_seq = chr_seq[sstart:sstop]
+  inverstion_positions = [(sstart,sstart)]
+  for m in re.finditer(r"N{50,1000}", search_seq):
+#    print '%d-%d: %s' % (m.start(), m.end(), m.group(0))
+    inverstion_positions.append((m.start()+sstart, m.end()+sstart))
+  inverstion_positions.append((sstop, sstop))
+  create_regions = [(inverstion_positions[i][1], inverstion_positions[i+1][0]) for i in range(0, (len(inverstion_positions)-1))]
+  return create_regions
+
 def change_orient(cns):
     return (cns[0], cns[1], cns[2] * -1, cns[3] * -1, cns[4], cns[5])
 
@@ -203,6 +238,8 @@ def remove_overlapping_cnss(cnss):
 
 
 def remove_crossing_cnss(cnss, qgene, sgene):
+    if len(cnss) <= 1:
+      return cnss
     diff = qgene[0] - sgene[0] # adjust subject so it's in same range as query
     cns_shapes = [LineString([((c[0] + c[1])/2., 0 ), ((c[2] + c[3])/2. + diff, 1000)]) for c in cnss]
 
@@ -330,10 +367,9 @@ def get_masked_fastas(bed):
         fh.close()
     return fastas
 
-def main(qbed, sbed, pairs_file, qpad, spad, pair_fmt, mask='F', ncpu=8):
+def main(qbed, sbed, pairs_file, qpad, spad, unmasked_fasta, pair_fmt, mask='F', ncpu=8):
     """main runner for finding cnss"""
     pool = Pool(options.ncpu)
-
 
     bl2seq = "~/src/blast-2.2.25/bin/bl2seq " \
            "-p blastn -D 1 -E 2 -q -2 -r 1 -G 5 -W 7 -F %s " % mask + \
@@ -395,7 +431,7 @@ def main(qbed, sbed, pairs_file, qpad, spad, pair_fmt, mask='F', ncpu=8):
             print >>sys.stderr,  "%s %s" % (qfeat["accn"], sfeat['accn']),
             orient = qfeat['strand'] == sfeat['strand'] and 1 or -1
 
-            cnss = parse_blast(res, orient, qfeat, sfeat, qbed, sbed, qpad, spad)
+            cnss = parse_blast(res, orient, qfeat, sfeat, qbed, sbed, qpad, spad, unmasked_fasta)
             print >>sys.stderr, "(%i)" % len(cnss)
             if len(cnss) == 0: continue
 
@@ -423,6 +459,7 @@ if __name__ == "__main__":
                       help="how far from the end of the query gene to look for cnss")
     parser.add_option("--spad", dest="spad", type='int', default=26000,
                     help="how far from the end of the subject gene to look for cnss")
+    parser.add_option("--UMfasta", dest="unmasked_fasta", help="path to unmasked fasta file file")
     (options, _) = parser.parse_args()
 
 
@@ -431,6 +468,7 @@ if __name__ == "__main__":
 
     qbed = Bed(options.qbed, options.qfasta); qbed.fill_dict()
     sbed = Bed(options.sbed, options.sfasta); sbed.fill_dict()
+    unmasked_fasta = Fasta(options.unmasked_fasta)
     assert options.mask in 'FT'
 
-    main(qbed, sbed, options.pairs, options.qpad, options.spad, options.pair_fmt, options.mask, options.ncpu)
+    main(qbed, sbed, options.pairs, options.qpad, options.spad, unmasked_fasta, options.pair_fmt, options.mask, options.ncpu)
