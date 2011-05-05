@@ -36,7 +36,7 @@ class TestAssign(unittest.TestCase):
         
     def test_assign(self):
         """test for test_assign"""
-        qbed_file = "/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6.bed"
+        qbed_file = "/Users/gturco/rice_maize/rice_v6.bed"
         qbed = Bed(qbed_file)
         qbed.fill_dict()
         
