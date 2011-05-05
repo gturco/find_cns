@@ -23,7 +23,6 @@ def get_cns_dict(cnsfile):
             continue
         line = line.rstrip().split(",")
         qchr, qaccn, schr, saccn = line[:4]
-
         cnslocs = map(int, line[4:])
         if len(cnslocs) % 4: raise
 
@@ -46,25 +45,7 @@ class CNS(object):
     __slots__ = ("qchr", "schr", "qstart", "qstop", "sstart", "sstop")
     def __init__(self, cnsinfo):
         self.qchr, self.schr, (self.qstart, self.qstop, self.sstart, self.sstop) = cnsinfo  
-        
-# def make_pair_maps(cnsfile):
-#     """makes a list of query accns from the cns_file"""
-#     qmap = []
-#     for line in open(cnsfile):
-#         if line[0] == "#":continue
-#         line = line.rstrip().split(",")
-#         qname = line[4]
-#         qmap.append(qname)
-#     return qmap 
-#         
-# def get_nearby_features(feat, bed, p0, p1):
-#     "grabs all features inbtween two postions (chr#, start, stop)"
-#     if p0 < p1:
-#         inters = bed.get_features_in_region(feat['seqid'], p0, p1)
-#     else:
-#         inters = bed.get_features_in_region(feat['seqid'], p1, p0)
-#     return [f for f in inters if f["accn"] != feat["accn"]]   
- 
+
 def nearest_feat(feats, cns_start, cns_stop):
     "imputs:a list of feature start and stop postions and a cns start or stop postion\
      output: the feature start or stop postion that is closest to the cbs "
@@ -80,7 +61,7 @@ def assign(cnsdict, qbed, sbed):
     "finds the nearest qfeat for each duplicat cns qstart qstop, sstart, sstop pos"
     
     for cnsinfo, accns in cnsdict.iteritems():
-        cns = CNS(cnsinfo)
+        cns = CNS(cnsinfo) 
         qfeats = []
         for qaccn, saccn in accns:
             try:
@@ -95,11 +76,10 @@ def assign(cnsdict, qbed, sbed):
 
         
             
-def main(cnsfile, qbed_file, sbed_file, pairsfile, qorg, sorg, padding):
+def main(cnsfile, qbed_file, sbed_file, qorg, sorg, padding):
     qbed = Bed(qbed_file); qbed.fill_dict()
     sbed = Bed(sbed_file); sbed.fill_dict()
     cnsdict = get_cns_dict(cnsfile)
-    #qpair_map = make_pair_maps(cnsfile)
     out = sys.stdout
     
     fmt = "%(qaccn)s,%(qchr)s,%(qstart)i,%(qstop)i,%(qstrand)s," + \
@@ -135,4 +115,4 @@ if __name__ == "__main__":
     res = main(options.cns, options.qbed, options.sbed, options.pairs, options.qorg, options.sorg, options.pad)
 
             
-#main('/Users/gturco/rice_v6_cns_res/04_08_10/test_mine/testassign.txt', '/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6.bed', '/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6.bed' , '/Users/gturco/rice_v6_cns_res/04_08_10/test_mine/rice_v6_rice_v6.pairs.pck', '9109', '9109', 1000)
+#main('/Users/gturco/code/freeling_lab/find_cns_gturco/pipeline/tests/resources/cns_2.csv', '/Users/gturco/rice_maize/rice_v6.bed', '/Users/gturco/rice_maize/maize_v2.bed', '9109', '9109', 1000)
