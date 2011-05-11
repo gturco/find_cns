@@ -1,4 +1,3 @@
-# warrning make sure you delete the past rice_rice_split file before re-running if u uploaded a new file!!!!!!
 import sys
 import os
 import os.path as op
@@ -6,33 +5,12 @@ import numpy as np
 import commands
 from shapely.geometry import Point, Polygon, LineString, MultiLineString
 from flatfeature import Bed
-import pickle 
 
 from processing import Pool
 pool = None
 
 
 EXPON = 0.90
-
-
-# def assign_url(qcns, qseqid, scns, sseqid, orginal_sfeat,
-#                base = "http://synteny.cnr.berkeley.edu/CoGe/GEvo.pl?prog=blastn&autogo=1&"):
-#     "lines up coge based on the cns postion"
-#     params = {'qcns' : scns, 'qseqid' : qseqid , 'scns' : qcns , 'sseqid' : sseqid , 'sfeat' : orginal_sfeat }
-#     inside = 'dsid1=43388&dsgid1=9109&chr1=%(qseqid)s&x1=%(qcns)s&dr1up=15000&dr1down=15000&dsid2=43388&dsgid2=9109&chr2=%(sseqid)s&x2=%(scns)s&dr2up=15000;dr2down=15000&\
-# accn3=%(sfeat)s;dsid3=34580;dsgid3=34580;dr3up=15000;dr3down=15000;num_seqs=3;hsp_overlap_limit=0;hsp_size_limit=0' %params
-#     url = base + inside
-#     return url
-# 
-# 
-# def url_params(cnss, qseqid, sseqid, orginal_sfeat):
-#     url_list = []
-#     for cns in cnss:
-#         qcns = cns[0]
-#         scns = cns[2]
-#         url = assign_url(qcns, qseqid, scns, sseqid, orginal_sfeat)
-#         url_list.append(url)
-#     return url_list
 
 def get_feats_in_space(locs, ichr, bpmin, bpmax, bed):
     """ locs == [start, stop]
@@ -45,61 +23,64 @@ def get_feats_in_space(locs, ichr, bpmin, bpmax, bed):
         assert feats[0]['seqid'] == str(ichr)
     return [(f['start'], f['end'], f['accn']) for f in feats]
 
-def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed):
+
+
+def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
     blast = []
     slope = orient
 
     qgene = [qfeat['start'], qfeat['end']]
     sgene = [sfeat['start'], sfeat['end']]
-    # qcds = qfeat['locs']
-    # scds = sfeat['locs']
+    qcds = qfeat['locs']
+    scds = sfeat['locs']
 
 
     sgene = sgene[::slope]
-    # center = sum(qgene)/2., sum(sgene)/2.
-    # 
-    # EXP = EXPON
-    # if abs(abs(qgene[1] - qgene[0]) - abs(sgene[1] - sgene[0])) > 3000:
-    #     EXP = 0.94
-    # 
-    # 
-    # #intercept = (sgene[0] + sgene[1])/2.  - slope * (qgene[0] + qgene[1])/2.
-    # intercept = center[1] - slope * center[0]
-    # rngx = qgene[1] - qgene[0]
-    # rngy = abs(sgene[1] - sgene[0])
-    # 
-    # x = np.linspace(qgene[0] - pad, qgene[1] + pad, 50)
-    # y = slope * x + intercept
-    # 
-    # 
-    # xb = x + -slope * rngx/3. + -slope * np.abs(x - center[0])**EXP
-    # yb = y + rngy/3. + np.abs(y - center[1])**EXP
-    # 
-    # xy = x + slope * rngx/3. + slope * np.abs(x - center[0])**EXP
-    # yy = y - rngy/3. - np.abs(y - center[1])**EXP
-    # 
-    # if slope == 1:
-    #     xall = np.hstack((xy[::-1], xb[::slope], xy[-1]))
-    #     yall = np.hstack((yy[::-1],yb, yy[-1]))
-    # if slope == -1:
-    #     xall = np.hstack((xy, xb[::-1], xy[0]))
-    #     yall = np.hstack((yy,yb[::-1], yy[0]))
-    qstrat , qstop = grab_flanking_region(qfeat, sfeat)
+    center = sum(qgene)/2., sum(sgene)/2.
+
+    EXP = EXPON
+    if abs(abs(qgene[1] - qgene[0]) - abs(sgene[1] - sgene[0])) > 3000:
+        EXP = 0.94
+
+
+    #intercept = (sgene[0] + sgene[1])/2.  - slope * (qgene[0] + qgene[1])/2.
+    intercept = center[1] - slope * center[0]
+    rngx = qgene[1] - qgene[0]
+    rngy = abs(sgene[1] - sgene[0])
+
+    x = np.linspace(qgene[0] - qpad, qgene[1] + qpad, 50)
+    y = slope * x + intercept
+
+
+    xb = x + -slope * rngx/3. + -slope * np.abs(x - center[0])**EXP
+    yb = y + rngy/3. + np.abs(y - center[1])**EXP
+
+    xy = x + slope * rngx/3. + slope * np.abs(x - center[0])**EXP
+    yy = y - rngy/3. - np.abs(y - center[1])**EXP
+
+    if slope == 1:
+        xall = np.hstack((xy[::-1], xb[::slope], xy[-1]))
+        yall = np.hstack((yy[::-1],yb, yy[-1]))
+    if slope == -1:
+        xall = np.hstack((xy, xb[::-1], xy[0]))
+        yall = np.hstack((yy,yb[::-1], yy[0]))
+
     feats_nearby = {}
-    feats_nearby['q'] = get_feats_in_space(qgene, qfeat['seqid'], qstrat, qstop, qbed) #looks for genes in bowtie.....
-    feats_nearby['s'] = get_feats_in_space(sgene, sfeat['seqid'], sfeat['start'] ,sfeat['end'], sbed) # changed so that if looks for genes within region
-    
-    
-    # genespace_poly = Polygon(zip(xall, yall))
-    
+    feats_nearby['q'] = get_feats_in_space(qgene, qfeat['seqid'], int(x.min()), int(x.max()), qbed)
+    feats_nearby['s'] = get_feats_in_space(sgene, sfeat['seqid'], int(y.min()), int(y.max()), sbed)
+
+
+
+    genespace_poly = Polygon(zip(xall, yall))
+
     for sub in ('q', 's'):
         if len(feats_nearby[sub]) !=0:
-            feats_nearby[sub] = MultiLineString([[(0, c0),(0, c1)] for c0, c1, fname in feats_nearby[sub]])
+            feats_nearby[sub] = MultiLineString([[(0, c0),(0, c1)] for c0, c1, fname in feats_nearby[sub]])#another dictioary gt
         else:
             feats_nearby[sub] = None
-    
+
     cnss = set([])
-    
+
     qgene_poly = LineString([(0.0, qgene[0]), (0.0, qgene[1])])
     sgene_poly = LineString([(0.0, sgene[0]), (0.0, sgene[1])])
     intronic_removed = 0
@@ -132,11 +113,12 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed):
         yls = LineString([(0, locs[2]), (0, locs[3])])
 
         locs = tuple(locs) # make it hashable.
-        # if not sgene_poly.intersects(yls):
-        #     cnss.update((locs,))
-        #     continue
+        if qgene_poly.intersects(xls) and sgene_poly.intersects(yls):
+            cnss.update((locs,))
+            continue
 
-        if  qgene_poly.intersects(xls):
+        # has to be both or neither.
+        if qgene_poly.intersects(xls) or sgene_poly.intersects(yls):
             intronic_removed += 1
             continue
 
@@ -155,12 +137,12 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed):
                 intronic = True
                 break
 
-        if intronic: continue #(if an intron dont updat cns... go back to results(forloop) and check another intron)
+        if intronic: continue
 
         ##########################################################
 
         # this is the bowtie.
-        # if not genespace_poly.contains(LineString(zip(xx, yy))): continue #if it is in the bowtie update... otherwise get rid of it
+        if not genespace_poly.contains(LineString(zip(xx, yy))): continue
         cnss.update((locs,))
 
     # cant cross with < 2 cnss.
@@ -207,7 +189,7 @@ def remove_overlapping_cnss(cnss):
 
 
 def remove_crossing_cnss(cnss, qgene, sgene):
-    diff = (sum(qgene)/2.) - (sum(sgene)/2.) # adjust subject so it's in same range as query
+    diff = qgene[0] - sgene[0] # adjust subject so it's in same range as query
     cns_shapes = [LineString([((c[0] + c[1])/2., 0 ), ((c[2] + c[3])/2. + diff, 1000)]) for c in cnss]
 
     overlapping = len(cnss)
@@ -277,62 +259,42 @@ def remove_crossing_cnss(cnss, qgene, sgene):
         nremoved += 1
     return [c.cns for c in cns_shapes if not c.do_remove]
 
-def grab_flanking_region(qfeat , flanking_genes):
-    "grabs the start and end postion of the nearest gene to the left \
-    and right of the sfeat"
-    left_padding = (qfeat['start'] - 12000)
-    right_padding = (qfeat['end'] + 12000)
-    left_flgene  = flanking_genes['sstart']
-    right_flgene = flanking_genes['send']
-    left_cut_off = max(left_flgene , left_padding)
-    right_cut_off = min(right_flgene, right_padding)
-    return left_cut_off, right_cut_off
 
-                    
 def get_pair(pair_file, fmt, qbed, sbed, seen={}):
     """ read a line and make sure it's unique handles
     dag, cluster, and pair formats."""
-    #skipped = open('data/skipped.txt', 'w')
+    skipped = open('data/skipped.txt', 'w')
     fh = open(pair_file)
-    if fmt == 'pck':
-        pck_file = pickle.load(fh)
-        for row in pck_file:
-            region = row
-            accn = row['sfeat']
-            qfeat = qbed.accn(accn)
-            pair = region, qfeat
-            yield pair
-    else:        
-        for line in open(pair_file):
-            if line[0] == "#": continue
-            line = line.strip().split("\t")
-            if fmt == 'dag':
-                assert len(line) > 5, line
-                pair = line[1], line[5]
-            elif fmt in ('cluster', 'qa', 'raw'):
-                assert len(line) == 5, line
-                pair = line[1], line[3]
-            elif fmt == 'pair':
-                if len(line) == 1:
-                    line = line.split(",")
-                assert len(line) >= 2, "dont know how to handle %s" % line
-                pair = line[0], line[1]
+    for line in open(pair_file):
+        if line[0] == "#": continue
+        line = line.strip().split("\t")
+        if fmt == 'dag':
+            assert len(line) > 5, line
+            pair = line[1], line[5]
+        elif fmt in ('cluster', 'qa', 'raw'):
+            assert len(line) == 5, line
+            pair = line[1], line[3]
+        elif fmt == 'pair':
+            if len(line) == 1:
+                line = line.split(",")
+            assert len(line) >= 2, "dont know how to handle %s" % line
+            pair = line[0], line[1]
 
-            if fmt in ('qa', 'raw'):
-                pair = int(pair[0]), int(pair[1])
-            pair = tuple(pair)
-            if pair in seen:
-                continue
-            seen[pair] = True
-            try:
-                if isinstance(pair[0], (int, long)):
-                    yield qbed[pair[0]], sbed[pair[1]]
-                else:
-                    yield qbed.d[pair[0]], sbed.d[pair[1]]
-            except KeyError, IndexError:
-                print >>skipped, "%s\t%s" % pair
-                print >>sys.stderr, "skipped %s %s" % pair
-                continue
+        if fmt in ('qa', 'raw'):
+            pair = int(pair[0]), int(pair[1])
+        pair = tuple(pair)
+        if pair in seen:
+            continue
+        seen[pair] = True
+        try:
+            if isinstance(pair[0], (int, long)):
+                yield qbed[pair[0]], sbed[pair[1]]
+            else:
+                yield qbed.d[pair[0]], sbed.d[pair[1]]
+        except KeyError, IndexError:
+            print >>skipped, "%s\t%s" % pair
+            print >>sys.stderr, "skipped %s %s" % pair
+            continue
 
 def get_masked_fastas(bed):
     """
@@ -354,7 +316,7 @@ def get_masked_fastas(bed):
         fh.close()
     return fastas
 
-def main(qbed, sbed, pairs_file, pair_fmt, mask='F', ncpu=8):
+def main(qbed, sbed, pairs_file, qpad, spad, pair_fmt, mask='F', ncpu=8):
     """main runner for finding cnss"""
     pool = Pool(options.ncpu)
 
@@ -362,19 +324,17 @@ def main(qbed, sbed, pairs_file, pair_fmt, mask='F', ncpu=8):
     bl2seq = "~/src/blast-2.2.25/bin/bl2seq " \
            "-p blastn -D 1 -E 2 -q -2 -r 1 -G 5 -W 7 -F %s " % mask + \
            " -e %(e_value).2f -i %(qfasta)s -j %(sfasta)s \
-             -I %(qstart)d,%(qstop)d -J %(sstart)d,%(sstop)d | grep -v '#' \
+              -I %(qstart)d,%(qstop)d -J %(sstart)d,%(sstop)d | grep -v '#' \
             | grep -v 'WARNING' | grep -v 'ERROR' "
 
     fcnss = sys.stdout
-    print >> fcnss, "#qaccn,qseqid,saccn,[sleft_gene,sright_gene],sseqid,res"#"qseqid,qaccn,sseqid,saccn,[qstart,qend,sstart,send...]"
+    print >> fcnss, "#qseqid,qaccn,sseqid,saccn,[qstart,qend,sstart,send...]"
 
     qfastas = get_masked_fastas(qbed)
     sfastas = get_masked_fastas(sbed) if qbed.filename != sbed.filename else qfastas
 
-
-
     pairs = [True]
-    _get_pair_gen = get_pair(pairs_file , pair_fmt, sbed, qbed)
+    _get_pair_gen = get_pair(pairs_file, pair_fmt, qbed, sbed)
     # need this for parallization stuff.
     def get_pair_gen():
         try: return _get_pair_gen.next()
@@ -386,22 +346,21 @@ def main(qbed, sbed, pairs_file, pair_fmt, mask='F', ncpu=8):
         # this helps in parallelizing.
         def get_cmd(pair):
             if pair is None: return None
-            sfeat, qfeat = pair
-            
+            qfeat, sfeat = pair
             #if qfeat['accn'] != "Bradi4g01820": return None
             #print >>sys.stderr, qfeat, sfeat
 
             qfasta = qfastas[qfeat['seqid']]
             sfasta = sfastas[sfeat['seqid']]
 
-            sstart, sstop = sfeat['start'], sfeat['end'] #region gets no padding
-            qstart, qstop = grab_flanking_region(qfeat, sfeat) # sfeat here is the final table with sfeat info from qfeat dict
+            qstart, qstop = max(qfeat['start'] - qpad, 1), qfeat['end'] + qpad
+            sstart, sstop = max(sfeat['start'] - spad, 1), sfeat['end'] + spad
+
+            assert qstop - qstart > 2 * qpad or qstart == 1, (qstop, qstart)
+            assert sstop - sstart > 2 * spad or sstart == 1, (sstop, sstart)
             
-            m = sstop - sstart
-            n = qstop - qstart
-            # if (m*n) >= 812045000: # if the database and query is large keep e_value at 2.11 else change it to something smaller
-            #     e_value = 2.11
-            # else:
+            m = qstop - qstart
+            n = sstop - sstart
             e_value = m*n*(2**(-28.51974)) # bit score above 15/15 noise
             assert e_value > 0
 
@@ -415,19 +374,16 @@ def main(qbed, sbed, pairs_file, pair_fmt, mask='F', ncpu=8):
 
         for res, (cmd, qfeat, sfeat) in zip(results, cmds):
             if not res.strip(): continue
-            print >>sys.stderr,  "%s %s" % (qfeat["accn"], sfeat["accn"]),
+            print >>sys.stderr,  "%s %s" % (qfeat["accn"], sfeat['accn']),
             orient = qfeat['strand'] == sfeat['strand'] and 1 or -1
-            
-            cnss =  parse_blast(res, orient, qfeat, sfeat, qbed, sbed)
+
+            cnss = parse_blast(res, orient, qfeat, sfeat, qbed, sbed, qpad, spad)
             print >>sys.stderr, "(%i)" % len(cnss)
             if len(cnss) == 0: continue
-                       
+
             qname, sname = qfeat['accn'], sfeat['accn']
-            
-            #urls = url_params(cnss, qfeat['seqid'], sfeat['seqid'], qfeat['ORG2_qfeat'])
-            
-            print >> fcnss, "%s,%s,%s,[%s,%s],%s,%s" % (qname, qfeat['seqid'], sname, sfeat['qleft_gene'], sfeat['qright_gene'], sfeat['seqid'],
-                             ",".join(map(lambda l: ",".join(map(str,l)), cnss)))
+            print >> fcnss, "%s,%s,%s,%s,%s" % (qfeat['seqid'], qname, sfeat['seqid'], sname,
+                             ",".join(map(lambda l: ",".join(map(str,l)),cnss)))
 
     return None
 
@@ -441,10 +397,14 @@ if __name__ == "__main__":
     parser.add_option("-s", dest="sfasta", help="path to genomic subject fasta")
     parser.add_option("--sbed", dest="sbed", help="subject bed file")
     parser.add_option("-p", dest="pairs", help="the pairs file. output from dagchainer")
-    choices = ("dag", "cluster", "pair", 'qa', 'raw', 'pck')
+    choices = ("dag", "cluster", "pair", 'qa', 'raw')
     parser.add_option("--pair_fmt", dest="pair_fmt", default='raw',
-                          help="format of the pairs, one of: %s" % str(choices),
-                          choices=choices)
+                      help="format of the pairs, one of: %s" % str(choices),
+                      choices=choices)
+    parser.add_option("--qpad", dest="qpad", type='int', default=12000,
+                          help="how far from the end of the query gene to look for cnss")
+    parser.add_option("--spad", dest="spad", type='int', default=26000,
+                        help="how far from the end of the subject gene to look for cnss")
     (options, _) = parser.parse_args()
 
 
@@ -455,4 +415,4 @@ if __name__ == "__main__":
     sbed = Bed(options.sbed, options.sfasta); sbed.fill_dict()
     assert options.mask in 'FT'
 
-    main(qbed, sbed, options.pairs, options.pair_fmt, options.mask, options.ncpu)
+    main(qbed, sbed, options.pairs, options.qpad, options.spad, options.pair_fmt, options.mask, options.ncpu)
