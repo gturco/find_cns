@@ -174,7 +174,7 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad, unmaske
           opp_strand = map(change_orient, opp_strand)
           sgene[0] *= -1
           sgene[1] *= -1
-      if sgene[1] in range(key[0], key[1]): # if the cns fall in same group as gene we know its same stand  as gene and dont need to run rest
+      if abs(sgene[1]) in range(key[0], key[1]): # if the cns fall in same group as gene we know its same stand  as gene and dont need to run rest
         cnss_same_strand = [l[:4] for l in remove_crossing_cnss(same_strand, qgene, sgene)]
         map(cns_by_group.append, cnss_same_strand)
       else:
