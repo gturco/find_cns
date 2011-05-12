@@ -6,17 +6,17 @@
 
 
 ORGA=rice_v6
-ORGB=maize_v2
-QUOTA=1:2
+ORGB=sorghum_v1
+QUOTA=1:1
 NCPU=8
 
 #############################################
 # dont edit below here
 #############################################
 DIR=data/${ORGA}_${ORGB}/
-#
-#sh quota.sh $DIR/${ORGA} $DIR/${ORGB} $QUOTA $NCPU
-python scripts/find_cns_maize.py \
+
+sh quota.sh $DIR/${ORGA} $DIR/${ORGB} $QUOTA $NCPU
+python scripts/find_cns.py \
         -q $DIR/${ORGA}.fasta --qbed $DIR/${ORGA}.bed \
         -s $DIR/${ORGB}.fasta --sbed $DIR/${ORGB}.bed \
         -p $DIR/${ORGA}_${ORGB}.pairs.txt \
@@ -24,29 +24,19 @@ python scripts/find_cns_maize.py \
         -n 8 \
         --qpad 12000 \
         --spad 26000 \
-        --UMfasta $DIR/${ORGB}_UM.fasta \
+        --blast_path ~/src/blast-2.2.25/bin/bl2seq \
         --pair_fmt pair > $DIR/${ORGA}_${ORGB}.cns.txt
 
-python scripts/assign_qfeat.py \
+python scripts/assign2.py \
       --qbed $DIR/${ORGA}.nolocaldups.bed \
       --sbed $DIR/${ORGB}.nolocaldups.bed \
       --cns $DIR/${ORGA}_${ORGB}.cns.txt \
       --pairs $DIR/${ORGA}_${ORGB}.pairs.txt \
       --qorg 9109 \
       --sorg 9106 \
-      --pad 26000 \
+      --pad 15000 \
       --pair_fmt pair > $DIR/${ORGA}_${ORGB}.cns.assigned.csv
 
-
-
-#python scripts/assign2.py \
-#      --qbed $DIR/${ORGA}.nolocaldups.bed \
-#      --sbed $DIR/${ORGB}.nolocaldups.bed \
-#      --cns $DIR/${ORGA}_${ORGB}.cns.txt \
-#      --pairs $DIR/${ORGA}_${ORGB}.pairs2.txt \
-#      --pair_fmt pair \
-#      --qorg 43487 \
-#      --sorg 43487 > $DIR/${ORGA}_${ORGB}.cns.assigned2.csv
 
 # load orga
 #python scripts/load_simpledb.py \

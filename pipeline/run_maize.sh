@@ -15,7 +15,7 @@ NCPU=8
 #############################################
 DIR=data/${ORGA}_${ORGB}/
 #
-#sh quota.sh $DIR/${ORGA} $DIR/${ORGB} $QUOTA $NCPU
+sh quota.sh $DIR/${ORGA} $DIR/${ORGB} $QUOTA $NCPU
 python scripts/find_cns_maize.py \
         -q $DIR/${ORGA}.fasta --qbed $DIR/${ORGA}.bed \
         -s $DIR/${ORGB}.fasta --sbed $DIR/${ORGB}.bed \
@@ -36,17 +36,6 @@ python scripts/assign_qfeat.py \
       --sorg 9106 \
       --pad 26000 \
       --pair_fmt pair > $DIR/${ORGA}_${ORGB}.cns.assigned.csv
-
-
-
-#python scripts/assign2.py \
-#      --qbed $DIR/${ORGA}.nolocaldups.bed \
-#      --sbed $DIR/${ORGB}.nolocaldups.bed \
-#      --cns $DIR/${ORGA}_${ORGB}.cns.txt \
-#      --pairs $DIR/${ORGA}_${ORGB}.pairs2.txt \
-#      --pair_fmt pair \
-#      --qorg 43487 \
-#      --sorg 43487 > $DIR/${ORGA}_${ORGB}.cns.assigned2.csv
 
 # load orga
 #python scripts/load_simpledb.py \
