@@ -316,12 +316,12 @@ def get_masked_fastas(bed):
         fh.close()
     return fastas
 
-def main(qbed, sbed, pairs_file, qpad, spad, pair_fmt, mask='F', ncpu=8):
+def main(qbed, sbed, pairs_file, qpad, spad, pair_fmt, blast_path, mask='F', ncpu=8):
     """main runner for finding cnss"""
     pool = Pool(options.ncpu)
 
 
-    bl2seq = "~/src/blast-2.2.25/bin/bl2seq " \
+    bl2seq = "blast_path " % blast_path + \
            "-p blastn -D 1 -E 2 -q -2 -r 1 -G 5 -W 7 -F %s " % mask + \
            " -e %(e_value).2f -i %(qfasta)s -j %(sfasta)s \
               -I %(qstart)d,%(qstop)d -J %(sstart)d,%(sstop)d | grep -v '#' \
@@ -401,10 +401,9 @@ if __name__ == "__main__":
     parser.add_option("--pair_fmt", dest="pair_fmt", default='raw',
                       help="format of the pairs, one of: %s" % str(choices),
                       choices=choices)
-    parser.add_option("--qpad", dest="qpad", type='int', default=12000,
-                          help="how far from the end of the query gene to look for cnss")
-    parser.add_option("--spad", dest="spad", type='int', default=26000,
-                        help="how far from the end of the subject gene to look for cnss")
+    parser.add_option("--qpad", dest="qpad", type='int', default=12000, help="how far from the end of the query gene to look for cnss")
+    parser.add_option("--spad", dest="spad", type='int', default=26000, help="how far from the end of the subject gene to look for cnss")
+    parser.add_option("--blast_path", dest="blast_path", type='string', help="path to bl2seq")
     (options, _) = parser.parse_args()
 
 
@@ -415,4 +414,4 @@ if __name__ == "__main__":
     sbed = Bed(options.sbed, options.sfasta); sbed.fill_dict()
     assert options.mask in 'FT'
 
-    main(qbed, sbed, options.pairs, options.qpad, options.spad, options.pair_fmt, options.mask, options.ncpu)
+    main(qbed, sbed, options.pairs, options.qpad, options.spad, options.pair_fmt, options.blast_path, options.mask, options.ncpu)
