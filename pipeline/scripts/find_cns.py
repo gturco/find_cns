@@ -321,7 +321,7 @@ def main(qbed, sbed, pairs_file, qpad, spad, pair_fmt, blast_path, mask='F', ncp
     pool = Pool(options.ncpu)
 
 
-    bl2seq = "blast_path " % blast_path + \
+    bl2seq = "%s " % blast_path + \
            "-p blastn -D 1 -E 2 -q -2 -r 1 -G 5 -W 7 -F %s " % mask + \
            " -e %(e_value).2f -i %(qfasta)s -j %(sfasta)s \
               -I %(qstart)d,%(qstop)d -J %(sstart)d,%(sstop)d | grep -v '#' \

@@ -202,7 +202,7 @@ if __name__ == "__main__":
                       choices=choices)
     parser.add_option("--qorg", dest="qorg", type="int", help="dsid number in coge for the query (same as export to bed input)")
     parser.add_option("--sorg", dest="sorg", type="int", help="dsid number in coge for the subject (same as export to bed input)")
-    parser.add_option("--pad", dest="pad", type="int", default=15000 help="padding for creating the links")
+    parser.add_option("--pad", dest="pad", type="int", default=15000, help="padding for creating the links")
 
     (options, _) = parser.parse_args()
 
