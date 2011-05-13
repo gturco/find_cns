@@ -1,5 +1,5 @@
 import re
-import rpy2.robjects as robjects
+#import rpy2.robjects as robjects
 from numpy import array, median, mean
 from flatfeature import Bed
 import sys
