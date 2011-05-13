@@ -92,8 +92,8 @@ def main(ortho_bed, cns_bed, cns_dict, qpad, spad, blast_path, mask):
                             sstart=sstart, qstop=qstop, sstop=sstop, e_value=e_value)
         return cmd
   
-  
-  x = get_cmd(ortho_bed, cns_dict, qpad, spad)  
+  sfeat = ortho_bed['GRMZM2G094328']
+  x = get_cmd(sfeat, cns_dict, qpad, spad)  
   print x
 
 if __name__ == "__main__":
@@ -107,15 +107,15 @@ if __name__ == "__main__":
     parser.add_option("--qpad", dest="qpad", type='int', default=12000, help="how far from the end of the query gene to look for cnss")
     parser.add_option("--spad", dest="spad", type='int', default=26000, help="how far from the end of the subject gene to look for cnss")
     parser.add_option("--blast_path", dest="blast_path", type='string', help="path to bl2seq")
-     parser.add_option("--cns_dict", dest="cns_dict", type='string', help="cns start stop seqid")
+    #parser.add_option("--cns_dict", dest="cns_dict", type='string', help="cns start stop seqid")
     (options, _) = parser.parse_args()
-
-
+    
     if not (options.qfasta and options.sfasta and options.sbed and options.qbed):
         sys.exit(parser.print_help())
-
+        
+    cns_dict = {'start':31210231, 'end':31210254, 'seqid':4}
     cns_bed = Bed(options.qbed, options.qfasta); qbed.fill_dict()
     ortho_bed = Bed(options.sbed, options.sfasta); sbed.fill_dict()
     assert options.mask in 'FT'
 
-    main(qbed, sbed, options.cns_dict, options.qpad, options.spad, options.blast_path, options.mask)
+    main(qbed, sbed, cns_dict, options.qpad, options.spad, options.blast_path, options.mask)
