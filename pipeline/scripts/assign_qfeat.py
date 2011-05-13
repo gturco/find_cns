@@ -112,7 +112,7 @@ if __name__ == "__main__":
                       help="how far from the end of each gene to set the padding for the link of the cnss")
     (options, _) = parser.parse_args()
 
-    res = main(options.cns, options.qbed, options.sbed, options.pairs, options.qorg, options.sorg, options.pad)
+    res = main(options.cns, options.qbed, options.sbed, options.qorg, options.sorg, options.pad)
 
             
 #main('/Users/gturco/code/freeling_lab/find_cns_gturco/pipeline/tests/resources/cns_2.csv', '/Users/gturco/rice_maize/rice_v6.bed', '/Users/gturco/rice_maize/maize_v2.bed', '9109', '9109', 1000)
