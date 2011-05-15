@@ -34,12 +34,14 @@ def get_fastas(bed, masked = True):
     if mask is Ture it masked all the cds and prints out a a masked fasta for
     each chr otherwise if flase it prints out a unmasked fasta for each chr
     """
+    
     f = bed.fasta.fasta_name
     fname = op.splitext(op.basename(f))[0]
+    print fname
     d = op.dirname(f) + "/%s_split" % fname
     try: os.mkdir(d)
     except OSError: pass
-
+    
     fastas = {}
     if masked == False:
       for seqid in bed.fasta.keys():
@@ -100,22 +102,23 @@ if __name__ == "__main__":
     import optparse
     parser = optparse.OptionParser("usage: %prog [options] ")
     parser.add_option("-F", dest="mask", help="blast mask simple sequence [default: F]", default="F")
-    parser.add_option("-q", dest="qfasta", help="path to genomic query fasta")
+    parser.add_option("--ac", dest="qfasta", help="path to genomic query fasta")
     parser.add_option("--qbed", dest="qbed", help="query bed file")
-    parser.add_option("-s", dest="sfasta", help="path to genomic subject fasta")
+    parser.add_option("--bd", dest="sfasta", help="path to genomic subject fasta")
     parser.add_option("--sbed", dest="sbed", help="subject bed file")
     parser.add_option("--qpad", dest="qpad", type='int', default=12000, help="how far from the end of the query gene to look for cnss")
     parser.add_option("--spad", dest="spad", type='int', default=26000, help="how far from the end of the subject gene to look for cnss")
     parser.add_option("--blast_path", dest="blast_path", type='string', help="path to bl2seq")
-    #parser.add_option("--cns_dict", dest="cns_dict", type='string', help="cns start stop seqid")
     (options, _) = parser.parse_args()
     
-    if not (options.qfasta and options.sfasta and options.sbed and options.qbed):
-        sys.exit(parser.print_help())
+    # if not (options.qfasta and options.sfasta and options.sbed and options.qbed):
+    #     print 'hi'
+    #     sys.exit(parser.print_help())
         
+    print options.qbed, options.qfasta, options.blast_path, options.mask
     cns_dict = {'start':31210231, 'end':31210254, 'seqid':4}
-    cns_bed = Bed(options.qbed, options.qfasta); qbed.fill_dict()
-    ortho_bed = Bed(options.sbed, options.sfasta); sbed.fill_dict()
+    qbed = Bed(options.qbed, options.qfasta); qbed.fill_dict()
+    sbed = Bed(options.sbed, options.sfasta); sbed.fill_dict()
     assert options.mask in 'FT'
 
     main(qbed, sbed, cns_dict, options.qpad, options.spad, options.blast_path, options.mask)
