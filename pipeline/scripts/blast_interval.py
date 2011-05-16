@@ -5,6 +5,8 @@ from flatfeature import Bed
 import sys
 import os
 import os.path as op
+import commands
+from bx.intervals.intersection import Interval, IntervalTree
 
 
 def find_median_interval(file_path):
@@ -29,6 +31,28 @@ def find_median_interval(file_path):
 # 
 # blast_cmd
 # bed.cds_fasta()
+
+def parse_blast(blast_str, cns_dict):
+  """takes a blast file and cns_pair and sees if the query cns intersects with 
+  any of the cns found"""
+  scns_inteval = IntervalTree()
+  for line in blast_str.split("\n"):
+    if "WARNING" in line: continue
+    if "ERROR" in line: continue
+    line = line.split("\t")
+    locus = map(int, line[6:10])
+    locus.extend(map(float, line[10:]))
+    
+    s_start, s_end = locus[:2]
+    s_start = min(int(s_start), int(s_end))
+    s_end = max(int(s_start), int(s_end))
+    scns_inteval.insert_interval(Interval(s_start, s_end))
+
+  q_start = min(int(cns_dict['start']), int(cns_dict['end']))
+  q_end = max(int(cns_dict['start']), int(cns_dict['end'])) 
+  intersecting_cns = scns_inteval.find(q_start, q_end)
+  return intersecting_cns
+  
 def get_fastas(bed, masked = True):
     """"
     if mask is Ture it masked all the cds and prints out a a masked fasta for
@@ -96,8 +120,13 @@ def main(cns_bed, ortho_bed, cns_dict, qpad, spad, blast_path, mask):
         return cmd
         
   sfeat = ortho_bed.accn('GRMZM2G094328')
-  x = get_cmd(sfeat,cns_dict, qpad, spad, 'T')  
-  print x
+  x = get_cmd(sfeat,cns_dict, qpad, spad, 'T')
+  results = commands.getoutput(x)
+  interval = parse_blast(results, cns_dict) 
+  if len(interval) >= 1:
+     print cns_dict['start'], cns_dict['end'], interval
+  
+
 
 if __name__ == "__main__":
     import optparse
