@@ -8,6 +8,20 @@ import os.path as op
 import commands
 from bx.intervals.intersection import Interval, IntervalTree
 from find_cns_regions import get_pair
+from processing import Pool
+
+# python scripts/blast_interval.py \
+# -F 'T' \
+# --ac '/Users/gturco/trobble_shot/rice_v6.fasta' \
+# --qbed '/Users/gturco/rice_maize/rice_v6.bed' \
+# --bd '/Users/gturco/maize/maize_v2.fasta' \
+# --sbed '/Users/gturco/maize/maize_v2.bed' \
+# --qpad 600 \
+# --spad 26000 \
+# --blast_path '/Users/gturco/blast-2.2.25/bin/bl2seq' \
+# --pairs_file '/Users/gturco/rice_v6_maize_v2_all_diff_pck.pck' \
+# --ncpu 2 > '/users/gturco/rice_miaze_unfound_matches'
+
 
 
 def find_median_interval(file_path):
@@ -86,8 +100,9 @@ def get_fastas(bed, masked = True):
         fh.close()
       return fastas
 
-def main(cns_bed, ortho_bed, pairs_file, qpad, spad, blast_path, mask):
+def main(cns_bed, ortho_bed, pairs_file, qpad, spad, blast_path, ncpu, mask):
   "imput a cns_dict and otholog_dict, cns_bed "
+  pool = Pool(ncpu)
   fcns = sys.stdout
   print >> fcns, "#cns_start, cns_stop, interval"
   bl2seq = "%s " % blast_path + \
@@ -106,11 +121,11 @@ def main(cns_bed, ortho_bed, pairs_file, qpad, spad, blast_path, mask):
     except StopIteration: return None
       
   while any(pairs):
-    pairs = get_pair_gen()
-    qfeat, sfeat = pairs
-    if pairs is None: return None
-
-    def get_cmd(qfeat, sfeat, qpad, spad, mask):
+    print pairs
+    pairs = [get_pair_gen() for i in range(ncpu)]
+    
+    def get_cmd(pairs):
+      qfeat, sfeat = pairs
       if pairs is None: return None
       
       sfasta = sfastas[sfeat['seqid']]
@@ -127,15 +142,16 @@ def main(cns_bed, ortho_bed, pairs_file, qpad, spad, blast_path, mask):
       
       cmd = bl2seq % dict(qfasta=qfasta, sfasta=sfasta, qstart=qstart,
                           sstart=sstart, qstop=qstop, sstop=sstop, e_value=e_value)
-      return cmd
+      return cmd, qfeat
       
-    #cmds = [c for c in map(get_cmd(), [l for l in pairs if l] if c]
-    cmd = get_cmd(qfeat, sfeat, qpad, spad, mask)
-    results = commands.getoutput(cmd)
-    if not results.strip(): continue 
-    interval = parse_blast(results, qfeat)
-    if len(interval) >= 1:
-      print >> fcns, '{0},{1},{2}'.format(qfeat['start'], qfeat['end'], interval)
+    cmds = [c for c in map(get_cmd, [l for l in pairs if l]) if c]
+    results = (r for r in pool.map(commands.getoutput, [c[0] for c in cmds]))
+    #cmd = get_cmd(qfeat, sfeat, qpad, spad, mask)
+    for res,(cmd, qfeat) in zip(results,cmds):
+      if not res.strip(): continue #ask tom?
+      interval = parse_blast(res, qfeat)
+      if len(interval) >= 1:
+        print >> fcns, '{0},{1},{2}'.format(qfeat['start'], qfeat['end'], interval)
   
 if __name__ == "__main__":
     import optparse
@@ -149,14 +165,15 @@ if __name__ == "__main__":
     parser.add_option("--spad", dest="spad", type='int', default=26000, help="how far from the end of the subject gene to look for cnss")
     parser.add_option("--blast_path", dest="blast_path", type='string', help="path to bl2seq")
     parser.add_option("--pairs_file", dest="pairs", help='pairs file containg cns_start,cns_end, cns_seqid and its ortholog')
+    parser.add_option('--ncpu', dest="ncpu",type=int,help='number of cpus')
     (options, _) = parser.parse_args()
     
     if not (options.qfasta and options.sfasta and options.sbed and options.qbed, options.pairs):
         sys.exit(parser.print_help())
         
     #cns_dict = {'start':31210231, 'end':31210254, 'seqid':'4'}
-    # qbed = Bed(options.qbed, options.qfasta); qbed.fill_dict()
-    # sbed = Bed(options.sbed, options.sfasta); sbed.fill_dict()
+    qbed = Bed(options.qbed, options.qfasta); qbed.fill_dict()
+    sbed = Bed(options.sbed, options.sfasta); sbed.fill_dict()
     assert options.mask in 'FT'
 
-    main(qbed, sbed, options.pairs, options.qpad, options.spad, options.blast_path, options.mask)
+    main(qbed, sbed, options.pairs, options.qpad, options.spad, options.blast_path, options.ncpu, options.mask)
