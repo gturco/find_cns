@@ -33,8 +33,7 @@ def get_fastas(bed, masked = True):
     """"
     if mask is Ture it masked all the cds and prints out a a masked fasta for
     each chr otherwise if flase it prints out a unmasked fasta for each chr
-    """
-    
+    """  
     f = bed.fasta.fasta_name
     fname = op.splitext(op.basename(f))[0]
     print fname
@@ -47,22 +46,22 @@ def get_fastas(bed, masked = True):
       for seqid in bed.fasta.keys():
         f = d + "/%s.fasta" % seqid
         fastas[seqid] = f
-        if op.exists(f): os.remove(f)
+        if op.exists(f): continue#os.remove(f)
         fh = open(f, "wb")
         print >>fh, bed.fasta[seqid]
         fh.close()
-      return fastas 
+      return fastas
     elif masked == True:
       for seqid, seq in bed.mask_cds():
-          f = d + "/%s.fasta" % seqid
-          fastas[seqid] = f
-          if op.exists(f): continue
-          fh = open(f, "wb")
-          print >>fh, seq
-          fh.close()
+        f = d + "/%s.fasta" % seqid
+        fastas[seqid] = f
+        if op.exists(f): continue
+        fh = open(f, "wb")
+        print >>fh, seq
+        fh.close()
       return fastas
 
-def main(ortho_bed, cns_bed, cns_dict, qpad, spad, blast_path, mask):
+def main(cns_bed, ortho_bed, cns_dict, qpad, spad, blast_path, mask):
   "imput a cns_dict and otholog_dict, cns_bed "
   
   bl2seq = "%s " % blast_path + \
@@ -70,16 +69,18 @@ def main(ortho_bed, cns_bed, cns_dict, qpad, spad, blast_path, mask):
           " -e %(e_value).2f -i %(qfasta)s -j %(sfasta)s \
              -I %(qstart)d,%(qstop)d -J %(sstart)d,%(sstop)d | grep -v '#' \
            | grep -v 'WARNING' | grep -v 'ERROR' "
-  
+
   qfastas = get_fastas(cns_bed, True)
   sfastas = get_fastas(ortho_bed, False)
-  
+
   def get_cmd(sfeat, qfeat, qpad, spad, mask):
         #if qfeat['accn'] != "Bradi4g01820": return None
         #print >>sys.stderr, qfeat, sfeat
         
-        qfasta = qfastas[qfeat['seqid']]
         sfasta = sfastas[sfeat['seqid']]
+        #qfasta = '/Users/gturco/trobble_shot/rice_v6_split/4.fasta'
+        qfasta = qfastas[qfeat['seqid']]
+        
 
         qstart, qstop = max(qfeat['start'] - qpad, 1), qfeat['end'] + qpad
         sstart, sstop = max(sfeat['start'] - spad, 1), sfeat['end'] + spad
@@ -93,9 +94,9 @@ def main(ortho_bed, cns_bed, cns_dict, qpad, spad, blast_path, mask):
         cmd = bl2seq % dict(qfasta=qfasta, sfasta=sfasta, qstart=qstart,
                             sstart=sstart, qstop=qstop, sstop=sstop, e_value=e_value)
         return cmd
-  
-  sfeat = ortho_bed['GRMZM2G094328']
-  x = get_cmd(sfeat, cns_dict, qpad, spad)  
+        
+  sfeat = ortho_bed.accn('GRMZM2G094328')
+  x = get_cmd(sfeat,cns_dict, qpad, spad, 'T')  
   print x
 
 if __name__ == "__main__":
@@ -116,7 +117,7 @@ if __name__ == "__main__":
     #     sys.exit(parser.print_help())
         
     print options.qbed, options.qfasta, options.blast_path, options.mask
-    cns_dict = {'start':31210231, 'end':31210254, 'seqid':4}
+    cns_dict = {'start':31210231, 'end':31210254, 'seqid':'4'}
     qbed = Bed(options.qbed, options.qfasta); qbed.fill_dict()
     sbed = Bed(options.sbed, options.sfasta); sbed.fill_dict()
     assert options.mask in 'FT'
