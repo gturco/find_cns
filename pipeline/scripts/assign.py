@@ -4,7 +4,7 @@ import sys
 import os
 import os.path as op
 sys.path.insert(0, os.path.dirname(__file__))
-from find_cns_regions.py import get_pair
+from find_cns_regions import get_pair
 import pickle 
 
 #same as brents assign just added coge links.. may want to add otption for links
