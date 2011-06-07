@@ -20,7 +20,7 @@ from processing import Pool
 # --spad 26000 \
 # --blast_path '/Users/gturco/blast-2.2.25/bin/bl2seq' \
 # --pairs_file '/Users/gturco/rice_v6_maize_v2_all_diff_pck.pck' \
-# --ncpu 2 > '/users/gturco/rice_miaze_unfound_matches'
+# --ncpu 2 > '/users/gturco/rice_miaze_unfound_matches.csv'
 
 
 
@@ -121,7 +121,6 @@ def main(cns_bed, ortho_bed, pairs_file, qpad, spad, blast_path, ncpu, mask):
     except StopIteration: return None
       
   while any(pairs):
-    print pairs
     pairs = [get_pair_gen() for i in range(ncpu)]
     
     def get_cmd(pairs):
