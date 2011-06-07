@@ -7,6 +7,10 @@ import os
 import os.path as op
 sys.path.insert(0, os.path.dirname(__file__))
 from find_cns import get_pair
+from assign import get_cns_dict, cns_fmt_dict
+from assign_region import nearest_feat
+
+# the assign used for maize, assigns only based on qfeat
 
 def assign_url(scns, sseqid, qcns, qseqid, sorg, qorg, padding,
                base = "http://synteny.cnr.berkeley.edu/CoGe/GEvo.pl?prog=blastn&autogo=1&"):
@@ -15,47 +19,12 @@ def assign_url(scns, sseqid, qcns, qseqid, sorg, qorg, padding,
              "num_seqs=2;hsp_overlap_limit=0;hsp_size_limit=0".format(sseqid, scns, qseqid, qcns, sorg, qorg, padding)
     url = base + inside
     return url
-           
-def get_cns_dict(cnsfile):
-    cnss = collections.defaultdict(list)
-    for line in open(cnsfile):
-        if line[0] == "#":
-            continue
-        line = line.rstrip().split(",")
-        qchr, qaccn, schr, saccn = line[:4]
-        cnslocs = map(int, line[4:])
-        if len(cnslocs) % 4: raise
 
-        for i in range(0, len(cnslocs), 4):
-            key = (qchr, schr, tuple(cnslocs[i:i + 4]))
-            cnss[key].append((qaccn, saccn))
-    return cnss
-
-    
-def cns_fmt_dict(cns, qfeat, sfeat):
-    # qaccn, qchr, qstart, qstop, qstrand, saccn, schr, sstart, sstop, sstrand, link
-    d = dict(qaccn=qfeat['accn'], qchr=qfeat['seqid'],
-        qstart=cns.qstart, qstop=cns.qstop, qstrand=qfeat['strand'],
-        saccn=sfeat['accn'], schr=sfeat['seqid'],
-        sstart=cns.sstart, sstop=cns.sstop,
-        sstrand=sfeat['strand'])
-    return d
- 
 class CNS(object):
     __slots__ = ("qchr", "schr", "qstart", "qstop", "sstart", "sstop")
     def __init__(self, cnsinfo):
         self.qchr, self.schr, (self.qstart, self.qstop, self.sstart, self.sstop) = cnsinfo  
 
-def nearest_feat(feats, cns_start, cns_stop):
-    "imputs:a list of feature start and stop postions and a cns start or stop postion\
-     output: the feature start or stop postion that is closest to the cbs "
-    dist = array([[abs(x - cns_start),abs(y - cns_start)] for x,y in feats])
-    params = [[(x , cns_start),(y , cns_start),(x , cns_stop),(y , cns_stop)] for x,y in feats]
-    dist_min = numpy.unravel_index(dist.argmin(), dist.shape)
-    #params_row = params[dist_min[0]]
-    #p0, p1 =  feats[dist_min[1]]
-    return dist_min[0]
-    
 
 def assign(cnsdict, qbed, sbed):
     "finds the nearest qfeat for each duplicat cns qstart qstop, sstart, sstop pos"
