@@ -28,9 +28,14 @@ def get_feats_in_space(locs, ichr, bpmin, bpmax, bed):
 def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
     blast = []
     slope = orient
-
-    qgene = [qfeat['start'], qfeat['end']]
-    sgene = [sfeat['start'], sfeat['end']]
+    #changed length of gene to only contain from coding region to coding region
+    #to avoid miss annot UTR confusion
+    qgene_start = min(qfeat['locs'])[0]
+    qgene_end = max(qfeat['locs'])[1]
+    sgene_start = min(sfeat['locs'])[0]
+    sgene_end = max(sfeat['locs'])[1]
+    qgene = [qgene_start,qgene_end]
+    sgene = [sgene_start, sgene_end]
     qcds = qfeat['locs']
     scds = sfeat['locs']
 
