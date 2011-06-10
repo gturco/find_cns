@@ -28,17 +28,9 @@ def get_feats_in_space(locs, ichr, bpmin, bpmax, bed):
 def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
     blast = []
     slope = orient
-    #changed length of gene to only contain from coding region to coding region
-    #to avoid miss annot UTR confusion
-    qgene_start = min(qfeat['locs'])[0]
-    qgene_end = max(qfeat['locs'])[1]
-    sgene_start = min(sfeat['locs'])[0]
-    sgene_end = max(sfeat['locs'])[1]
-    qgene = [qgene_start,qgene_end]
-    sgene = [sgene_start, sgene_end]
-    qcds = qfeat['locs']
-    scds = sfeat['locs']
 
+    qgene = [qfeat['start'],qfeat['end']]
+    sgene = [sfeat['start'], sfeat['end']]
 
     sgene = sgene[::slope]
     center = sum(qgene)/2., sum(sgene)/2.
@@ -85,9 +77,16 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
             feats_nearby[sub] = None
 
     cnss = set([])
+    
+    #changed length of gene to only contain from coding region to coding region
+    #to avoid miss annot UTR confusion
+    qgene_start = min(qfeat['locs'])[0]
+    qgene_end = max(qfeat['locs'])[1]
+    sgene_start = min(sfeat['locs'])[0]
+    sgene_end = max(sfeat['locs'])[1]
 
-    qgene_poly = LineString([(0.0, qgene[0]), (0.0, qgene[1])])
-    sgene_poly = LineString([(0.0, sgene[0]), (0.0, sgene[1])])
+    qgene_poly = LineString([(0.0, qgene_start), (0.0, qgene_end)])
+    sgene_poly = LineString([(0.0, sgene_start), (0.0, sgene_end)])
     intronic_removed = 0
 
     for line in blast_str.split("\n"):
