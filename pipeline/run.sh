@@ -6,7 +6,7 @@
 
 
 ORGA=rice_v6
-ORGB=sorghum_v1
+ORGB=rice_v6
 QUOTA=1:1
 NCPU=8
 
