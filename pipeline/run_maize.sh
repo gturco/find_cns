@@ -15,17 +15,17 @@ NCPU=8
 #############################################
 DIR=data/${ORGA}_${ORGB}/
 #
-sh quota.sh $DIR/${ORGA} $DIR/${ORGB} $QUOTA $NCPU
-python scripts/find_cns_maize.py \
-        -q $DIR/${ORGA}.fasta --qbed $DIR/${ORGA}.bed \
-        -s $DIR/${ORGB}.fasta --sbed $DIR/${ORGB}.bed \
-        -p $DIR/${ORGA}_${ORGB}.pairs.txt \
-        -F T \
-        -n 8 \
-        --qpad 12000 \
-        --spad 26000 \
-        --UMfasta $DIR/${ORGB}_UM.fasta \
-        --pair_fmt pair > $DIR/${ORGA}_${ORGB}.cns.txt
+#sh quota.sh $DIR/${ORGA} $DIR/${ORGB} $QUOTA $NCPU
+#python scripts/find_cns_maize.py \
+#        -q $DIR/${ORGA}.fasta --qbed $DIR/${ORGA}.bed \
+#        -s $DIR/${ORGB}.fasta --sbed $DIR/${ORGB}.bed \
+#        -p $DIR/${ORGA}_${ORGB}.pairs.txt \
+#        -F F \
+#        -n 8 \
+#        --qpad 12000 \
+#        --spad 26000 \
+#        --UMfasta $DIR/${ORGB}_UM.fasta \
+#        --pair_fmt pair > $DIR/${ORGA}_${ORGB}.cns.txt
 
 python scripts/assign_qfeat.py \
       --qbed $DIR/${ORGA}.nolocaldups.bed \

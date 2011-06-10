@@ -15,7 +15,7 @@ NCPU=8
 #############################################
 DIR=data/${ORGA}_${ORGB}/
 
-sh quota.sh $DIR/${ORGA} $DIR/${ORGB} $QUOTA $NCPU
+#sh quota.sh $DIR/${ORGA} $DIR/${ORGB} $QUOTA $NCPU
 python scripts/find_cns.py \
         -q $DIR/${ORGA}.fasta --qbed $DIR/${ORGA}.bed \
         -s $DIR/${ORGB}.fasta --sbed $DIR/${ORGB}.bed \
@@ -23,17 +23,17 @@ python scripts/find_cns.py \
         -F T \
         -n 8 \
         --qpad 12000 \
-        --spad 26000 \
+        --spad 12000 \
         --blast_path ~/src/blast-2.2.25/bin/bl2seq \
         --pair_fmt pair > $DIR/${ORGA}_${ORGB}.cns.txt
 
-python scripts/assign2.py \
+python scripts/assign.py \
       --qbed $DIR/${ORGA}.nolocaldups.bed \
       --sbed $DIR/${ORGB}.nolocaldups.bed \
       --cns $DIR/${ORGA}_${ORGB}.cns.txt \
       --pairs $DIR/${ORGA}_${ORGB}.pairs.txt \
       --qorg 9109 \
-      --sorg 9106 \
+      --sorg 95 \
       --pad 15000 \
       --pair_fmt pair > $DIR/${ORGA}_${ORGB}.cns.assigned.csv
 
@@ -42,7 +42,8 @@ python scripts/assign2.py \
 #python scripts/load_simpledb.py \
 #    --db data/db/bsr.db \
 #    --prefix $DIR/${ORGA} \
-#    --comparison ${ORGA}_${ORGB} \
+#    --comparison ${O:w
+#RGA}_${ORGB} \
 #    --qors q \
 #   --assigned-cns $DIR/${ORGA}_${ORGB}.cns.assigned.csv
 #echo "loaded orga"
