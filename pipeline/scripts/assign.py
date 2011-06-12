@@ -207,7 +207,6 @@ if __name__ == "__main__":
                       choices=choices)
     parser.add_option("--qpad", dest="qpad", type="int", default=15000, help="padding for creating query links in coge")
     parser.add_option("--spad", dest="spad", type="int", default=15000, help="padding for creating subject links in coge")
-    parser.add_option("--qpad", dest="qpad", type="int", default=15000, help="padding for creating the links")
     parser.add_option("--qdsid", dest="qdsid", type="int", help="query coge dataset_id")
     parser.add_option("--sdsid", dest="sdsid", type="int", help="subject coge dataset_id")
     (options, _) = parser.parse_args()
