@@ -40,7 +40,7 @@ DIR=data/${ORGA}_${ORGB}/
 #
 #coannotate:
      # this creates .all.bed files.
-     python scripts/create_json \
+     python scripts/create_json.py \
        --query $ORGA
        --subject $ORGB
      coannotate.py $DIR/${ORGA}_${ORGB}.json
