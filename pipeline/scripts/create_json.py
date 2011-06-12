@@ -16,6 +16,6 @@ if __name__ == "__main__":
     parser.add_option("--query", dest="query", help="name of query org or ORGA")
     parser.add_option("--subject", dest="subject", help="name of subject org or ORGB")
     (options, _) = parser.parse_args()
-    create_json('options.query', 'options.subject')
-    #create_json(options.query, options.subject)
+
+    create_json(options.query, options.subject)
 
