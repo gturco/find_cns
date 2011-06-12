@@ -33,7 +33,7 @@ python scripts/assign.py \
       --cns $DIR/${ORGA}_${ORGB}.cns.txt \
       --pairs $DIR/${ORGA}_${ORGB}.pairs.txt \
       --qdsid 9109 \
-      --sdisd 95 \
+      --sdsid 95 \
       --qpad 15000 \
       --spad 15000 \
       --pair_fmt pair > $DIR/${ORGA}_${ORGB}.cns.assigned.csv
