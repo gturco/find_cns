@@ -27,16 +27,29 @@ DIR=data/${ORGA}_${ORGB}/
 #        --blast_path ~/src/blast-2.2.25/bin/bl2seq \
 #        --pair_fmt pair > $DIR/${ORGA}_${ORGB}.cns.txt
 
-python scripts/assign.py \
-      --qbed $DIR/${ORGA}.nolocaldups.bed \
-      --sbed $DIR/${ORGB}.nolocaldups.bed \
-      --cns $DIR/${ORGA}_${ORGB}.cns.txt \
-      --pairs $DIR/${ORGA}_${ORGB}.pairs.txt \
-      --qdsid 9109 \
-      --sdsid 95 \
-      --qpad 15000 \
-      --spad 15000 \
-      --pair_fmt pair > $DIR/${ORGA}_${ORGB}.cns.assigned.csv
+#python scripts/assign.py \
+#      --qbed $DIR/${ORGA}.nolocaldups.bed \
+#      --sbed $DIR/${ORGB}.nolocaldups.bed \
+#      --cns $DIR/${ORGA}_${ORGB}.cns.txt \
+#      --pairs $DIR/${ORGA}_${ORGB}.pairs.txt \
+#      --qdsid 9109 \
+#      --sdsid 95 \
+#      --qpad 15000 \
+#      --spad 15000 \
+#      --pair_fmt pair > $DIR/${ORGA}_${ORGB}.cns.assigned.csv
+#
+#coannotate:
+     # this creates .all.bed files.
+     #coannotate.py $DIR/${QUERY}_${SUBJECT}.json
+     # this will overwrite the genomic.masked.fasta from the coannotate.py call above.
+     # so just delete them to avoid asking.
+     mkdir $DIR/old
+     mv  $DIR/${QUERY}*.fasta  $DIR/old/
+     mv $DIR/${QUERY}.features*.fasta $DIR/old/
+     mv $DIR/${QUERY}.bed $DIR/old/
+     mv  $DIR/${SUBJECT}.bed  $DIR/old/
+     mv  $DIR/${SUBJECT}*.fasta  $DIR/old/
+     mv $DIR/${SUBJECT}.features.fasta $DIR/old/
 
 
 # load orga
