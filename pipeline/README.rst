@@ -27,6 +27,14 @@ Requirements
 
  + `processing` (``sudo easy_install -UZ processing``)
 
+ + `bl2seq`
+
+ + `blastall`
+
+ + `bpbio`
+
+
+
 Run
 ===
 
