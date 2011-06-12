@@ -40,16 +40,19 @@ DIR=data/${ORGA}_${ORGB}/
 #
 #coannotate:
      # this creates .all.bed files.
-     #coannotate.py $DIR/${QUERY}_${SUBJECT}.json
+     python scripts/create_json \
+       --query $ORGA
+       --subject $ORGB
+     coannotate.py $DIR/${ORGA}_${ORGB}.json
      # this will overwrite the genomic.masked.fasta from the coannotate.py call above.
      # so just delete them to avoid asking.
      mkdir $DIR/old
-     mv  $DIR/${QUERY}*.fasta  $DIR/old/
-     mv $DIR/${QUERY}.features*.fasta $DIR/old/
-     mv $DIR/${QUERY}.bed $DIR/old/
-     mv  $DIR/${SUBJECT}.bed  $DIR/old/
-     mv  $DIR/${SUBJECT}*.fasta  $DIR/old/
-     mv $DIR/${SUBJECT}.features.fasta $DIR/old/
+     mv  $DIR/${ORGA}*.fasta  $DIR/old/
+     mv $DIR/${ORGA}.features*.fasta $DIR/old/
+     mv $DIR/${ORGA}.bed $DIR/old/
+     mv  $DIR/${ORGB}.bed  $DIR/old/
+     mv  $DIR/${ORGB}*.fasta  $DIR/old/
+     mv $DIR/${ORGB}.features.fasta $DIR/old/
 
 
 # load orga
