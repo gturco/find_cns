@@ -6,7 +6,7 @@
 
 
 ORGA=rice_v6
-ORGB=rice_v6
+ORGB=sorghum_v1
 QUOTA=1:1
 NCPU=8
 
@@ -16,25 +16,26 @@ NCPU=8
 DIR=data/${ORGA}_${ORGB}/
 
 #sh quota.sh $DIR/${ORGA} $DIR/${ORGB} $QUOTA $NCPU
-python scripts/find_cns.py \
-        -q $DIR/${ORGA}.fasta --qbed $DIR/${ORGA}.bed \
-        -s $DIR/${ORGB}.fasta --sbed $DIR/${ORGB}.bed \
-        -p $DIR/${ORGA}_${ORGB}.pairs.txt \
-        -F T \
-        -n 8 \
-        --qpad 12000 \
-        --spad 12000 \
-        --blast_path ~/src/blast-2.2.25/bin/bl2seq \
-        --pair_fmt pair > $DIR/${ORGA}_${ORGB}.cns.txt
+#python scripts/find_cns.py \
+#        -q $DIR/${ORGA}.fasta --qbed $DIR/${ORGA}.bed \
+#        -s $DIR/${ORGB}.fasta --sbed $DIR/${ORGB}.bed \
+#        -p $DIR/${ORGA}_${ORGB}.pairs.txt \
+#        -F T \
+#        -n 8 \
+#        --qpad 12000 \
+#        --spad 12000 \
+#        --blast_path ~/src/blast-2.2.25/bin/bl2seq \
+#        --pair_fmt pair > $DIR/${ORGA}_${ORGB}.cns.txt
 
 python scripts/assign.py \
       --qbed $DIR/${ORGA}.nolocaldups.bed \
       --sbed $DIR/${ORGB}.nolocaldups.bed \
       --cns $DIR/${ORGA}_${ORGB}.cns.txt \
       --pairs $DIR/${ORGA}_${ORGB}.pairs.txt \
-      --qorg 9109 \
-      --sorg 95 \
-      --pad 15000 \
+      --qdsid 9109 \
+      --sdisd 95 \
+      --qpad 15000 \
+      --spad 15000 \
       --pair_fmt pair > $DIR/${ORGA}_${ORGB}.cns.assigned.csv
 
 

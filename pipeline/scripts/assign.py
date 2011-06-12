@@ -15,14 +15,15 @@ def cns_id(cns_dict):
            (c['qaccn'], c['qchr'], c['qstart'], c['qstop'], c['qstrand'],
             c['saccn'], c['schr'], c['sstart'], c['sstop'], c['sstrand'])))
 
-def cns_link(cns_dict, qorg, sorg, pad, base=" http://synteny.cnr.berkeley.edu/CoGe/GEvo.pl?prog=blastn&autogo=1&"):
+def cns_link(cns_dict, qdsid, sdsid, qpad,spad, base=" http://synteny.cnr.berkeley.edu/CoGe/GEvo.pl?prog=blastn&autogo=1&"):
     d = cns_dict.copy()
-    d['qorg'] = qorg
-    d['sorg'] = sorg
-    d['pad'] = pad
+    d['qdsid'] = qdsid
+    d['sdsid'] = sdsid
+    d['qpad'] = qpad
+    d['spad'] = spad
     
-    url = "dsid1=%(qorg)s&chr1=%(qchr)s&x1=%(qstart)s&dr1up=%(pad)s&dr1down=%(pad)s&\
-dsid2=%(sorg)s;chr2=%(schr)s;x2=%(sstart)s;dr2up=%(pad)s;dr2down=%(pad)s;num_seqs=2;hsp_overlap_limit=0;hsp_size_limit=0"
+    url = "dsid1=%(qdsid)s&chr1=%(qchr)s&x1=%(qstart)s&dr1up=%(qpad)s&dr1down=%(qpad)s&\
+dsid2=%(sdsid)s;chr2=%(schr)s;x2=%(sstart)s;dr2up=%(spad)s;dr2down=%(spad)s;num_seqs=2;hsp_overlap_limit=0;hsp_size_limit=0"
     return base + (url % d) 
     
 
@@ -130,7 +131,7 @@ def assign(cnsdict, qbed, sbed, qpair_map, spair_map):
             break
         
         
-def main(cnsfile, qbed_file, sbed_file, pairsfile, pairs_fmt, qorg, sorg, pad):
+def main(cnsfile, qbed_file, sbed_file, pairsfile, pairs_fmt, qdsid, sdsid,qpad,spad):
     qcns_file = qbed_file.replace(".bed", "_cns.gff")
     assert qcns_file != qbed_file
     qcns_gff = open(qcns_file, 'w')
@@ -160,7 +161,7 @@ def main(cnsfile, qbed_file, sbed_file, pairsfile, pairs_fmt, qorg, sorg, pad):
         d['cns_id'] = cns_id(d)
         if d['sstop'] < d['sstart']:
             d['sstop'], d['sstart'] = d['sstart'], d['sstop']
-        d['link'] = cns_link(d, qorg, sorg, pad)
+        d['link'] = cns_link(d, qdsid, sdsid,qpad,spad)
         print >>out, fmt % d
         write_gff(d, qcns_gff, scns_gff)
 
@@ -204,15 +205,17 @@ if __name__ == "__main__":
     parser.add_option("--pair_fmt", dest="pair_fmt", default='dag',
                       help="format of the pairs, one of: %s" % str(choices),
                       choices=choices)
-    parser.add_option("--qorg", dest="qorg", type="int", help="dsid number in coge for the query (same as export to bed input)")
-    parser.add_option("--sorg", dest="sorg", type="int", help="dsid number in coge for the subject (same as export to bed input)")
-    parser.add_option("--pad", dest="pad", type="int", default=15000, help="padding for creating the links")
-
+    parser.add_option("--qpad", dest="qpad", type="int", default=15000, help="padding for creating query links in coge")
+    parser.add_option("--spad", dest="spad", type="int", default=15000, help="padding for creating subject links in coge")
+    parser.add_option("--qpad", dest="qpad", type="int", default=15000, help="padding for creating the links")
+    parser.add_option("--qdsid", dest="qdsid", type="int", help="query coge dataset_id")
+    parser.add_option("--sdsid", dest="sdsid", type="int", help="subject coge dataset_id")
     (options, _) = parser.parse_args()
 
     if not (options.qbed and options.sbed and options.cns and options.pairs):
         sys.exit(parser.print_help())
 
-    res = main(options.cns, options.qbed, options.sbed,  options.pairs, options.pair_fmt, options.qorg, options.sorg, options.pad )
+    res = main(options.cns, options.qbed, options.sbed,  options.pairs,
+            options.pair_fmt, options.qdsid, options.sdsid, options.qpad,options.spad)
 
 
