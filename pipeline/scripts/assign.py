@@ -19,6 +19,7 @@ def cns_link(cns_dict, qorg, sorg, pad, base=" http://synteny.cnr.berkeley.edu/C
     d = cns_dict.copy()
     d['qorg'] = qorg
     d['sorg'] = sorg
+    d['pad'] = pad
     
     url = "dsid1=%(qorg)s&chr1=%(qchr)s&x1=%(qstart)s&dr1up=%(pad)s&dr1down=%(pad)s&\
 dsid2=%(sorg)s;chr2=%(schr)s;x2=%(sstart)s;dr2up=%(pad)s;dr2down=%(pad)s;num_seqs=2;hsp_overlap_limit=0;hsp_size_limit=0"
