@@ -43,57 +43,56 @@ DIR=data/${ORGA}_${ORGB}/
 
 #postprocessing......  
 #cns_sequence:
-python scripts/cns_to_fasta.py \
-                -c $DIR/${ORGA}_${ORGB}.cns.txt \
-                --qfasta $DIR/${ORGA}.fasta \
-                --sfasta $DIR/${ORGB}.fasta \
-                --qorg ${ORGA} \
-                --sorg ${ORGB} \
-                --min_len=18 \
-                > $DIR/${ORGA}_${ORGB}.cns.fasta
+#python scripts/cns_to_fasta.py \
+#                -c $DIR/${ORGA}_${ORGB}.cns.txt \
+#                --qfasta $DIR/${ORGA}.genomic.masked.fasta \
+#                --sfasta $DIR/${ORGB}.genomic.masked.fasta \
+#                --qorg ${ORGA} \
+#                --sorg ${ORGB} \
+#                --min_len=18 \
+#                > $DIR/${ORGA}_${ORGB}.cns.fasta
 #proteins_and_rna:
-#
 #### THIS is CDS/protein stuff.
-##wget -O data/at_protein.fasta ftp://ftp.arabidopsis.org/home/tair/Sequences/blast_datasets/TAIR9_blastsets/TAIR9_pep_20090619
-##wget -O data/os_protein.fasta ftp://ftp.plantbiology.msu.edu/pub/data/Eukaryotic_Projects/o_sativa/annotation_dbs/pseudomolecules/version_6.1/all.dir/all.p
-#bblast.py -p blastx -d data/at_protein.fasta -i ${OUTDIR}/${ORGA}_${ORGB}_cns_18.fasta -e 0.01 -m 8 -a 6 -o ${OUTDIR}/at_protein.blast
-#bblast.py -p blastx -d data/os_protein.fasta -i ${OUTDIR}/${ORGA}_${ORGB}_cns_18.fasta -e 0.01 -m 8 -a 6 -o ${OUTDIR}/os_protein.blast
-#
-#python scripts/find_exons.py \
-#                  -q ${ORGA}\
-#                  -s ${ORGB}\
-#                  -o ${OUTDIR} \
-#                  ${OUTDIR}/at_protein.blast ${OUTDIR}/os_protein.blast
-#
+wget -O data/at_protein.fasta ftp://ftp.arabidopsis.org/home/tair/Sequences/blast_datasets/TAIR9_blastsets/TAIR9_pep_20090619
+wget -O data/os_protein.fasta ftp://ftp.plantbiology.msu.edu/pub/data/Eukaryotic_Projects/o_sativa/annotation_dbs/pseudomolecules/version_6.1/all.dir/all.p
+bblast.py -p blastx -d data/at_protein.fasta -i $DIR/${ORGA}_${ORGB}_cns_18.fasta -e 0.01 -m 8 -a 6 -o $DIR/at_protein.blast
+bblast.py -p blastx -d data/os_protein.fasta -i $DIR/${ORGA}_${ORGB}_cns_18.fasta -e 0.01 -m 8 -a 6 -o $DIR/os_protein.blast
+
+python scripts/find_exons.py \
+                 -q ${ORGA}\
+                 -s ${ORGB}\
+                 -o $DIR \
+                 $DIR/at_protein.blast $DIR/os_protein.blast
+
 #python scripts/find_rna.py -g data/thaliana_v9.gff \
-#          -f data/thaliana_v9.fasta \
-#          -b ${OUTDIR}/${ORGA}_${ORGB}_cns_vs_at_rnas.blast \
-#      -q ${ORGA}  \
-#        -s ${ORGB} \
-#    -o ${OUTDIR} \
-#    -d data/thaliana_v9.description
-#
+#         -f data/thaliana_v9.fasta \
+#         -b $DIR/${ORGA}_${ORGB}_cns_vs_at_rnas.blast \
+#     -q ${ORGA}  \
+#       -s ${ORGB} \
+#   -o $DIR \
+#   -d data/thaliana_v9.description
+
 #getrna:
-#  # have to modify below file to be valid(er) gff3 and remove the chromosome types from teh body.
-#  #wget -O data/thaliana_v9.gff ftp://ftp.arabidopsis.org/home/tair/Genes/TAIR9_genome_release/TAIR9_gff3/TAIR9_GFF3_genes_transposons.gff
-#  wget -O data/thaliana_v9.description ftp://ftp.arabidopsis.org/home/tair/Genes/TAIR9_genome_release/TAIR9_functional_descriptions
-#  wget -O data/sativa_v6.1.description ftp://ftp.plantbiology.msu.edu/pub/data/Eukaryotic_Projects/o_sativa/annotation_dbs/pseudomolecules/version_6.1/all.dir
-#  #wget -O data/thaliana_v9.fasta ftp://ftp.arabidopsis.org/home/tair/Genes/TAIR9_genome_release/TAIR9_chr_all.fas
-#  # perl -pi -e "s/>(.).*/>\$1/" data/thaliana_v9.fasta
-#  # THIS is NON-cds stuff.
-#
+ # have to modify below file to be valid(er) gff3 and remove the chromosome types from teh body.
+ #wget -O data/thaliana_v9.gff ftp://ftp.arabidopsis.org/home/tair/Genes/TAIR9_genome_release/TAIR9_gff3/TAIR9_GFF3_genes_transposons.gff
+ #wget -O data/thaliana_v9.description ftp://ftp.arabidopsis.org/home/tair/Genes/TAIR9_genome_release/TAIR9_functional_descriptions
+ #wget -O data/sativa_v6.1.description ftp://ftp.plantbiology.msu.edu/pub/data/Eukaryotic_Projects/o_sativa/annotation_dbs/pseudomolecules/version_6.1/all.dir
+ #wget -O data/thaliana_v9.fasta ftp://ftp.arabidopsis.org/home/tair/Genes/TAIR9_genome_release/TAIR9_chr_all.fas
+ # perl -pi -e "s/>(.).*/>\$1/" data/thaliana_v9.fasta
+ # THIS is NON-cds stuff.
+
 #
 #shuffle_protein_cns:
 #  # add protein, rna cnss to the gene flat file
 #  # and remove them from the _cns.txt
 #  # this will create *.with_new.bed, _cns.real.txt, # with_new.*
 #  python scripts/shuffle_protein_cns.py \
-#    --qbed ${OUTDIR}/${ORGA}.all.nolocaldups.bed \
-#    --sbed ${OUTDIR}/${ORGB}.all.nolocaldups.bed \
-#    --cns  ${OUTDIR}/${ORGA}_${ORGB}_cns.txt \
-#    --paralogy  ${OUTDIR}/${ORGA}_${ORGB}.paralogy \
-#    --orthology ${OUTDIR}/${ORGA}_${ORGB}.orthology \
-#    # creates: ${OUTDIR}/${ORGA}_${ORGB}.quota.with_new.orthology
+#    --qbed $DIR/${ORGA}.all.nolocaldups.bed \
+#    --sbed $DIR/${ORGB}.all.nolocaldups.bed \
+#    --cns  $DIR/${ORGA}_${ORGB}_cns.txt \
+#    --paralogy  $DIR/${ORGA}_${ORGB}.paralogy \
+#    --orthology $DIR/${ORGA}_${ORGB}.orthology \
+#    # creates: $DIR/${ORGA}_${ORGB}.quota.with_new.orthology
 #
 #python scripts/assign.py \
 #      --qbed $DIR/${ORGA}.nolocaldups.bed \
