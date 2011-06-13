@@ -44,32 +44,32 @@ DIR=data/${ORGA}_${ORGB}/
 #postprocessing......  
 #cns_sequence:
 python scripts/cns_to_fasta.py \
-                -c $DIR/${QUERY}_${SUBJECT}.cns.txt \
-                --qfasta $DIR/${QUERY}.fasta \
-                --sfasta $DIR/${SUBJECT}.fasta \
-                --qorg ${QUERY} \
-                --sorg ${SUBJECT} \
+                -c $DIR/${ORGA}_${ORGB}.cns.txt \
+                --qfasta $DIR/${ORGA}.fasta \
+                --sfasta $DIR/${ORGB}.fasta \
+                --qorg ${ORGA} \
+                --sorg ${ORGB} \
                 --min_len=18 \
-                > $DIR/${QUERY}_${SUBJECT}.cns.fasta
+                > $DIR/${ORGA}_${ORGB}.cns.fasta
 #proteins_and_rna:
 #
 #### THIS is CDS/protein stuff.
 ##wget -O data/at_protein.fasta ftp://ftp.arabidopsis.org/home/tair/Sequences/blast_datasets/TAIR9_blastsets/TAIR9_pep_20090619
 ##wget -O data/os_protein.fasta ftp://ftp.plantbiology.msu.edu/pub/data/Eukaryotic_Projects/o_sativa/annotation_dbs/pseudomolecules/version_6.1/all.dir/all.p
-#bblast.py -p blastx -d data/at_protein.fasta -i ${OUTDIR}/${QUERY}_${SUBJECT}_cns_18.fasta -e 0.01 -m 8 -a 6 -o ${OUTDIR}/at_protein.blast
-#bblast.py -p blastx -d data/os_protein.fasta -i ${OUTDIR}/${QUERY}_${SUBJECT}_cns_18.fasta -e 0.01 -m 8 -a 6 -o ${OUTDIR}/os_protein.blast
+#bblast.py -p blastx -d data/at_protein.fasta -i ${OUTDIR}/${ORGA}_${ORGB}_cns_18.fasta -e 0.01 -m 8 -a 6 -o ${OUTDIR}/at_protein.blast
+#bblast.py -p blastx -d data/os_protein.fasta -i ${OUTDIR}/${ORGA}_${ORGB}_cns_18.fasta -e 0.01 -m 8 -a 6 -o ${OUTDIR}/os_protein.blast
 #
 #python scripts/find_exons.py \
-#                  -q ${QUERY}\
-#                  -s ${SUBJECT}\
+#                  -q ${ORGA}\
+#                  -s ${ORGB}\
 #                  -o ${OUTDIR} \
 #                  ${OUTDIR}/at_protein.blast ${OUTDIR}/os_protein.blast
 #
 #python scripts/find_rna.py -g data/thaliana_v9.gff \
 #          -f data/thaliana_v9.fasta \
-#          -b ${OUTDIR}/${QUERY}_${SUBJECT}_cns_vs_at_rnas.blast \
-#      -q ${QUERY}  \
-#        -s ${SUBJECT} \
+#          -b ${OUTDIR}/${ORGA}_${ORGB}_cns_vs_at_rnas.blast \
+#      -q ${ORGA}  \
+#        -s ${ORGB} \
 #    -o ${OUTDIR} \
 #    -d data/thaliana_v9.description
 #
@@ -88,12 +88,12 @@ python scripts/cns_to_fasta.py \
 #  # and remove them from the _cns.txt
 #  # this will create *.with_new.bed, _cns.real.txt, # with_new.*
 #  python scripts/shuffle_protein_cns.py \
-#    --qbed ${OUTDIR}/${QUERY}.all.nolocaldups.bed \
-#    --sbed ${OUTDIR}/${SUBJECT}.all.nolocaldups.bed \
-#    --cns  ${OUTDIR}/${QUERY}_${SUBJECT}_cns.txt \
-#    --paralogy  ${OUTDIR}/${QUERY}_${SUBJECT}.paralogy \
-#    --orthology ${OUTDIR}/${QUERY}_${SUBJECT}.orthology \
-#    # creates: ${OUTDIR}/${QUERY}_${SUBJECT}.quota.with_new.orthology
+#    --qbed ${OUTDIR}/${ORGA}.all.nolocaldups.bed \
+#    --sbed ${OUTDIR}/${ORGB}.all.nolocaldups.bed \
+#    --cns  ${OUTDIR}/${ORGA}_${ORGB}_cns.txt \
+#    --paralogy  ${OUTDIR}/${ORGA}_${ORGB}.paralogy \
+#    --orthology ${OUTDIR}/${ORGA}_${ORGB}.orthology \
+#    # creates: ${OUTDIR}/${ORGA}_${ORGB}.quota.with_new.orthology
 #
 #python scripts/assign.py \
 #      --qbed $DIR/${ORGA}.nolocaldups.bed \
