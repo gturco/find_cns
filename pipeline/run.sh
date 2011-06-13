@@ -53,17 +53,17 @@ DIR=data/${ORGA}_${ORGB}/
 #                > $DIR/${ORGA}_${ORGB}.cns.fasta
 #proteins_and_rna:
 #### THIS is CDS/protein stuff.
-wget -O data/at_protein.fasta ftp://ftp.arabidopsis.org/home/tair/Sequences/blast_datasets/TAIR9_blastsets/TAIR9_pep_20090619
-wget -O data/os_protein.fasta ftp://ftp.plantbiology.msu.edu/pub/data/Eukaryotic_Projects/o_sativa/annotation_dbs/pseudomolecules/version_6.1/all.dir/all.p
-bblast.py -p blastx -d data/at_protein.fasta -i $DIR/${ORGA}_${ORGB}_cns_18.fasta -e 0.01 -m 8 -a 6 -o $DIR/at_protein.blast
-bblast.py -p blastx -d data/os_protein.fasta -i $DIR/${ORGA}_${ORGB}_cns_18.fasta -e 0.01 -m 8 -a 6 -o $DIR/os_protein.blast
+#wget -O data/at_protein.fasta ftp://ftp.arabidopsis.org/home/tair/Sequences/blast_datasets/TAIR9_blastsets/TAIR9_pep_20090619
+#wget -O data/os_protein.fasta ftp://ftp.plantbiology.msu.edu/pub/data/Eukaryotic_Projects/o_sativa/annotation_dbs/pseudomolecules/version_6.1/all.dir/all.p
+#bblast.py -p blastx -d data/at_protein.fasta -i $DIR/${ORGA}_${ORGB}.cns.fasta -e 0.01 -m 8 -a 6 -o $DIR/at_protein.blast
+#bblast.py -p blastx -d data/os_protein.fasta -i $DIR/${ORGA}_${ORGB}.cns.fasta -e 0.01 -m 8 -a 6 -o $DIR/os_protein.blast
 
-python scripts/find_exons.py \
-                 -q ${ORGA}\
-                 -s ${ORGB}\
-                 -o $DIR \
-                 $DIR/at_protein.blast $DIR/os_protein.blast
-
+#python scripts/find_exons.py \
+#                 -q ${ORGA}\
+#                 -s ${ORGB}\
+#                 -o $DIR \
+#                 $DIR/at_protein.blast $DIR/os_protein.blast
+#NEED TO EDIT find_rna.py SO IT looks for the correct cns fasta file
 #python scripts/find_rna.py -g data/thaliana_v9.gff \
 #         -f data/thaliana_v9.fasta \
 #         -b $DIR/${ORGA}_${ORGB}_cns_vs_at_rnas.blast \
@@ -81,29 +81,29 @@ python scripts/find_exons.py \
  # perl -pi -e "s/>(.).*/>\$1/" data/thaliana_v9.fasta
  # THIS is NON-cds stuff.
 
-#
+#CREATE PARAPLOGY AND ORTHOLOGY WITH RAW FILTERED FILE
 #shuffle_protein_cns:
 #  # add protein, rna cnss to the gene flat file
 #  # and remove them from the _cns.txt
 #  # this will create *.with_new.bed, _cns.real.txt, # with_new.*
 #  python scripts/shuffle_protein_cns.py \
-#    --qbed $DIR/${ORGA}.all.nolocaldups.bed \
-#    --sbed $DIR/${ORGB}.all.nolocaldups.bed \
-#    --cns  $DIR/${ORGA}_${ORGB}_cns.txt \
+#    --qbed $DIR/${ORGA}.nolocaldups.bed \
+#    --sbed $DIR/${ORGB}.nolocaldups.bed \
+#    --cns  $DIR/${ORGA}_${ORGB}.cns.txt \
 #    --paralogy  $DIR/${ORGA}_${ORGB}.paralogy \
 #    --orthology $DIR/${ORGA}_${ORGB}.orthology \
 #    # creates: $DIR/${ORGA}_${ORGB}.quota.with_new.orthology
 #
-#python scripts/assign.py \
-#      --qbed $DIR/${ORGA}.nolocaldups.bed \
-#      --sbed $DIR/${ORGB}.nolocaldups.bed \
-#      --cns $DIR/${ORGA}_${ORGB}.cns.txt \
-#      --pairs $DIR/${ORGA}_${ORGB}.pairs.txt \
-#      --qdsid 9109 \
-#      --sdsid 95 \
-#      --qpad 15000 \
-#      --spad 15000 \
-#      --pair_fmt pair > $DIR/${ORGA}_${ORGB}.cns.assigned.csv
+python scripts/assign.py \
+      --qbed $DIR/${ORGA}.nolocaldups.with_new.bed \
+      --sbed $DIR/${ORGB}.nolocaldups.with_new.bed \
+      --cns $DIR/${ORGA}_${ORGB}.cns.real.txt \
+      --pairs $DIR/${ORGA}_${ORGB}.pairs.txt \
+      --qdsid 9109 \
+      --sdsid 95 \
+      --qpad 15000 \
+      --spad 15000 \
+      --pair_fmt pair > $DIR/${ORGA}_${ORGB}.cns.assigned.csv
 #
 
 # load orga
