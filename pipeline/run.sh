@@ -18,7 +18,7 @@ DIR=data/${ORGA}_${ORGB}/
 #coannotate:
      # this creates .all.bed files.
 #     python scripts/create_json.py \
-#       --query $ORGA
+#       --query $ORGA \
 #       --subject $ORGB
 #     coannotate.py $DIR/${ORGA}_${ORGB}.json
 #     # this will overwrite the genomic.masked.fasta from the coannotate.py call above.
@@ -45,8 +45,8 @@ DIR=data/${ORGA}_${ORGB}/
 #cns_sequence:
 python scripts/cns_to_fasta.py \
                 -c $DIR/${QUERY}_${SUBJECT}.cns.txt \
-                --qfasta ${OUTDIR}/${QUERY}.fasta \
-                --sfasta ${OUTDIR}/${SUBJECT}.fasta \
+                --qfasta $DIR/${QUERY}.fasta \
+                --sfasta $DIR/${SUBJECT}.fasta \
                 --qorg ${QUERY} \
                 --sorg ${SUBJECT} \
                 --min_len=18 \
