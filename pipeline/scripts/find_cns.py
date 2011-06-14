@@ -90,7 +90,7 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
     qgene_poly = LineString([(0.0, qgene[0]), (0.0, qgene[1])])
     sgene_poly = LineString([(0.0, sgene[0]), (0.0, sgene[1])])
      
-     intronic_removed = 0
+    intronic_removed = 0
 
     for line in blast_str.split("\n"):
         if "WARNING:" in line: continue
