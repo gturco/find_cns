@@ -80,14 +80,17 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
     
     #changed length of gene to only contain from coding region to coding region
     #to avoid miss annot UTR confusion
-    qgene_start = min(qfeat['locs'])[0]
-    qgene_end = max(qfeat['locs'])[1]
-    sgene_start = min(sfeat['locs'])[0]
-    sgene_end = max(sfeat['locs'])[1]
+    qgene_space_start = min(qfeat['locs'])[0]
+    qgene_space_end = max(qfeat['locs'])[1]
+    sgene_space_start = min(sfeat['locs'])[0]
+    sgene_space_end = max(sfeat['locs'])[1]
 
-    qgene_poly = LineString([(0.0, qgene_start), (0.0, qgene_end)])
-    sgene_poly = LineString([(0.0, sgene_start), (0.0, sgene_end)])
-    intronic_removed = 0
+    qgene_space_poly = LineString([(0.0, qgene_space_start), (0.0, qgene_space_end)])
+    sgene_space_poly = LineString([(0.0, sgene_space_start), (0.0, sgene_space_end)])
+    qgene_poly = LineString([(0.0, qgene[0]), (0.0, qgene[1])])
+    sgene_poly = LineString([(0.0, sgene[0]), (0.0, sgene[1])])
+     
+     intronic_removed = 0
 
     for line in blast_str.split("\n"):
         if "WARNING:" in line: continue
@@ -121,8 +124,8 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
             cnss.update((locs,))
             continue
 
-        # has to be both or neither.
-        if qgene_poly.intersects(xls) or sgene_poly.intersects(yls):
+        # has to be both or neither.#dont want to remove if utrs
+        if qgene_space_poly.intersects(xls) or sgene_space_poly.intersects(yls):
             intronic_removed += 1
             continue
 
