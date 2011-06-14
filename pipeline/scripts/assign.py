@@ -15,8 +15,7 @@ def cns_id(cns_dict):
            (c['qaccn'], c['qchr'], c['qstart'], c['qstop'], c['qstrand'],
             c['saccn'], c['schr'], c['sstart'], c['sstop'], c['sstrand'])))
 
-def cns_link(cns_dict, qdsid, sdsid, qpad,spad, base="
-        http://synteny.cnr.berkeley.edu/CoGe/GEvo.pl?prog=blastn&autogo=1&show_cns=1&"):
+def cns_link(cns_dict, qdsid, sdsid, qpad,spad, base="http://synteny.cnr.berkeley.edu/CoGe/GEvo.pl?prog=blastn&autogo=1&show_cns=1&"):
     d = cns_dict.copy()
     d['qdsid'] = qdsid
     d['sdsid'] = sdsid
