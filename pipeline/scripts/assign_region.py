@@ -6,7 +6,7 @@ import sys
 import os
 import os.path as op
 sys.path.insert(0, os.path.dirname(__file__))
-from find_cns_regions2.py import get_pair
+from find_cns_regions2 import get_pair
 
 #my assgin for find regions need a diffrent one because do not have homelogs list..
 #This assign removes cns if the nearest feat is retained and then assigns to the closest gene
