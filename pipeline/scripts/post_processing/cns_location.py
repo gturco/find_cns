@@ -75,7 +75,33 @@ def create_utr_list(utr_dict,feat, cns, letter):
     utr_dict[feat['accn']].append((cns['{0}cns_start'.format(letter)]))
     utr_dict[feat['accn']].append((cns['{0}cns_end'.format(letter)]))
 
-  
+def utr_present(cns_pck,query_bed_path, UTR):
+  "checks to see if qaccn has utr region"
+  db = MySQLdb.connect(host="127.0.0.1", user="root", db = "rice_gene_table")
+  cursor = db.cursor()
+  cns_handle = open(cns_pck)
+  cns_pickle = pickle.load(cns_handle)
+  query_bed = Bed(query_bed_path)
+  for cns in cns_pickle:
+    qfeat = query_bed.accn(cns['qaccn'])
+    if qfeat['strand'] == "+":
+      end = qfeat['end']
+      start = qfeat["start"]
+    else:
+      end = qfeat['start']
+      start = qfeat["end"]
+    if UTR == 3:
+      if end == min(qfeat['locs'])[0] or end == max(qfeat['locs'])[1]:
+        stmt = "update MUSA_GENE_LIST_copy set MUSA_GENE_LIST_copy.3_UTR = 'ND' where MUSA_GENE_LIST_copy.Rice_MSU6_genes = '{0}'".format(cns['qaccn'])
+        print stmt
+        cursor.execute(stmt)
+    elif UTR == 5:
+      if start == min(qfeat['locs'])[0] or start == max(qfeat['locs'])[1]:
+        stmt = "update MUSA_GENE_LIST_copy set MUSA_GENE_LIST_copy.5_UTR = 'ND' where MUSA_GENE_LIST_copy.Rice_MSU6_genes = '{0}'".format(cns['qaccn'])
+        print stmt
+        cursor.execute(stmt)
+    
+
 
   
 "postional 5' 3 'distance from utr - cns...."
@@ -98,6 +124,8 @@ if __name__ == "__main__":
 
   # x= main("/Users/gturco/code/freeling_lab/find_cns_gturco/pipeline/scripts/post_processing/find_cns_cns_test.pck","/Users/gturco/code/freeling_lab/find_cns_gturco/pipeline/scripts/post_processing/query_test.bed","/Users/gturco/code/freeling_lab/find_cns_gturco/pipeline/scripts/post_processing/subject_test.bed")
   #x= main("/Users/gturco/data/find_cns_rice_v6_sorg_v1_gturco_2011_06_14app.pck","/Users/gturco/data/rice_v6.nolocaldups.with_new.all.bed","/Users/gturco/data/sorghum_v1.nolocaldups.with_new.all.bed")
+  utr_present("/Users/gturco/data/find_cns_3_UTR.pck","/Users/gturco/data/rice_v6.nolocaldups.with_new.all.bed", 3)
+  utr_present("/Users/gturco/data/find_cns_5_UTR.pck","/Users/gturco/data/rice_v6.nolocaldups.with_new.all.bed", 5)
   
   # 
 
