@@ -97,7 +97,7 @@ if __name__ == "__main__":
   # 
 
   # x= main("/Users/gturco/code/freeling_lab/find_cns_gturco/pipeline/scripts/post_processing/find_cns_cns_test.pck","/Users/gturco/code/freeling_lab/find_cns_gturco/pipeline/scripts/post_processing/query_test.bed","/Users/gturco/code/freeling_lab/find_cns_gturco/pipeline/scripts/post_processing/subject_test.bed")
-  x= main("/Users/gturco/data/find_cns_rice_v6_sorg_v1_gturco_2011_06_14app.pck","/Users/gturco/data/rice_v6.nolocaldups.with_new.all.bed","/Users/gturco/data/sorghum_v1.nolocaldups.with_new.all.bed")
+  #x= main("/Users/gturco/data/find_cns_rice_v6_sorg_v1_gturco_2011_06_14app.pck","/Users/gturco/data/rice_v6.nolocaldups.with_new.all.bed","/Users/gturco/data/sorghum_v1.nolocaldups.with_new.all.bed")
   
   # 
 
