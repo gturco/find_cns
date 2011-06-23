@@ -166,5 +166,5 @@ if __name__ == "__main__":
     res = main(options.cns, options.qbed, options.sbed, options.pairs, options.pck, options.qorg, options.sorg, options.pad)
 
     
-#if __name__ == "__main__":
-#    main('/Users/gturco/rice_v6_cns_res/04_08_10/test_mine/testassign.txt', '/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6.bed','/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6.bed', '/Users/gturco/rice_v6_cns_res/04_08_10/test_org/rice_v6_rice_v6.pairs.txt', '/Users/gturco/rice_v6_cns_res/04_08_10/test_mine/rice_v6_rice_v6.pairs.pck', '9109', '9109', 1000)
+# if __name__ == "__main__":
+#     main('/Users/gturco/find_regions_data/rice_v6_cns_res/04_08_10/test_mine/testassign.txt', '/Users/gturco/data/rice_v6.bed','/Users/gturco/data/rice_v6.bed', '/Users/gturco/find_regions_data/rice_v6_rice_v6.pairs.txt', '/Users/gturco/find_regions_data/rice_v6_rice_v6.pairs.pck', '9109', '9109', 1000)
