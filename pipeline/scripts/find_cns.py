@@ -168,9 +168,9 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
         sgene[0] *= -1
         sgene[1] *= -1
 
-    cnss = [l[:4] for l in remove_crossing_cnss(cnss, qgene, sgene)]
+    cnss = [(c[0], c[1], c[2], c[3],c[-2]) for c in remove_crossing_cnss(cnss, qgene, sgene)]
     if orient == -1:
-        cnss = [(c[0], c[1], -c[2], -c[3]) for c in cnss]
+        cnss = [(c[0], c[1], -c[2], -c[3],c[-2]) for c in cnss]
     return cnss
 
 
@@ -325,7 +325,7 @@ def get_masked_fastas(bed):
 
 def main(qbed, sbed, pairs_file, qpad, spad, pair_fmt, blast_path, mask='F', ncpu=8):
     """main runner for finding cnss"""
-    pool = Pool(options.ncpu)
+    pool = Pool(ncpu)
 
 
     bl2seq = "%s " % blast_path + \
@@ -335,7 +335,7 @@ def main(qbed, sbed, pairs_file, qpad, spad, pair_fmt, blast_path, mask='F', ncp
             | grep -v 'WARNING' | grep -v 'ERROR' "
 
     fcnss = sys.stdout
-    print >> fcnss, "#qseqid,qaccn,sseqid,saccn,[qstart,qend,sstart,send...]"
+    print >> fcnss, "#qseqid,qaccn,sseqid,saccn,[qstart,qend,sstart,send,evalue...]"
 
     qfastas = get_masked_fastas(qbed)
     sfastas = get_masked_fastas(sbed) if qbed.filename != sbed.filename else qfastas
