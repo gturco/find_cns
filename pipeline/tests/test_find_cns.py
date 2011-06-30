@@ -20,7 +20,8 @@ class TestFind_CNS(unittest.TestCase):
         """test for test_get_cns_dict"""
         qbed = Bed(self.qbed, self.qfasta); qbed.fill_dict()
         sbed = Bed(self.sbed, self.sfasta); sbed.fill_dict()
-        main(qbed, sbed, self.pairs, 12000,12000, "pair", self.blast_path, "T",2)
+        x = main(qbed, sbed, self.pairs, 12000,12000, "pair", self.blast_path, "T",2)
+        print x
 
 if __name__ == '__main__':
     unittest.main()
