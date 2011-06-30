@@ -5,7 +5,7 @@ import os
 import os.path as op
 sys.path.insert(0, os.path.dirname(__file__))
 from find_cns import get_pair
-import pickle 
+
 
 #same as brents assign just added coge links.. may want to add otption for links
 def cns_id(cns_dict):
@@ -13,7 +13,7 @@ def cns_id(cns_dict):
 
     return "|".join(map(str,
            (c['qaccn'], c['qchr'], c['qstart'], c['qstop'], c['qstrand'],
-            c['saccn'], c['schr'], c['sstart'], c['sstop'], c['sstrand'])))
+            c['saccn'], c['schr'], c['sstart'], c['sstop'], c['sstrand'], c["eval"])))
 
 def cns_link(cns_dict, qdsid, sdsid, qpad,spad, base="http://synteny.cnr.berkeley.edu/CoGe/GEvo.pl?prog=blastn&autogo=1&show_cns=1&"):
     d = cns_dict.copy()
@@ -36,26 +36,26 @@ def get_cns_dict(cnsfile):
         line = line.rstrip().split(",")
         qchr, qaccn, schr, saccn = line[:4]
 
-        cnslocs = map(int, line[4:])
-        if len(cnslocs) % 4: raise
+        cnslocs = map(float, line[4:])
+        if len(cnslocs) % 5: raise
 
-        for i in range(0, len(cnslocs), 4):
-            key = (qchr, schr, tuple(cnslocs[i:i + 4]))
+        for i in range(0, len(cnslocs), 5):
+            key = (qchr, schr, tuple(cnslocs[i:i + 5]))
             cnss[key].append((qaccn, saccn))
     return cnss
  
 class CNS(object):
-    __slots__ = ("qchr", "schr", "qstart", "qstop", "sstart", "sstop")
+    __slots__ = ("qchr", "schr", "qstart", "qstop", "sstart", "sstop", "eval")
     def __init__(self, cnsinfo):
-        self.qchr, self.schr, (self.qstart, self.qstop, self.sstart, self.sstop) = cnsinfo
+        self.qchr, self.schr, (self.qstart, self.qstop, self.sstart, self.sstop, self.eval) = cnsinfo
 
 def cns_fmt_dict(cns, qfeat, sfeat):
-    # qaccn, qchr, qstart, qstop, qstrand, saccn, schr, sstart, sstop, sstrand, link
+    # qaccn, qchr, qstart, qstop, qstrand, saccn, schr, sstart, sstop, sstrand, e-value, link
     d = dict(qaccn=qfeat['accn'], qchr=qfeat['seqid'],
         qstart=cns.qstart, qstop=cns.qstop, qstrand=qfeat['strand'],
         saccn=sfeat['accn'], schr=sfeat['seqid'],
         sstart=cns.sstart, sstop=cns.sstop,
-        sstrand=sfeat['strand'])
+        sstrand=sfeat['strand'], eval=cns.eval)
     return d
 
 
@@ -153,7 +153,7 @@ def main(cnsfile, qbed_file, sbed_file, pairsfile, pairs_fmt, qdsid, sdsid,qpad,
     out = sys.stdout
 
     fmt = "%(cns_id)s,%(qaccn)s,%(qchr)s,%(qstart)i,%(qstop)i,%(qstrand)s," + \
-                       "%(saccn)s,%(schr)s,%(sstart)i,%(sstop)i,%(sstrand)s,%(link)s"
+                       "%(saccn)s,%(schr)s,%(sstart)i,%(sstop)i,%(sstrand)s,%(eval)s,%(link)s"
 
     print >>out, "#" + fmt.replace("%(","").replace(")s","").replace(")i","")
     for cns, qfeat, sfeat in assign(cnsdict, qbed, sbed, qpair_map, spair_map):

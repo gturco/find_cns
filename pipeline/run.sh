@@ -58,7 +58,7 @@ DIR=data/${ORGA}_${ORGB}/
 #bblast.py -p blastx -d data/at_protein.fasta -i $DIR/${ORGA}_${ORGB}.cns.fasta -e 0.01 -m 8 -a ${NCPU} -o $DIR/at_protein.blast
 #bblast.py -p blastx -d data/os_protein.fasta -i $DIR/${ORGA}_${ORGB}.cns.fasta -e 0.01 -m 8 -a ${NCPU} -o $DIR/os_protein.blast
 
-#python scripts/find_exons.py \
+#python scripts/post_processing/find_exons.py \
 #                 -q ${ORGA}\
 #                 -s ${ORGB}\
 #                 -o $DIR \
@@ -76,7 +76,7 @@ DIR=data/${ORGA}_${ORGB}/
 
 
  #add ncpu to run.py!!!!
-#python scripts/find_rna.py -g data/thaliana_v10.gff \
+#python scripts/post_processing/find_rna.py -g data/thaliana_v10.gff \
 #         -f data/thaliana_v10.fasta \
 #         -b $DIR/${ORGA}_${ORGB}_cns_vs_at_rnas.blast \
 #     -q ${ORGA}  \
@@ -89,7 +89,7 @@ DIR=data/${ORGA}_${ORGB}/
 #  # add protein, rna cnss to the gene flat file
 #  # and remove them from the _cns.txt
 #  # this will create *.with_new.bed, _cns.real.txt, # with_new.*
-#  python scripts/shuffle_protein_cns.py \
+#  python scripts/post_processing/shuffle_protein_cns.py \
 #    --qbed $DIR/${ORGA}.nolocaldups.bed \
 #    --sbed $DIR/${ORGB}.nolocaldups.bed \
 #    --cns  $DIR/${ORGA}_${ORGB}.cns.txt \
@@ -107,22 +107,3 @@ python scripts/assign.py \
       --qpad 15000 \
       --spad 15000 \
       --pair_fmt pair > $DIR/${ORGA}_${ORGB}.cns.assigned.csv
-#
-
-# load orga
-#python scripts/load_simpledb.py \
-#    --db data/db/bsr.db \
-#    --prefix $DIR/${ORGA} \
-#    --comparison ${O:w
-#RGA}_${ORGB} \
-#    --qors q \
-#   --assigned-cns $DIR/${ORGA}_${ORGB}.cns.assigned.csv
-#echo "loaded orga"
-# load orgb
-#python scripts/load_simpledb.py \
-#    --db data/db/bsr.db \
-#    --prefix $DIR/${ORGB} \
-#    --comparison ${ORGA}_${ORGB} \
-#    --qors s \
-#    --assigned-cns $DIR/${ORGA}_${ORGB}.cns.assigned.csv
-
