@@ -57,3 +57,12 @@ Run
  + run `sh run.sh` # that will call quota.sh (this will take a long time as it's doing
    a full blast (lastz) and then all of quota align, then cns pipeline).
  + this will create png's for the dotplots. check those to make sure the quota-blocks look correct.
+
+ Inputs : ORGA.fasta, ORGA.bed, ORGB.fasta, ORGB.bed 
+ Bed file (support following bed format, for more information github)
+ or dsg ids from coge organism view
+
+ Output: Query, Query CNS position, Subject, Subject CNS position
+ Missing Exons list
+ CNS that RNA list
+ CNS Proteins  list
