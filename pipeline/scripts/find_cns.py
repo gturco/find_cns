@@ -96,6 +96,7 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
         if "WARNING:" in line: continue
         if "ERROR" in line: continue
         line = line.split("\t")
+        if float(line[-1]) < 29.5: continue #finds 15/15 match
         locs = map(int, line[6:10])
         locs.extend(map(float, line[10:]))
 
@@ -365,13 +366,14 @@ def main(qbed, sbed, pairs_file, qpad, spad, pair_fmt, blast_path, mask='F', ncp
             assert qstop - qstart > 2 * qpad or qstart == 1, (qstop, qstart)
             assert sstop - sstart > 2 * spad or sstart == 1, (sstop, sstart)
             
-            m = qstop - qstart
-            n = sstop - sstart
-            e_value = m*n*(2**(-28.51974)) # bit score above 15/15 noise
-            assert e_value > 0
+            #m = qstop - qstart
+            #n = sstop - sstart
+            #e_value = m*n*(2**(-28.51974)) # bit score above 15/15 noise
+            #assert e_value > 0
 
             cmd = bl2seq % dict(qfasta=qfasta, sfasta=sfasta, qstart=qstart,
-                                sstart=sstart, qstop=qstop, sstop=sstop, e_value=e_value)
+                                sstart=sstart, qstop=qstop, sstop=sstop,
+                                e_value=30)
             return cmd, qfeat, sfeat
 
         cmds = [c for c in map(get_cmd, [l for l in pairs if l]) if c]
