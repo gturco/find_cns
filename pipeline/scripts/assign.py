@@ -30,32 +30,43 @@ dsid2=%(sdsid)s;chr2=%(schr)s;x2=%(sstart)s;dr2up=%(spad)s;dr2down=%(spad)s;num_
 
 def get_cns_dict(cnsfile):
     cnss = collections.defaultdict(list)
+    evalue_dict = {}
     for line in open(cnsfile):
         if line[0] == "#":
             continue
         line = line.rstrip().split(",")
         qchr, qaccn, schr, saccn = line[:4]
 
-        cnslocs = map(float, line[4:])
+        cnslocs = line[4:]
         if len(cnslocs) % 5: raise
 
         for i in range(0, len(cnslocs), 5):
-            key = (qchr, schr, tuple(cnslocs[i:i + 5]))
+            cnsl = cnslocs[i:i + 5]
+            cns_key = map(int, cnsl[:4])
+            cns_evalue = float(cnsl[4])
+            key = (qchr, schr, tuple(cns_key))
             cnss[key].append((qaccn, saccn))
-    return cnss
+            eval_key = (tuple(cns_key), qaccn, saccn)
+            evalue_dict[eval_key] = cns_evalue
+    return cnss, evalue_dict
  
 class CNS(object):
-    __slots__ = ("qchr", "schr", "qstart", "qstop", "sstart", "sstop", "eval")
+    __slots__ = ("qchr", "schr", "qstart", "qstop", "sstart", "sstop")
     def __init__(self, cnsinfo):
-        self.qchr, self.schr, (self.qstart, self.qstop, self.sstart, self.sstop, self.eval) = cnsinfo
+        self.qchr, self.schr, (self.qstart, self.qstop, self.sstart, self.sstop) = cnsinfo
+        
 
-def cns_fmt_dict(cns, qfeat, sfeat):
+def cns_fmt_dict(cns, qfeat, sfeat, eval_dict):
     # qaccn, qchr, qstart, qstop, qstrand, saccn, schr, sstart, sstop, sstrand, e-value, link
+    cns_loc = [cns.qstart, cns.qstop, cns.sstart, cns.sstop]
+    cns_key = map(int, cns_loc)
+    evalue_key = (tuple(cns_key), qfeat["accn"], sfeat["accn"])
+    evalue = eval_dict[evalue_key]
     d = dict(qaccn=qfeat['accn'], qchr=qfeat['seqid'],
         qstart=cns.qstart, qstop=cns.qstop, qstrand=qfeat['strand'],
         saccn=sfeat['accn'], schr=sfeat['seqid'],
         sstart=cns.sstart, sstop=cns.sstop,
-        sstrand=sfeat['strand'], eval=cns.eval)
+        sstrand=sfeat['strand'], eval=evalue)
     return d
 
 
@@ -82,7 +93,7 @@ def get_nearby_features(feat, cns_start_stop, bed):
     return [f for f in inters if f["accn"] != feat["accn"]]
 
 
-def assign(cnsdict, qbed, sbed, qpair_map, spair_map):
+def assign(cnsdict,qbed, sbed, qpair_map, spair_map):
 
     for cnsinfo, accns in cnsdict.iteritems():
         cns = CNS(cnsinfo)
@@ -148,7 +159,7 @@ def main(cnsfile, qbed_file, sbed_file, pairsfile, pairs_fmt, qdsid, sdsid,qpad,
     sbed = Bed(sbed_file); sbed.fill_dict()
 
 
-    cnsdict = get_cns_dict(cnsfile)
+    cnsdict, evaldict = get_cns_dict(cnsfile)
     qpair_map, spair_map = make_pair_maps(pairsfile, pairs_fmt, qbed, sbed)
     out = sys.stdout
 
@@ -156,8 +167,8 @@ def main(cnsfile, qbed_file, sbed_file, pairsfile, pairs_fmt, qdsid, sdsid,qpad,
                        "%(saccn)s,%(schr)s,%(sstart)i,%(sstop)i,%(sstrand)s,%(eval)s,%(link)s"
 
     print >>out, "#" + fmt.replace("%(","").replace(")s","").replace(")i","")
-    for cns, qfeat, sfeat in assign(cnsdict, qbed, sbed, qpair_map, spair_map):
-        d = cns_fmt_dict(cns, qfeat, sfeat)
+    for cns, qfeat, sfeat in assign(cnsdict,qbed, sbed, qpair_map, spair_map):
+        d = cns_fmt_dict(cns, qfeat, sfeat, eval_dict)
         d['cns_id'] = cns_id(d)
         if d['sstop'] < d['sstart']:
             d['sstop'], d['sstart'] = d['sstart'], d['sstop']
