@@ -175,13 +175,16 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
         sgene[0] *= -1
         sgene[1] *= -1
 
-    cnss = [(c[0], c[1], c[2], c[3],c[-2]) for c in remove_crossing_cnss(cnss, qgene, sgene)]
+    cnss = [(c[0], c[1], c[2], c[3],c[-2]) for c,k in remove_crossing_cnss(cnss, qgene, sgene, cns_removed)]
     if "o" in cns_removed and "i" in cns_removed and "b" in cns_removed and "w" in cns_removed:
         cnss = [(c[0], c[1], c[2], c[3],c[-1]) for c in cnss]
         return cnss
+    else:
+	cnss = [(1,1,1,1,1)]
+	return cnss
+	
 
-
-def remove_overlapping_cnss(cnss):
+def remove_overlapping_cnss(cnss, cns_removed):
     """for cases when there is nearly the same cns, but with 1
     basepair shfit up/down. that create many cnss stacked on top
     of each other. this reduces those down to one."""
@@ -200,15 +203,15 @@ def remove_overlapping_cnss(cnss):
                     else:
                         remove.append(i)
     remove = frozenset(remove)
-    return [cns for i, cns in enumerate(cnss) if not i in remove]
+    return [cns for i, cns in enumerate(cnss) if not i in remove], cns_removed
 
 
-def remove_crossing_cnss(cnss, qgene, sgene):
+def remove_crossing_cnss(cnss, qgene, sgene, cns_removed):
     diff = qgene[0] - sgene[0] # adjust subject so it's in same range as query
     cns_shapes = [LineString([((c[0] + c[1])/2., 0 ), ((c[2] + c[3])/2. + diff, 1000)]) for c in cnss]
 
     overlapping = len(cnss)
-    cnss = remove_overlapping_cnss(cnss)
+    cnss, cns_removed = remove_overlapping_cnss(cnss, cns_removed)
     overlapping -= len(cnss)
     cns_shapes = [LineString([((c[0] + c[1])/2., 0 ), ((c[2] + c[3])/2. + diff, 1000)]) for c in cnss]
 
@@ -258,7 +261,7 @@ def remove_crossing_cnss(cnss, qgene, sgene):
             if csj.do_remove or len(csj.cross_list) == 0: continue
             if csi.do_remove or len(csi.cross_list) == 0: continue
             if csi.crosses(csj):
-              cns_removed.append("c")
+                cns_removed.append("c")
                 # access the assocated cns.
                 # evalue: less is better       bitscore: more is better
                 if csi.cns[-2] < csj.cns[-2] or csi.cns[-1] > csj.cns[-1]:
@@ -273,7 +276,7 @@ def remove_crossing_cnss(cnss, qgene, sgene):
     for c in cns_shapes:
         if not c.do_remove: continue
         nremoved += 1
-    return [c.cns for c in cns_shapes if not c.do_remove]
+    return [c.cns for c in cns_shapes if not c.do_remove], cns_removed
 
 
 def get_pair(pair_file, fmt, qbed, sbed, seen={}):

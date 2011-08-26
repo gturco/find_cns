@@ -168,7 +168,7 @@ def main(cnsfile, qbed_file, sbed_file, pairsfile, pairs_fmt, qdsid, sdsid,qpad,
 
     print >>out, "#" + fmt.replace("%(","").replace(")s","").replace(")i","")
     for cns, qfeat, sfeat in assign(cnsdict,qbed, sbed, qpair_map, spair_map):
-        d = cns_fmt_dict(cns, qfeat, sfeat, eval_dict)
+        d = cns_fmt_dict(cns, qfeat, sfeat, evaldict)
         d['cns_id'] = cns_id(d)
         if d['sstop'] < d['sstart']:
             d['sstop'], d['sstart'] = d['sstart'], d['sstop']

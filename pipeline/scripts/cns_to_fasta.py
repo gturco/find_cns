@@ -19,9 +19,8 @@ def main(cnsfile, qfasta_file, sfasta_file, qorg, sorg, min_len):
     seen = {}
     for cns_id, cns_dict in parse_raw_cns(cnsfile):
         cns = cns_dict
-
-        qseq = qfasta[cns['qseqid']]
-        sseq = sfasta[cns['sseqid']]
+        qseq = qfasta[str(cns['qseqid'])]
+        sseq = sfasta[str(cns['sseqid'])]
 
 
         sstart, send = sorted((cns['sstart'], cns['send']))
@@ -38,12 +37,12 @@ def main(cnsfile, qfasta_file, sfasta_file, qorg, sorg, min_len):
             print ">q__" + cns_id
             seqstr = str(qseq[cns['qstart'] - 1: cns['qend']]).replace('R', 'N').replace('W', 'N').replace('M', 'N')
             assert set(seqstr.lower()).issubset("actgnx"), ('q', 'q__' + cns_id, seqstr)
-            print seqstr
+            print seqstr.upper()
 
             print ">s__" + cns_id
             seqstr = str(sseq[sstart - 1: send]).replace('R', 'N').replace('W', 'N').replace('M', 'N')
             assert set(seqstr.lower()).issubset("actgnx"), ('s', 's__' + cns_id, seqstr)
-            print seqstr
+            print seqstr.upper()
 
         seen[qkey] = 1
         seen[skey] = 1
