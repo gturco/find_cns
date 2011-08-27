@@ -27,11 +27,9 @@ Requirements
 
  + `processing` (``sudo easy_install -UZ processing``)
 
- + `bl2seq`
+ + `bl2seq/blastall` `<ftp://ftp.ncbi.nlm.nih.gov/blast/executables/LATEST/>`
 
- + `blastall`
-
- + `bpbio`
+ + `bpbio` (``svn checkout http://bpbio.googlecode.com/svn/trunk/ bpbio-read-only``)
 
 
 
@@ -58,11 +56,13 @@ Run
    a full blast (lastz) and then all of quota align, then cns pipeline).
  + this will create png's for the dotplots. check those to make sure the quota-blocks look correct.
 
- Inputs : ORGA.fasta, ORGA.bed, ORGB.fasta, ORGB.bed 
- Bed file (support following bed format, for more information github)
- or dsg ids from coge organism view
+ +Inputs : ORGA.fasta, ORGA.bed, ORGB.fasta, ORGB.bed  
+  Bed file (support UCSC bed format)
+  Can use own Bedfile or use ``export_to_bed`` dsg ids from coge organism view
 
- Output: Query, Query CNS position, Subject, Subject CNS position
- Missing Exons list
- CNS that RNA list
- CNS Proteins  list
+ +Output: Query, Query CNS position, Subject, Subject CNS position
+   Missing Exons from ORGA ORGB blast
+   CNS blast to  RNA file
+   CNS blast to proteins file
+   CNS assigned to nearest Ortholog
+ 
