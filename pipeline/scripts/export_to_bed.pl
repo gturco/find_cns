@@ -94,8 +94,8 @@ sub get_locs {
                   'me.dataset_id' => { 'IN' => $datasets },
                   'me.chromosome' => $chr,
                   # NOTE: should probably check for pseudogenes as well!!
-                  'feature_type.name'  =>  { 'IN' => ['gene', 'pseudogene', 
-                                                      'transposon'] }
+                  'feature_type.name'  =>  { 'IN' => ['gene', 'pseudogene',
+                                                      'transposon', 'Transposable Element'] }
                 } , { 
                    'prefetch'           => [ 'feature_type', 'feature_names'] 
                   ,'order_by'           => [ 'me.start']
