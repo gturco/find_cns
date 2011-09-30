@@ -1,6 +1,7 @@
 import sys
 import os.path as op
 from flatfeature import Bed
+sys.path.append("../")
 from common import parse_raw_cns
 from common import read_cns_to_rna, read_cns_to_protein_exons
 sys.path.insert(0, "/home/gturco/src/quota-alignment/scripts")
