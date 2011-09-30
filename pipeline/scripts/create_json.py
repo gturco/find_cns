@@ -6,7 +6,7 @@ def create_json(query,subject):
   json_dict = {"genome_a": {"name":"{0}".format(query),"flat":"data/{0}_{1}/{0}.bed".format(query,subject),
   "fasta":"data/{0}_{1}/{0}.fasta".format(query,subject)},"genome_b": {"name":"{0}".format(subject),"flat":"data/{0}_{1}/{1}.bed".format(query,subject),
   "fasta":"data/{0}_{1}/{1}.fasta".format(query,subject)},"blast": {"W": 20,"a": 8,"e": 0.001},
-  "default": {"blast_path":"/user/bin/blastall","out_dir":"data/{0}_{1}/".format(query,subject),"min_len":100, "reciprocal":True,"blast_log":True}}
+  "default": {"blast_path":"/usr/bin/blastall","out_dir":"data/{0}_{1}/".format(query,subject),"min_len":100, "reciprocal":True,"blast_log":True}}
   json_formatted = json.dumps(json_dict,indent=4)
   json_file.write(json_formatted)
 
