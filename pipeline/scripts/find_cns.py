@@ -7,7 +7,8 @@ from shapely.geometry import Point, Polygon, LineString, MultiLineString
 from flatfeature import Bed
 import logging
 from processing import Pool
-logging.basicConfig(level=logging.INFO)
+LOG_FILENAME = '/Users/gturco/find_cns.log'
+logging.basicConfig(filename=LOG_FILENAME,level=logging.INFO)
 pool = None
 
 
@@ -192,13 +193,13 @@ def remove_overlapping_cnss(cnss):
                         remove.append(j)
                     else:
                         remove.append(i)
-                    print >> sys.stderr, "overlapping:{0}".format(csi)
+                    logging.info("overlapping:{0}".format(csi))
                 if csi.contains(csj):
                     if cnss[i][-2] < cnss[j][-2] or cnss[i][-1] > cnss[j][-2] or cnss[i][1] < cnss[j][3]:
                         remove.append(j)
                     else:
                         remove.append(i)
-                    logging.info(cnss[i])
+                    logging.info("intersecting:{0}".format(cnss[i]))
                     #print >> sys.stderr, csi
     remove = frozenset(remove)
     return [cns for i, cns in enumerate(cnss) if not i in remove]
