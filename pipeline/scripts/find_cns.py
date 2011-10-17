@@ -193,7 +193,7 @@ def remove_overlapping_cnss(cnss):
                     else:
                         remove.append(i)
                     print >> sys.stderr, "overlapping:{0}".format(csi)
-                if csi.intersects(csj):
+                if csi.contains(csj):
                     if cnss[i][-2] < cnss[j][-2] or cnss[i][-1] > cnss[j][-2] or cnss[i][1] < cnss[j][3]:
                         remove.append(j)
                     else:
