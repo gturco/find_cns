@@ -292,7 +292,7 @@ def get_pair(pair_file, fmt, qbed, sbed, seen={}):
             pair = line[1], line[3]
         elif fmt == 'pair':
             if len(line) == 1:
-                line = line.split(",")
+                line = line[0].split(",")
             assert len(line) >= 2, "dont know how to handle %s" % line
             pair = line[0], line[1]
 

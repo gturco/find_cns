@@ -4,6 +4,7 @@ import sys
 import os
 import os.path as op
 sys.path.insert(0, os.path.dirname(__file__))
+sys.path.append("../")
 from find_cns import get_pair
 
 
@@ -22,8 +23,8 @@ def cns_link(cns_dict, qdsid, sdsid, qpad,spad, base="http://synteny.cnr.berkele
     d['qpad'] = qpad
     d['spad'] = spad
     
-    url = "dsid1=%(qdsid)s&chr1=%(qchr)s&x1=%(qstart)s&dr1up=%(qpad)s&dr1down=%(qpad)s&\
-dsid2=%(sdsid)s;chr2=%(schr)s;x2=%(sstart)s;dr2up=%(spad)s;dr2down=%(spad)s;num_seqs=2;hsp_overlap_limit=0;hsp_size_limit=0"
+    url = "dsgid1=%(qdsid)s&chr1=%(qchr)s&x1=%(qstart)s&dr1up=%(qpad)s&dr1down=%(qpad)s&\
+dsgid2=%(sdsid)s;chr2=%(schr)s;x2=%(sstart)s;dr2up=%(spad)s;dr2down=%(spad)s;num_seqs=2;hsp_overlap_limit=0;hsp_size_limit=0"
     return base + (url % d) 
     
 
