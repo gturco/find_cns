@@ -92,10 +92,10 @@ def main(qbed, sbed, cnsfile, dist, orthology_path):
                 new_qname += "_%s" % (protein_or_rna)
                 new_sname += "_%s" % (protein_or_rna)
                 try:
-                    qstrand = qbed.d[cns['qaccn']]['strand']
-                    sstrand = sbed.d[cns['saccn']]['strand']
+                    qstrand = qbed.d[gnew['qaccn']]['strand']
+                    sstrand = sbed.d[gnew['saccn']]['strand']
                 except:
-                    print >>sys.stderr, cns
+                    print >>sys.stderr, gnew
                     raise
                 gnew['qaccn'] = new_qname
                 gnew['saccn'] = new_sname
