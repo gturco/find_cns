@@ -77,7 +77,7 @@ def main(qbed, sbed, cnsfile, dist, orthology_path):
             rnas[key].append((cns, crna[cns_id]))
         else:
             real_cns_items.append((cns_id, cns))
-
+    qcns = cns
     p_trees = fill_tree(proteins)
     r_trees = fill_tree(rnas)
 
@@ -91,11 +91,13 @@ def main(qbed, sbed, cnsfile, dist, orthology_path):
                 # and give them both an id so we know they were a pair.
                 new_qname += "_%s" % (protein_or_rna)
                 new_sname += "_%s" % (protein_or_rna)
+                #print >>sys.stderr, gnew['qaccn'], cns["qaccn"]
                 try:
-                    qstrand = qbed.d[cns['qaccn']]['strand']
-                    sstrand = sbed.d[cns['saccn']]['strand']
+                    qstrand = qbed.d[gnew['qaccn']]['strand']
+                    sstrand = sbed.d[gnew['saccn']]['strand']
                 except:
-                    print >>sys.stderr, cns
+                    print >>sys.stderr, gnew
+                    #continue
                     raise
                 gnew['qaccn'] = new_qname
                 gnew['saccn'] = new_sname
@@ -104,8 +106,14 @@ def main(qbed, sbed, cnsfile, dist, orthology_path):
                 n[seqid_pair].append((gnew, info))
         return n
     nproteins = assign_new_names(proteins, "protein")
+    #for seqid_pair, li in rnas.iteritems():
+        #for gnew,info in li[:10]:
+            #print cns["qaccn"]
+            #if cns["qaccn"] == "5_10914851_10914871_cns_rna":
+            #print >>sys.stderr, "NOOOOOOOOOOOOO"
+            #### not here has to do wih how the assign_new_names loop is looping
     nrnas = assign_new_names(rnas, "rna")
-
+    #print "new {0}".format(cns['qaccn'])
 
     cns_seen = {}
     # go through the remaining cnss, print and assign them to the new
@@ -118,7 +126,7 @@ def main(qbed, sbed, cnsfile, dist, orthology_path):
             cns['qaccn'] = pnew['qaccn']
             cns['saccn'] = pnew['saccn']
             cns_str = cns_to_str(cns)
-	    if cns_str in cns_seen: continue
+            if cns_str in cns_seen: continue
             cns_seen[cns_str] = 1
             print >>real_cns_fh, cns_str
 
