@@ -386,7 +386,8 @@ def find_missed(sorg, qflat, sflat, q_snon_blast, q_s_blast,
                 # call it a cds and give the the same name as the parent.
                 try:
                     # have to check here since we added extra for the case where we're inside an intron of an existing gene.
-                    parents = [s for s in sflat.get_features_in_region(feat['seqid'], feat['start'] - 1000, feat['end'] + 1000)]
+                    parents = [s for s in
+                            sflat.get_features_in_region(feat['seqid'], feat['start'] -1000, feat['end'] + 1000)]
                 except:
                     # this seqid doesnt have any features.
                     assert sflat[sflat['seqid'] == feat['seqid']] == []
@@ -398,8 +399,9 @@ def find_missed(sorg, qflat, sflat, q_snon_blast, q_s_blast,
                 else:
                     for parent in parents:
                         # have to check here since we added extra for the case where we're inside an intron of an existing gene.
-                        if parent['end'] < feat['start']: continue
-                        if parent['start'] > feat['end']: continue
+                        if parent['strand'] != feat['strand']: continue
+                        #if parent['end'] < feat['start']: continue
+                        #if parent['start'] > feat['end']: continue
                         # when doing self-self dont want to add an annotation based
                         # on the same gene.
                         if parent['accn'] == qfeat['accn']:
