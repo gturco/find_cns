@@ -107,7 +107,7 @@ def merge_hits(hits,old_bed,missed_genes_dict):
 ##################################################
 def main(missed_genes_path,old_bed,new_bed,out_file):
     missed_genes = parse_missed_genes(missed_genes_path)
-    hits,missed_genes_dict = group_genes_in_bed(missed_genes,old_bed.new_bed)
+    hits,missed_genes_dict = group_genes_in_bed(missed_genes,old_bed,new_bed)
     ### make sure this ^^^^ works ^^^^^ 
     new_genes_final = {}
     for qaccn in missed_genes_grouped:
