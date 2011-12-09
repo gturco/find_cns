@@ -1,0 +1,34 @@
+{
+
+"genome_a": {
+    "name":"athaliana",
+    "gff":"tests/data/missed_athaliana_from_athaliana.gff",
+    "fasta":"tests/data/athaliana.fasta"
+},
+
+
+"genome_b": {
+    "name":"athaliana",
+    "gff":"tests/data/missed_athaliana_from_athaliana.gff",
+    "fasta":"tests/data/athaliana.fasta"
+},
+
+
+"blast": {
+   "W": 16, 
+   "a": 8,  
+   "e": 0.001
+},
+
+
+"default": {
+    "blast_path":"/usr/bin/blastall",
+    "mask_order": ["CDS", "mRNA", "MIR", "gene", "miRNA", "snoRNA", "snRNA"],
+    "out_dir":"tests/data/",
+    "min_len": 100,
+    "reciprocal": false,
+    "blast_log" : true
+}
+
+
+}

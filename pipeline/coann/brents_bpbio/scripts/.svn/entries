@@ -1,0 +1,55 @@
+10
+
+dir
+293
+http://bpbio.googlecode.com/svn/trunk/scripts
+http://bpbio.googlecode.com/svn
+
+
+
+2010-11-01T23:25:38.923891Z
+292
+bpederse
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+8fdc80c4-b635-0410-baf7-2d8196006633
+
+fractionation
+dir
+
+find_pcr
+dir
+
+mask_genome
+dir
+
+dagchainer
+dir
+
+localdups
+dir
+
+bblast
+dir
+
+histone
+dir
+
+aranet
+dir
+
+coex
+dir
+

@@ -1,0 +1,5 @@
+bp_bio code taken from bentp with minor changes made... 
+  ALL changes in his code were recorded in git
+
+the merge.py code is used to merge the missed genes found in bp_bio coanno based on same hits
+and no intervening genes

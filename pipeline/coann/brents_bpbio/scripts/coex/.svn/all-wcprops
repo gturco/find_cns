@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 36
+/svn/!svn/ver/273/trunk/scripts/coex
+END
+coexp.wsgi
+K 25
+svn:wc:ra_dav:version-url
+V 47
+/svn/!svn/ver/273/trunk/scripts/coex/coexp.wsgi
+END
+to_array.py
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/273/trunk/scripts/coex/to_array.py
+END
+get.sh
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/svn/!svn/ver/268/trunk/scripts/coex/get.sh
+END
+names.order
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/268/trunk/scripts/coex/names.order
+END

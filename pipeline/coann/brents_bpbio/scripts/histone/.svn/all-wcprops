@@ -1,0 +1,29 @@
+K 25
+svn:wc:ra_dav:version-url
+V 39
+/svn/!svn/ver/290/trunk/scripts/histone
+END
+histone.wsgi
+K 25
+svn:wc:ra_dav:version-url
+V 52
+/svn/!svn/ver/290/trunk/scripts/histone/histone.wsgi
+END
+to_bin.py
+K 25
+svn:wc:ra_dav:version-url
+V 49
+/svn/!svn/ver/262/trunk/scripts/histone/to_bin.py
+END
+README.rst
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/260/trunk/scripts/histone/README.rst
+END
+histone_csv.py
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/!svn/ver/261/trunk/scripts/histone/histone_csv.py
+END

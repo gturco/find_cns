@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 43
+/svn/!svn/ver/282/trunk/scripts/mask_genome
+END
+mask_plot.wsgi
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/!svn/ver/245/trunk/scripts/mask_genome/mask_plot.wsgi
+END
+README.rst
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/!svn/ver/232/trunk/scripts/mask_genome/README.rst
+END
+mask_genome.py
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/!svn/ver/282/trunk/scripts/mask_genome/mask_genome.py
+END

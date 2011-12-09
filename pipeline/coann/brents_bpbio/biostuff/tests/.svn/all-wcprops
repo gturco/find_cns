@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 38
+/svn/!svn/ver/167/trunk/biostuff/tests
+END
+test_blast_line.py
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/167/trunk/biostuff/tests/test_blast_line.py
+END
+test_gff.py
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/135/trunk/biostuff/tests/test_gff.py
+END

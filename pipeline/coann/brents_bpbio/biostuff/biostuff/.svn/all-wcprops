@@ -1,0 +1,47 @@
+K 25
+svn:wc:ra_dav:version-url
+V 41
+/svn/!svn/ver/173/trunk/biostuff/biostuff
+END
+pnew.h
+K 25
+svn:wc:ra_dav:version-url
+V 48
+/svn/!svn/ver/162/trunk/biostuff/biostuff/pnew.h
+END
+cblastline.pyx
+K 25
+svn:wc:ra_dav:version-url
+V 56
+/svn/!svn/ver/167/trunk/biostuff/biostuff/cblastline.pyx
+END
+cblastline.c
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/!svn/ver/167/trunk/biostuff/biostuff/cblastline.c
+END
+blast_line.py
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/!svn/ver/109/trunk/biostuff/biostuff/blast_line.py
+END
+__init__.py
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/!svn/ver/167/trunk/biostuff/biostuff/__init__.py
+END
+gff_reader.py
+K 25
+svn:wc:ra_dav:version-url
+V 55
+/svn/!svn/ver/173/trunk/biostuff/biostuff/gff_reader.py
+END
+blasttree.py
+K 25
+svn:wc:ra_dav:version-url
+V 54
+/svn/!svn/ver/133/trunk/biostuff/biostuff/blasttree.py
+END
