@@ -374,7 +374,8 @@ def find_missed(sorg, qflat, sflat, q_snon_blast, q_s_blast,
 
                 # the hsps have to not be toooooo sparse
                 if cover / (sstop - sstart) < min_pct_coverage: continue
-                sstrand *= qstrand
+                ##sstrand *= qstrand
+                ##TODO create test file to confrim blastall strands
                 sname = name % dict(seqid=schr, start=sstart, end=sstop)
 
                 feat = dict(accn=sname , start=sstart , end=sstop
