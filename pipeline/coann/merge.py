@@ -59,11 +59,23 @@ def group_genes_in_bed(missed_genes,old_bed,new_bed):
     missed_genes_dict = {}
     for hit_accn, qaccn in missed_genes:
         try:
-            hit = new_bed.accn(hit_accn)
+            ### if with in gene of the old be merge with old bed
+            old_hit = old_bed.accn(hit_accn)
+            new_hit = new_bed.accn(hit_accn)
+            new_gene = update_locs(old_hit,new_hit)
+            ##### remove from old bed this removes probblems in merge_hits
+            ### add hits to new_bed
+            hit = new_gene
             hit_info = (hit["seqid"],hit["start"],hit["end"],hit["accn"])
             missed_genes_grouped[qaccn].append(hit_info)
             missed_genes_dict[hit['accn']] = hit
-        except KeyError: continue
+        except KeyError:
+            try:
+                hit = new_bed.accn(hit_accn)
+                hit_info = (hit["seqid"],hit["start"],hit["end"],hit["accn"])
+                missed_genes_grouped[qaccn].append(hit_info)
+                missed_genes_dict[hit['accn']] = hit
+            except KeyError: continue
         #new_new_bed[hit['accn']] = hit.row_to_dict()
     return missed_genes_grouped, missed_genes_dict
 
