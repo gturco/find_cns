@@ -226,7 +226,7 @@ def merge(main, missed, merge_file, Klass):
             new_rows.append(row_missed)
             #seen_accns[row_missed['accn']] = True
             continue
-        locs = main_row['locs'] + row_missed['locs']
+        main_row['locs'] = main_row['locs'] + row_missed['locs']
         main_row['locs'].sort()
         new_rows.append(main_row)
         seen_accns[main_row['accn']] = True
