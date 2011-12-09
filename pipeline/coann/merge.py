@@ -130,7 +130,7 @@ if __name__ == "__main__":
     new_bed = Bed(options.new_bed)
     old_bed = Bed(options.old_bed)
 
-    main(options.missed_matches,old_bed,new_bed,options.out_fh)
+    main(options.missed_genes,old_bed,new_bed,options.out_fh)
     
 #merge_same_hits(Bed('data/athaliana_lyrata2/missed_lyrata_from_athaliana.bed'),'data/athaliana_lyrata2/missed_lyrata_from_athaliana.matches.txt',Bed('data/athaliana_lyrata2/lyrata.bed'))
 #merge(Bed('data/athaliana_lyrata2/lyrata.bed'),Bed('data/athaliana_lyrata2/missed_from_lyrata.bed'),'data/athaliana_lyrata2/lyrata.all.bed')
