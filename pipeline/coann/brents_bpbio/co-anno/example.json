@@ -1,0 +1,33 @@
+{
+
+"genome_a": {
+    "name":"brachy",
+    "flat":"tests/data/brachy_v1.flat",
+    "fasta":"tests/data/brachy_v1.fasta"
+},
+
+
+"genome_b": {
+    "name":"sorghum",
+    "flat":"tests/data/sorghum_v1.4.flat",
+    "fasta":"tests/data/sorghum_v1.4.fasta"
+},
+
+
+"blast": {
+   "W": 20, 
+   "a": 8,  
+   "e": 0.001
+},
+
+
+"default": {
+    "blast_path":"/usr/bin/blastall",
+    "out_dir":"tests/data/",
+    "min_len": 100,
+    "reciprocal": true,
+    "blast_log": true
+}
+
+
+}

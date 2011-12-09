@@ -1,0 +1,7 @@
+code for annotating genes using cds from another plant species
+bp_bio code taken from bentp with minor changes made: http://code.google.com/p/bpbio/
+  changes are recorded in git
+
+the merge.py code is used to merge the missed genes found in bp_bio coanno with same hits and no intervening genes
+
+

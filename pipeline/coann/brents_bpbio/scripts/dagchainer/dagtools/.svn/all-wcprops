@@ -1,0 +1,41 @@
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/292/trunk/scripts/dagchainer/dagtools
+END
+from_blast.py
+K 25
+svn:wc:ra_dav:version-url
+V 65
+/svn/!svn/ver/265/trunk/scripts/dagchainer/dagtools/from_blast.py
+END
+plot_dag.py
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/250/trunk/scripts/dagchainer/dagtools/plot_dag.py
+END
+evalue_adjust.py
+K 25
+svn:wc:ra_dav:version-url
+V 68
+/svn/!svn/ver/234/trunk/scripts/dagchainer/dagtools/evalue_adjust.py
+END
+cdagline.pyx
+K 25
+svn:wc:ra_dav:version-url
+V 64
+/svn/!svn/ver/292/trunk/scripts/dagchainer/dagtools/cdagline.pyx
+END
+__init__.py
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/233/trunk/scripts/dagchainer/dagtools/__init__.py
+END
+find_nearby.py
+K 25
+svn:wc:ra_dav:version-url
+V 66
+/svn/!svn/ver/269/trunk/scripts/dagchainer/dagtools/find_nearby.py
+END

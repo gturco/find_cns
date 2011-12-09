@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svn/!svn/ver/242/trunk/co-anno/tests/data
+END
+t.fasta
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/242/trunk/co-anno/tests/data/t.fasta
+END
+athaliana_athaliana.json
+K 25
+svn:wc:ra_dav:version-url
+V 67
+/svn/!svn/ver/242/trunk/co-anno/tests/data/athaliana_athaliana.json
+END
+missed_athaliana_from_athaliana.gff
+K 25
+svn:wc:ra_dav:version-url
+V 78
+/svn/!svn/ver/242/trunk/co-anno/tests/data/missed_athaliana_from_athaliana.gff
+END

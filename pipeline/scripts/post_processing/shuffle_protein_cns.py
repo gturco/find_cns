@@ -97,7 +97,6 @@ def main(qbed, sbed, cnsfile, dist, orthology_path):
                     sstrand = sbed.d[gnew['saccn']]['strand']
                 except:
                     print >>sys.stderr, gnew
-                    #continue
                     raise
                 gnew['qaccn'] = new_qname
                 gnew['saccn'] = new_sname

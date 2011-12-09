@@ -1,0 +1,23 @@
+K 25
+svn:wc:ra_dav:version-url
+V 38
+/svn/!svn/ver/274/trunk/scripts/aranet
+END
+aranet.wsgi
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/274/trunk/scripts/aranet/aranet.wsgi
+END
+to_array.py
+K 25
+svn:wc:ra_dav:version-url
+V 50
+/svn/!svn/ver/271/trunk/scripts/aranet/to_array.py
+END
+README
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/!svn/ver/272/trunk/scripts/aranet/README
+END

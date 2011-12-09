@@ -1,0 +1,35 @@
+K 25
+svn:wc:ra_dav:version-url
+V 42
+/svn/!svn/ver/292/trunk/scripts/dagchainer
+END
+README.rst
+K 25
+svn:wc:ra_dav:version-url
+V 53
+/svn/!svn/ver/241/trunk/scripts/dagchainer/README.rst
+END
+dagchainer.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/252/trunk/scripts/dagchainer/dagchainer.cpp
+END
+setup.py
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/241/trunk/scripts/dagchainer/setup.py
+END
+dag_chainer.py
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/252/trunk/scripts/dagchainer/dag_chainer.py
+END
+Makefile
+K 25
+svn:wc:ra_dav:version-url
+V 51
+/svn/!svn/ver/223/trunk/scripts/dagchainer/Makefile
+END
