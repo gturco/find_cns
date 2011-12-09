@@ -18,9 +18,13 @@ def parse_missed_genes(missed_genes_path):
 def no_intervening_genes(feat,b_feat,bed):
     """retunrs true is there are no intervening genes between feat and b_feat
     NOTE feat < b_feat... sort before hand"""
-    if feat[0] == b_feat[0]:
+    if feat[0] == b_feat[0] and feat[4] == b_feat[4]:
         feats = bed.get_features_in_region(feat[0],feat[2]+1, b_feat[1])
         if len(feats) > 0: return False
+        strands = [f["strand"] for f in feats]
+        elif:
+            feat[4] not in strands
+            return False
         else: return True
     else: return False
 
@@ -66,13 +70,14 @@ def group_genes_in_bed(missed_genes,old_bed,new_bed):
             ##### remove from old bed this removes probblems in merge_hits
             ### add hits to new_bed
             hit = new_gene
-            hit_info = (hit["seqid"],hit["start"],hit["end"],hit["accn"])
+            hit_info =
+            (hit["seqid"],hit["start"],hit["end"],hit["accn"],hit["seqid"])
             missed_genes_grouped[qaccn].append(hit_info)
             missed_genes_dict[hit['accn']] = hit
         except KeyError:
             try:
                 hit = new_bed.accn(hit_accn)
-                hit_info = (hit["seqid"],hit["start"],hit["end"],hit["accn"])
+                hit_info = (hit["seqid"],hit["start"],hit["end"],hit["accn"],hit["seqid"])
                 missed_genes_grouped[qaccn].append(hit_info)
                 missed_genes_dict[hit['accn']] = hit
             except KeyError: continue
