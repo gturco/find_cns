@@ -85,7 +85,8 @@ def merge_hits(hits,old_bed,missed_genes_dict):
     """sort hits if the hits are on the same chr at a given distance with no
     intervening genes they are joined add new hits to bed"""
     missed_genes_grouped_dict = {}
-    hits.sort()
+    hits.sort(key=lamda h: (h[0],h[1]))
+    print hits[0][3]
     missed_genes_grouped_dict[hits[0][3]] = missed_genes_dict[hits[0][3]]
     for i,hit in enumerate(hits[:-1]):
         b_hit = hits[i+1]
@@ -111,7 +112,7 @@ def main(missed_genes_path,old_bed,new_bed,out_file):
     ### make sure this ^^^^ works ^^^^^ 
     new_genes_final = {}
     for qaccn in missed_genes_dict:
-        hits = tuple(missed_genes_groupedt[qaccn])
+        hits = tuple(missed_genes_grouped[qaccn])
         hits = list(hits)
         grouped_hits = merge_hits(hits,old_bed,missed_genes_dict)
         new_genes_final.update(grouped_hits)
