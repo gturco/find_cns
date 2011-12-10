@@ -68,13 +68,13 @@ def group_genes_in_bed(missed_genes,old_bed,new_bed):
             ##### remove from old bed this removes probblems in merge_hits
             ### add hits to new_bed
             hit = new_gene
-            hit_info = (hit["seqid"],hit["start"],hit["end"],hit["accn"],hit["seqid"])
+            hit_info = (hit["seqid"],hit["start"],hit["end"],hit["accn"],hit["strand"])
             missed_genes_grouped[qaccn].append(hit_info)
             missed_genes_dict[hit['accn']] = hit
         except KeyError:
             try:
                 hit = new_bed.accn(hit_accn)
-                hit_info = (hit["seqid"],hit["start"],hit["end"],hit["accn"],hit["seqid"])
+                hit_info = (hit["seqid"],hit["start"],hit["end"],hit["accn"],hit["strand"])
                 missed_genes_grouped[qaccn].append(hit_info)
                 missed_genes_dict[hit['accn']] = hit
             except KeyError: continue
@@ -107,11 +107,11 @@ def merge_hits(hits,old_bed,missed_genes_dict):
 ##################################################
 def main(missed_genes_path,old_bed,new_bed,out_file):
     missed_genes = parse_missed_genes(missed_genes_path)
-    hits,missed_genes_dict = group_genes_in_bed(missed_genes,old_bed,new_bed)
+    missed_genes_grouped,missed_genes_dict = group_genes_in_bed(missed_genes,old_bed,new_bed)
     ### make sure this ^^^^ works ^^^^^ 
     new_genes_final = {}
-    for qaccn in missed_genes_grouped:
-        hits = tuple(missed_genes_grouped[qaccn])
+    for qaccn in missed_genes_dict:
+        hits = tuple(missed_genes_groupedt[qaccn])
         hits = list(hits)
         grouped_hits = merge_hits(hits,old_bed,missed_genes_dict)
         new_genes_final.update(grouped_hits)
