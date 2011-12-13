@@ -21,6 +21,8 @@ def no_intervening_genes(feat,b_feat,bed):
     """retunrs true is there are no intervening genes between feat and b_feat
     NOTE feat < b_feat... sort before hand"""
     if feat[0] == b_feat[0] and feat[4] == b_feat[4]:
+        if feat[2] >= b_feat[1]: continue
+        ### want to skip non merged feats for now
         feats = bed.get_features_in_region(feat[0],feat[2]+1, b_feat[1])
         strands = [f["strand"] for f in feats]
         if len(feats) > 0: return False
@@ -45,34 +47,39 @@ def near_by_gene():
     pass
     ### will fix in brents code
 
-def merge_overlapping(hits):
-    ##### if any of the hits merge and rename... and remoce...
-    #start_stops = [(h[1],h[2]) for h in hits]
-    accn = hits[0][3]
-    name_base = accn.split("-")[0]
-    ###group by strand and chr
-    format_grouping = [("{0}_{1}".format(h[0],h[4]),(h[1],h[2])) for h in hits]
-    grouped_hits= defaultdict(list)
-    for k,v in format_grouping:
-        grouped_hits[k].append(v)
-
-    merged_hits = []
-    for seqid_strand in grouped_hits:
-        seqid = seqid_strand.split("_")[0]
-        strand = seqid_strand.split("_")[1]
-        if len(grouped_hits[seqid_strand]) > 1:
-            merge_overlapping_hits =recursive_merge_both(grouped_hits[seqid_strand])
-            for start,stop in merge_overlapping_hits:
-                new_name = "{0}_{1}_{2}".format(name_base,start,stop)
-                hit = (seqid,start,stop,new_name,strand)
-                merged_hits.append(hit)
-        else:
-            start = grouped_hits[seqid_strand][0][0]
-            stop = grouped_hits[seqid_strand][0][1]
-            new_name = "{0}_{1}_{2}.for".format(name_base,start,stop)
-            hit = (seqid,start,stop,new_name,strand)
-            merged_hits.append(hit)
-    return merged_hits
+#def merge_overlapping(missed_genes,old_bed):
+    ### groupby same strand and chr and hit
+    ### imput into merge_both
+    ### output stop,starts
+    ### update old_bed find feats in region...
+    ### rename feat[0]accn
+        ###maynot have correct name
+#    accn = x[0]["accn"]
+#    name_base = accn.split("_")[0]
+#    ###group by strand and chr
+#    format_grouping = [("{0}_{1}".format(h[0],h[4]),(h[1],h[2])) 
+#    for h in ]
+#    grouped_hits= defaultdict(list)
+#    for k,v in format_grouping:
+#        grouped_hits[k].append(v)
+#
+#    merged_hits = []
+#    for seqid_strand in grouped_hits:
+#        seqid = seqid_strand.split("_")[0]
+#        strand = seqid_strand.split("_")[1]
+#        if len(grouped_hits[seqid_strand]) > 1:
+#            merge_overlapping_hits =recursive_merge_both(grouped_hits[seqid_strand])
+#            for start,stop in merge_overlapping_hits:
+#                new_name = "{0}_{1}_{2}".format(name_base,start,stop)
+#                hit = (seqid,start,stop,new_name,strand)
+#                merged_hits.append(hit)
+#        else:
+#            start = grouped_hits[seqid_strand][0][0]
+#            stop = grouped_hits[seqid_strand][0][1]
+#            new_name = "{0}_{1}_{2}.for".format(name_base,start,stop)
+#            hit = (seqid,start,stop,new_name,strand)
+#            merged_hits.append(hit)
+#    return merged_hits
 
 def write_new_bed(gene_list, old_bed, missed_genes,out_file):
     merge_fh = open(out_file,"wb")
@@ -145,8 +152,8 @@ def main(missed_genes_path,old_bed,new_bed,out_file):
         hits = missed_genes_grouped[qaccn]
         hit_set = set(hits)
         hits = list(hit_set)
-        non_overlapping = merge_overlapping(hits)
-        grouped_hits = merge_hits(non_overlapping,old_bed,missed_genes_dict)
+        #non_overlapping = merge_overlapping(hits)
+        grouped_hits = merge_hits(hits,old_bed,missed_genes_dict)
         new_genes_final.update(grouped_hits)
     write_new_bed(new_genes_final,old_bed,missed_genes,out_file)
 
