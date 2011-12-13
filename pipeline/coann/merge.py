@@ -51,7 +51,7 @@ def merge_overlapping(hits):
     accn = hits[0][3]
     name_base = accn.split("-")[0]
     ###group by strand and chr
-    format_grouping = [("{0}_{1}".format(h[0],h[4]),(h[1],h[2]))]
+    format_grouping = [("{0}_{1}".format(h[0],h[4]),(h[1],h[2])) for h in hits]
     grouped_hits= defaultdict(list)
     for k,v in format_grouping:
         grouped_hits[k].append(v)
