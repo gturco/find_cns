@@ -2,6 +2,8 @@ from flatfeature import Bed
 from collections import defaultdict
 import sys
 import heapq
+from random_noncoding_seq import recursive_merge_both
+
 
 def parse_missed_genes(missed_genes_path):
     """parses co-anno output: matches.txt tab sep file
@@ -42,6 +44,35 @@ def update_locs(old_hit,new_hit):
 def near_by_gene():
     pass
     ### will fix in brents code
+
+def merge_overlapping(hits):
+    ##### if any of the hits merge and rename... and remoce...
+    #start_stops = [(h[1],h[2]) for h in hits]
+    accn = hits[0][3]
+    name_base = accn.split("-")[0]
+    ###group by strand and chr
+    format_grouping = [("{0}_{1}".format(h[0],h[4]),(h[1],h[2]))]
+    grouped_hits= defaultdict(list)
+    for k,v in format_grouping:
+        grouped_hits[k].append(v)
+
+    merged_hits = []
+    for seqid_strand in grouped_hits:
+        seqid = seqid_strand.split("_")[0]
+        strand = seqid_strand.split("_")[1]
+        if len(grouped_hits[seqid_strand]) > 1:
+            merge_overlapping_hits =recursive_merge_both(grouped_hits[seqid_strand])
+            for start,stop in merge_overlapping_hits:
+                new_name = "{0}_{1}_{2}".format(name_base,start,stop)
+                hit = (seqid,start,stop,new_name,strand)
+                merged_hits.append(hit)
+        else:
+            start = grouped_hits[seqid_strand][0][0]
+            stop = grouped_hits[seqid_strand][0][1]
+            new_name = "{0}_{1}_{2}.for".format(name_base,start,stop)
+            hit = (seqid,start,stop,new_name,strand)
+            merged_hits.append(hit)
+    return merged_hits
 
 def write_new_bed(gene_list, old_bed, missed_genes,out_file):
     merge_fh = open(out_file,"wb")
@@ -85,8 +116,7 @@ def merge_hits(hits,old_bed,missed_genes_dict):
     """sort hits if the hits are on the same chr at a given distance with no
     intervening genes they are joined add new hits to bed"""
     missed_genes_grouped_dict = {}
-    hits.sort(key=lamda h: (h[0],h[1]))
-    print hits[0][3]
+    hits.sort(key=lambda h: (h[0],h[1]))
     missed_genes_grouped_dict[hits[0][3]] = missed_genes_dict[hits[0][3]]
     for i,hit in enumerate(hits[:-1]):
         b_hit = hits[i+1]
@@ -111,10 +141,12 @@ def main(missed_genes_path,old_bed,new_bed,out_file):
     missed_genes_grouped,missed_genes_dict = group_genes_in_bed(missed_genes,old_bed,new_bed)
     ### make sure this ^^^^ works ^^^^^ 
     new_genes_final = {}
-    for qaccn in missed_genes_dict:
-        hits = tuple(missed_genes_grouped[qaccn])
-        hits = list(hits)
-        grouped_hits = merge_hits(hits,old_bed,missed_genes_dict)
+    for qaccn in missed_genes_grouped:
+        hits = missed_genes_grouped[qaccn]
+        hit_set = set(hits)
+        hits = list(hit_set)
+        non_overlapping = merge_overlapping(hits)
+        grouped_hits = merge_hits(non_overlapping,old_bed,missed_genes_dict)
         new_genes_final.update(grouped_hits)
     write_new_bed(new_genes_final,old_bed,missed_genes,out_file)
 
