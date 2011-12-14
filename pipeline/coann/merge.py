@@ -84,14 +84,13 @@ def near_by_gene():
 def write_new_bed(gene_list, old_bed, missed_genes,out_file):
     merge_fh = open(out_file,"wb")
     hit_list = [hit for hit,qaccn in missed_genes]
-    for gene in old_bed:
-        if gene in hit_list: continue
-        new_line = old_bed.row_string(gene)
+    for i,gene in enumerate(old_bed):
+        if gene["accn"] in hit_list: continue
+        new_line = Bed.row_string(gene)
         merge_fh.write("{0}\n".format(new_line))
-    print "finshed old bed"
-    for new_gene in gene_list:
+    for i,new_gene in enumerate(gene_list):
         ### merge overlapping here
-        new_line = old_bed.row_string(new_gene)
+        new_line = Bed.row_string(gene_list[new_gene])
         merge_fh.write("{0}\n".format(new_line))
 
 ################################
@@ -150,6 +149,7 @@ def merge_hits(hits,old_bed,missed_genes_dict):
 def main(missed_genes_path,old_bed,new_bed,out_file):
     missed_genes = parse_missed_genes(missed_genes_path)
     missed_genes_grouped,missed_genes_dict = group_genes_in_bed(missed_genes,old_bed,new_bed)
+    #print "grouped genes"
     ### make sure this ^^^^ works ^^^^^ 
     new_genes_final = {}
     for qaccn in missed_genes_grouped:
@@ -159,6 +159,7 @@ def main(missed_genes_path,old_bed,new_bed,out_file):
         #non_overlapping = merge_overlapping(hits)
         grouped_hits = merge_hits(hits,old_bed,missed_genes_dict)
         new_genes_final.update(grouped_hits)
+        #print len(new_genes_final)
     write_new_bed(new_genes_final,old_bed,missed_genes,out_file)
 
 
