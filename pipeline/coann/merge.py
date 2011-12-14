@@ -21,7 +21,7 @@ def no_intervening_genes(feat,b_feat,bed):
     """retunrs true is there are no intervening genes between feat and b_feat
     NOTE feat < b_feat... sort before hand"""
     if feat[0] == b_feat[0] and feat[4] == b_feat[4]:
-        if feat[2] >= b_feat[1]: continue
+        if feat[2] >= b_feat[1]: pass
         ### want to skip non merged feats for now
         feats = bed.get_features_in_region(feat[0],feat[2]+1, b_feat[1])
         strands = [f["strand"] for f in feats]
