@@ -25,8 +25,8 @@ def no_intervening_genes(feat,b_feat,bed):
         ### want to skip non merged feats for now
         feats = bed.get_features_in_region(feat[0],feat[2]+1, b_feat[1])
         strands = [f["strand"] for f in feats]
-        if len(feats) > 0: return False
-        elif feat[4] not in strands: return False
+        if feat[4] not in strands: return True
+        elif len(feats) > 0: return False
         else: return True
     else: return False
 
@@ -67,7 +67,7 @@ def near_by_gene():
 #    for seqid_strand in grouped_hits:
 #        seqid = seqid_strand.split("_")[0]
 #        strand = seqid_strand.split("_")[1]
-#        if len(grouped_hits[seqid_strand]) > 1:
+#       if len(grouped_hits[seqid_strand]) > 1:
 #            merge_overlapping_hits =recursive_merge_both(grouped_hits[seqid_strand])
 #            for start,stop in merge_overlapping_hits:
 #                new_name = "{0}_{1}_{2}".format(name_base,start,stop)
