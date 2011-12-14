@@ -88,7 +88,8 @@ def write_new_bed(gene_list, old_bed, missed_genes,out_file):
         if gene in hit_list: continue
         merge_fh.write(old_bed.row_string(gene))
     for new_row in gene_list:
-        merge_fh.write(old_bed.row_to_string(new_row))
+        ### merge overlapping here
+        merge_fh.write(old_bed.row_string(new_row))
 
 ################################
 
