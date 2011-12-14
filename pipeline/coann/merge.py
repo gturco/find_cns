@@ -159,7 +159,6 @@ def main(missed_genes_path,old_bed,new_bed,out_file):
         #non_overlapping = merge_overlapping(hits)
         grouped_hits = merge_hits(hits,old_bed,missed_genes_dict)
         new_genes_final.update(grouped_hits)
-        #print len(new_genes_final)
     write_new_bed(new_genes_final,old_bed,missed_genes,out_file)
 
 
