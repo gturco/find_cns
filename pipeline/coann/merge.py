@@ -85,13 +85,13 @@ def write_new_bed(gene_list, old_bed, missed_genes,out_file):
     merge_fh = open(out_file,"wb")
     hit_list = [hit for hit,qaccn in missed_genes]
     for gene in old_bed:
-        if gene in hit_list: continue
+        if gene["accn"] in hit_list: continue
         new_line = old_bed.row_string(gene)
         merge_fh.write("{0}\n".format(new_line))
     print "finshed old bed"
     for new_gene in gene_list:
         ### merge overlapping here
-        new_line = old_bed.row_string(new_gene)
+        new_line = old_bed.row_string(gene_list[new_gene])
         merge_fh.write("{0}\n".format(new_line))
 
 ################################
