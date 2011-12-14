@@ -92,7 +92,8 @@ def write_new_bed(gene_list, old_bed, missed_genes,out_file):
         ### merge overlapping here
         new_line = Bed.row_string(gene_list[new_gene])
         merge_fh.write("{0}\n".format(new_line))
-
+        
+###sort -n -k 1 -k 2 rice_v6.all2.bed  > rice_v6.all3.bed
 ################################
 
 def group_genes_in_bed(missed_genes,old_bed,new_bed):
