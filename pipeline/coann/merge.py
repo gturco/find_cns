@@ -47,39 +47,18 @@ def near_by_gene():
     pass
     ### will fix in brents code
 
-#def merge_overlapping(missed_genes,old_bed):
-    ### groupby same strand and chr and hit
-    ### imput into merge_both
-    ### output stop,starts
-    ### update old_bed find feats in region...
-    ### rename feat[0]accn
-        ###maynot have correct name
-#    accn = x[0]["accn"]
-#    name_base = accn.split("_")[0]
-#    ###group by strand and chr
-#    format_grouping = [("{0}_{1}".format(h[0],h[4]),(h[1],h[2])) 
-#    for h in ]
-#    grouped_hits= defaultdict(list)
-#    for k,v in format_grouping:
-#        grouped_hits[k].append(v)
-#
-#    merged_hits = []
-#    for seqid_strand in grouped_hits:
-#        seqid = seqid_strand.split("_")[0]
-#        strand = seqid_strand.split("_")[1]
-#       if len(grouped_hits[seqid_strand]) > 1:
-#            merge_overlapping_hits =recursive_merge_both(grouped_hits[seqid_strand])
-#            for start,stop in merge_overlapping_hits:
-#                new_name = "{0}_{1}_{2}".format(name_base,start,stop)
-#                hit = (seqid,start,stop,new_name,strand)
-#                merged_hits.append(hit)
-#        else:
-#            start = grouped_hits[seqid_strand][0][0]
-#            stop = grouped_hits[seqid_strand][0][1]
-#            new_name = "{0}_{1}_{2}.for".format(name_base,start,stop)
-#            hit = (seqid,start,stop,new_name,strand)
-#            merged_hits.append(hit)
-#    return merged_hits
+def merge_feats(feat):
+    merge_same_feats = set(feat["locs"])
+    feat["locs"] = list(merge_same_feats)
+    if len(feat["locs"]) > 1:
+        merge_overlapping_feats =recursive_merge_both(feat["locs"])
+        merge_overlapping_feats.sort()
+        locs_start = feat["locs"][0][0]
+        locs_end = feat["locs"][-1][1]
+        feat["start"] = heapq.nsmallest(1,[locs_start,feat["start"]])[0]
+        feat["end"] = heapq.nlargest(1,[locs_end,feat["end"]])[0]
+    return feat
+
 
 def write_new_bed(gene_list, old_bed, missed_genes,out_file):
     merge_fh = open(out_file,"wb")
@@ -90,7 +69,10 @@ def write_new_bed(gene_list, old_bed, missed_genes,out_file):
         merge_fh.write("{0}\n".format(new_line))
     for i,new_gene in enumerate(gene_list):
         ### merge overlapping here
-        new_line = Bed.row_string(gene_list[new_gene])
+        updated_feat = gene_list[new_gene]
+        if len(updated_feat["locs"]) > 1:
+            updated_feat = merge_feats(updated_feat)
+        new_line = Bed.row_string(updated_feat)
         merge_fh.write("{0}\n".format(new_line))
         
 ###sort -n -k 1 -k 2 rice_v6.all2.bed  > rice_v6.all3.bed
