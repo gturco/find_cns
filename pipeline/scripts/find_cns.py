@@ -7,14 +7,14 @@ from shapely.geometry import Point, Polygon, LineString, MultiLineString
 from flatfeature import Bed
 import logging
 from processing import Pool
-LOG_FILENAME = '/home/gturco/find_cns.log'
-logging.basicConfig(filename=LOG_FILENAME,level=logging.INFO)
+#LOG_FILENAME = '/Users/gturco/find_cns.log'
+#logging.basicConfig(filename=LOG_FILENAME,level=logging.INFO)
 pool = None
 
 
 EXPON = 0.90
 
-def get_feats_in_space(locs, ichr, bpmin, bpmax, bed):
+def get_feats_in_space(locs, ichr, bpmin, bpmax, bed, strand):
     """ locs == [start, stop]
     bpmin is the lower extent of the window, bpmax ...
     """
@@ -23,7 +23,7 @@ def get_feats_in_space(locs, ichr, bpmin, bpmax, bed):
     feats = [f for f in feats if not (f['start'] == locs[0] and f['end'] == locs[1])]
     if len(feats) != 0:
         assert feats[0]['seqid'] == str(ichr)
-    return [(f['start'], f['end'], f['accn']) for f in feats]
+    return [(f['start'], f['end'], f['accn']) for f in feats if f["strand"] == strand]
 
 
 
@@ -65,8 +65,8 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
         yall = np.hstack((yy,yb[::-1], yy[0]))
 
     feats_nearby = {}
-    feats_nearby['q'] = get_feats_in_space(qgene, qfeat['seqid'], int(x.min()), int(x.max()), qbed)
-    feats_nearby['s'] = get_feats_in_space(sgene, sfeat['seqid'], int(y.min()), int(y.max()), sbed)
+    feats_nearby['q'] = get_feats_in_space(qgene, qfeat['seqid'], int(x.min()), int(x.max()), qbed, qfeat["strand"])
+    feats_nearby['s'] = get_feats_in_space(sgene, sfeat['seqid'], int(y.min()), int(y.max()), sbed, sfeat["strand"])
 
 
 
@@ -176,7 +176,7 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
     return cnss
 
 
-def remove_overlapping_cnss(cnss,overlap_type):
+def remove_overlapping_cnss(cnss):
     """for cases when there is nearly the same cns, but with 1
     basepair shfit up/down. that create many cnss stacked on top
     of each other. this reduces those down to one."""
@@ -188,21 +188,19 @@ def remove_overlapping_cnss(cnss,overlap_type):
         for i, csi in enumerate(zcnss[:-1]):
             for _j, csj in enumerate(zcnss[i + 1:]):
                 j = i + _j + 1 # cause enumerate starts at 0
-                if overlap_type == "overlaps":
-                    if csi.overlaps(csj):
-                        if cnss[i][-2] < cnss[j][-2] or cnss[i][-1] > cnss[j][-2] or csi.y < csj.y:
-                            remove.append(j)
-                        else:
-                            remove.append(i)
-                        logging.info("overlapping:{0}".format(csi))
-                elif overlap_type == "intersect":
-                    if csi.contains(csj):
-                        if cnss[i][-2] < cnss[j][-2] or cnss[i][-1] > cnss[j][-2] or cnss[i][1] < cnss[j][3]:
-                            remove.append(j)
-                        else:
-                            remove.append(i)
-                        logging.info("intersecting:{0}".format(cnss[i]))
-                        #print >> sys.stderr, csi
+                if csi.overlaps(csj):
+                    if cnss[i][-2] < cnss[j][-2] or cnss[i][-1] > cnss[j][-2] or csi.y < csj.y:
+                        remove.append(j)
+                    else:
+                        remove.append(i)
+                    logging.info("overlapping:{0}".format(csi))
+                if csi.contains(csj):
+                    if cnss[i][-2] < cnss[j][-2] or cnss[i][-1] > cnss[j][-2] or cnss[i][1] < cnss[j][3]:
+                        remove.append(j)
+                    else:
+                        remove.append(i)
+                    logging.info("intersecting:{0}".format(cnss[i]))
+                    #print >> sys.stderr, csi
     remove = frozenset(remove)
     return [cns for i, cns in enumerate(cnss) if not i in remove]
 
@@ -212,7 +210,7 @@ def remove_crossing_cnss(cnss, qgene, sgene):
     cns_shapes = [LineString([((c[0] + c[1])/2., 0 ), ((c[2] + c[3])/2. + diff, 1000)]) for c in cnss]
 
     overlapping = len(cnss)
-    cnss = remove_overlapping_cnss(cnss,"overlaps")
+    cnss = remove_overlapping_cnss(cnss)
     overlapping -= len(cnss)
     cns_shapes = [LineString([((c[0] + c[1])/2., 0 ), ((c[2] + c[3])/2. + diff, 1000)]) for c in cnss]
 
@@ -276,9 +274,8 @@ def remove_crossing_cnss(cnss, qgene, sgene):
     for c in cns_shapes:
         if not c.do_remove: continue
         nremoved += 1
-    removed_crossing = [c.cns for c in cns_shapes if not c.do_remove]
-    remove_repeats = remove_overlapping_cnss(removed_crossing,"intersect")
-    return remove_repeats
+    return [c.cns for c in cns_shapes if not c.do_remove]
+
 
 def get_pair(pair_file, fmt, qbed, sbed, seen={}):
     """ read a line and make sure it's unique handles
