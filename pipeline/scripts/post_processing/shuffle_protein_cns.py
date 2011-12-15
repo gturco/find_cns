@@ -77,7 +77,6 @@ def main(qbed, sbed, cnsfile, dist, orthology_path):
             rnas[key].append((cns, crna[cns_id]))
         else:
             real_cns_items.append((cns_id, cns))
-    qcns = cns
     p_trees = fill_tree(proteins)
     r_trees = fill_tree(rnas)
 
@@ -105,14 +104,7 @@ def main(qbed, sbed, cnsfile, dist, orthology_path):
                 n[seqid_pair].append((gnew, info))
         return n
     nproteins = assign_new_names(proteins, "protein")
-    #for seqid_pair, li in rnas.iteritems():
-        #for gnew,info in li[:10]:
-            #print cns["qaccn"]
-            #if cns["qaccn"] == "5_10914851_10914871_cns_rna":
-            #print >>sys.stderr, "NOOOOOOOOOOOOO"
-            #### not here has to do wih how the assign_new_names loop is looping
     nrnas = assign_new_names(rnas, "rna")
-    #print "new {0}".format(cns['qaccn'])
 
     cns_seen = {}
     # go through the remaining cnss, print and assign them to the new
@@ -132,7 +124,7 @@ def main(qbed, sbed, cnsfile, dist, orthology_path):
         for rnew, info in get_new(cns, r_trees, key, nrnas, dist + 1000):
             cns['qaccn'] = rnew['qaccn']
             cns['saccn'] = rnew['saccn']
-   	    cns_str = cns_to_str(cns)
+   	        cns_str = cns_to_str(cns)
             if cns_str in cns_seen: continue
             cns_seen[cns_str] = 1
             print >>real_cns_fh, cns_str
