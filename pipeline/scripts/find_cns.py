@@ -23,7 +23,9 @@ def get_feats_in_space(locs, ichr, bpmin, bpmax, bed, strand):
     feats = [f for f in feats if not (f['start'] == locs[0] and f['end'] == locs[1])]
     if len(feats) != 0:
         assert feats[0]['seqid'] == str(ichr)
-    return [(f['start'], f['end'], f['accn']) for f in feats if f["strand"] == strand]
+    #return [(f['start'], f['end'], f['accn']) for f in feats if f["strand"] == strand]
+    return [(f['start'], f['end'], f['accn']) for f in feats]
+
 
 
 
