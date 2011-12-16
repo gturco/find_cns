@@ -50,9 +50,11 @@ def near_by_gene():
 def merge_feats(feat):
     merge_same_feats = set(feat["locs"])
     feat["locs"] = list(merge_same_feats)
+    feat["locs"].sort()
     if len(feat["locs"]) > 1:
         merge_overlapping_feats =recursive_merge_both(feat["locs"])
         merge_overlapping_feats.sort()
+        feat["locs"] = merge_overlapping_feats
         locs_start = feat["locs"][0][0]
         locs_end = feat["locs"][-1][1]
         feat["start"] = heapq.nsmallest(1,[locs_start,feat["start"]])[0]
