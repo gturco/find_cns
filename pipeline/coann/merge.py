@@ -3,7 +3,7 @@ from collections import defaultdict
 import sys
 import heapq
 from random_noncoding_seq import recursive_merge_both
-
+from collections import deque
 
 def parse_missed_genes(missed_genes_path):
     """parses co-anno output: matches.txt tab sep file
@@ -52,7 +52,7 @@ def merge_feats(feat):
     feat["locs"] = list(merge_same_feats)
     feat["locs"].sort()
     if len(feat["locs"]) > 1:
-        merge_overlapping_feats =recursive_merge_both(feat["locs"])
+        merge_overlapping_feats =recursive_merge_both(deque(feat["locs"]))
         merge_overlapping_feats.sort()
         feat["locs"] = merge_overlapping_feats
         locs_start = feat["locs"][0][0]
