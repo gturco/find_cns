@@ -399,9 +399,10 @@ def find_missed(sorg, qflat, sflat, q_snon_blast, q_s_blast,
                 else:
                     for parent in parents:
                         # have to check here since we added extra for the case where we're inside an intron of an existing gene.
+                        parents['locs'].sort()
                         if parent['strand'] != feat['strand']: continue
-                        #if parent['end'] < feat['start']: continue
-                        #if parent['start'] > feat['end']: continue
+                        if parent['locs'][0][0] < feat['start']: continue
+                        if parent['locs'][-1][1] > feat['end']: continue
                         # when doing self-self dont want to add an annotation based
                         # on the same gene.
                         if parent['accn'] == qfeat['accn']:
