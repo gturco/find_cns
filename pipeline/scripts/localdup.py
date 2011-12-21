@@ -1,13 +1,14 @@
 from itertools import product
 import commands
+from bed_utils import Bed as Orderbed
 from flatfeature import Bed
 from find_cns import parse_blast, get_masked_fastas
 from processing import Pool
 import sys
-from tempfile import mkstemp
-from shutil import move
+#from tempfile import mkstemp
+#from shutil import move
 from os import remove,close
-
+#####sed '/Os12g41090\tSb08g020690/ d' -i r
 
 ### need to download processing
 
@@ -64,22 +65,55 @@ def get_all_dups(dup_dict,feat):
         dups = [feat]
     return dups
 
+####need to remove line from:#######
+####################################
+### pairs file sed 's/gene1\tgene2/genenew1\tgenenew2/' -i file_name ###### search and replace!!!!!!!
+### raw.filtered file sed 's/qchr\tqpos\tsch\tspos/qchr\t/qfeat' -i file_name search and replace!!!!
+### cns.txt file '/qchr,qaccn,sch,saccn/ d' -i file_name order doesnt matter
+### .nolocaldups '/accn/ d' -i file_name -sort sort -n -k 1 -k 2 rice_v6.all2.bed  > rice_v6.all3.bed
+### check sort for them
 
-def remove_line(dups,file_path):
-    """removes line if dup from cns file"""
-    fh,abs_path = mkstemp()
-    new_file = open(abs_path,"w")
-    for line in open(file_path):
-        for qaccn,saccn in dups:
-            if qaccn in line and saccn in line: continue
-            else:
-            ## write to tmpfile
-                tmpfile.write(line)
-    close(fh)
-    remove(file_path)
-    move(abs_path,file_path)
+def update_pairs(qfeat,sfeat,qparent,sparent,pair_file):
+    """replaces the old pair with the new head loaldup pairs"""
+    #### new pairs file search and replace
+    search_replace_pairs = "sed 's/{0}\t{1}/\t{2}\t{3}/' -i {4} ".format(qparent,sparent,qfeat,sfeat,pair_file)
+    commands.getstatusoutput(search_replace_pairs)
 
+def update_nolocaldups(bed,qfeat,sfeat,qparent,sparent,qnolocaldups_path,snolocaldups_path):
+    """ removes the old head localdups and appends the new local dups"""
+    qnolocaldups = open(qnolocaldups_path,'a')
+    snolocaldups = open(snolocaldups_path,'a')
+    remove_qparent = "sed '/{0}/ d' -i {1}".format(qparent,qnolocaldups_path)
+    remove_sparent = "sed '/{0}/ d' -i {1}".format(sparent,snolocaldups_path)
+    commands.getstatusoutput(remove_qparent)
+    commands.getstatusoutput(remove_sparent)
+    qnolocaldups.write(bed.row_string(qfeat))
+    snolocaldups.write(bed.row_string(sfeat))
 
+def remove_cnss_line(qparent,sparent,cns_file):
+    """ removes any cnss with the old parent dup """
+    remove_cnss = "sed '/[0-9]*,{0},[0-9]*,{1}/ d' -i {2}".format(qparent,sparent,cns_file)
+    commands.getstatusoutput(remove_cnss)
+
+def localdup_file(localdups):
+    pass
+
+def pairs_to_qa(pair_file,qbed_file,sbed_file):
+    """takes new localdups file and new pairs file to create qa file"""
+    ###-sort sort -n -k 1 -k 2 rice_v6.all2.bed  > rice_v6.all3.bed 
+    new_qa = open("rice_j_sorghum_n.raw.filtered","w")
+    qbed = Orderbed(qbed_file)
+    sbed = Orderbed(sbed_file)
+    qorder = qbed.get_simple_bed()
+    sorder = qbed.get_simple_bed()
+    for qfeat,sfeat in pairfile:
+        qpos = qorder[qfeat][1]
+        qchr = qorder[qfeat][0]
+        spos = sorder[sfeat][1]
+        schr = sorder[sfeat][0]
+        new_line = "{0}\t{1}\t{2}\t{3}\t50\n".format(qchr,qpos,schr,spos)
+        new_qa.write(new_line)
+    new_qa.close()
 
 def main(cns_file,qdups_path,sdups_path,pair_file,fmt,qbed,sbed,qpad,spad,blast_path,mask='F',ncpu=8):
     pool = Pool(ncpu)
@@ -92,20 +126,19 @@ def main(cns_file,qdups_path,sdups_path,pair_file,fmt,qbed,sbed,qpad,spad,blast_
     qfastas = get_masked_fastas(qbed)
     sfastas = get_masked_fastas(sbed) if qbed.filename != sbed.filename else qfastas
 
-
-
     qdup_dict = parse_dups(qdups_path)
     sdup_dict = parse_dups(sdups_path)
     dups = get_pairs(pair_file,fmt,qdup_dict,sdup_dict)
     small_dups = [(qfeat,sfeat) for qfeat,sfeat in dups if len(get_all_dups(qdup_dict,qfeat)) < 4 and len(get_all_dups(sdup_dict,sfeat)) < 4]
-    print >> sys.stderr, small_dups
-    remove_line(small_dups,cns_file)
     fcnss = open(cns_file, 'a')
+    qnolocaldups_path =  qbed.path.split(".")[0] + ".nolocaldups.bed"
+    snolocaldups_path = sbed.path.split(".")[0] + ".nolocaldups.bed"
 
-    for (qfeat,sfeat) in small_dups:
-        ### remove qfeat,sfeat from file
-        qfeat_dups = get_all_dups(qdup_dict,qfeat)
-        sfeat_dups = get_all_dups(sdup_dict,sfeat)
+    for (qparent,sparent) in small_dups:
+        ### remove qparent,sparent from file
+        remove_cnss_line(qparent,sparent,cns_file)
+        qfeat_dups = get_all_dups(qdup_dict,qparent)
+        sfeat_dups = get_all_dups(sdup_dict,sparent)
         cnss_size = []
         pairs = [True]
         _get_dups_gen = get_dups(qfeat_dups,sfeat_dups,qbed,sbed)
@@ -147,15 +180,14 @@ def main(cns_file,qdups_path,sdups_path,pair_file,fmt,qbed,sbed,qpad,spad,blast_
                 cnss_size.append((len(cnss)*-1,qfeat["start"],sfeat["start"],qfeat["accn"],sfeat["accn"],cnss_fmt))
         if len(cnss_size) == 0 : continue
         cnss_size.sort()
-        ### sort by size then TODO leftmost genes
         cns_number,qfeat_start, sfeat_start,qaccn,saccn,largest_cnss = cnss_size[0]
         qfeat = qbed.accn(qaccn)
         sfeat = sbed.accn(saccn)
         print >>sys.stderr, "FINALL{0},{1},{2}".format(qaccn,saccn,cns_number)
         fcnss.write("%s,%s,%s,%s,%s\n" % (qfeat['seqid'], qaccn,sfeat['seqid'], saccn,largest_cnss))
-
-        #### get largest pair
-        ### rewrite_file
+        update_pairs(qfeat["accn"],sfeat["accn"],qparent,sparent,pair_file)
+        update_nolocaldups(qbed,qfeat,sfeat,qparent,sparent,qnolocaldups_path,snolocaldups_path)
+    pairs_to_qa(pair_file,qbed.path,sbed.path)
 
 if __name__ == "__main__":
     import optparse
