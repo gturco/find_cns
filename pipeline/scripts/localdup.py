@@ -4,6 +4,11 @@ from flatfeature import Bed
 from find_cns import parse_blast, get_masked_fastas
 from processing import Pool
 import sys
+from tempfile import mkstemp
+from shutil import move
+from os import remove,close
+
+
 ### need to download processing
 
 def parse_dups(localdup_path):
@@ -21,7 +26,8 @@ def get_dups(qfeat_dups,sfeat_dups,qbed,sbed):
     for qaccn,saccn in product(qfeat_dups,sfeat_dups):
         qfeat = qbed.accn(qaccn)
         sfeat = sbed.accn(saccn)
-        yield qfeat,sfeat
+        if len(list(product(qfeat_dups,sfeat_dups))) > 9: yield None
+        else: yield qfeat,sfeat
 
 # add bed files..
 def get_pairs(pair_file,fmt,qdup_dict,sdup_dict):
@@ -58,7 +64,24 @@ def get_all_dups(dup_dict,feat):
         dups = [feat]
     return dups
 
-def main(qdups_path,sdups_path,pair_file,fmt,qbed,sbed,qpad,spad,blast_path,mask='F',ncpu=8):
+
+def remove_line(dups,file_path):
+    """removes line if dup from cns file"""
+    fh,abs_path = mkstemp()
+    new_file = open(abs_path,"w")
+    for line in open(file_path):
+        for qaccn,saccn in dups:
+            if qaccn in line and saccn in line: continue
+            else:
+            ## write to tmpfile
+                tmpfile.write(line)
+    close(fh)
+    remove(file_path)
+    move(abs_path,file_path)
+
+
+
+def main(cns_file,qdups_path,sdups_path,pair_file,fmt,qbed,sbed,qpad,spad,blast_path,mask='F',ncpu=8):
     pool = Pool(ncpu)
     bl2seq = "%s " % blast_path + \
             "-p blastn -D 1 -E 2 -q -2 -r 1 -G 5 -W 7 -F %s " % mask + \
@@ -74,10 +97,16 @@ def main(qdups_path,sdups_path,pair_file,fmt,qbed,sbed,qpad,spad,blast_path,mask
     qdup_dict = parse_dups(qdups_path)
     sdup_dict = parse_dups(sdups_path)
     dups = get_pairs(pair_file,fmt,qdup_dict,sdup_dict)
-    for (qfeat,sfeat) in dups:
+    small_dups = [(qfeat,sfeat) for qfeat,sfeat in dups if len(get_all_dups(qdup_dict,qfeat)) < 4 and len(get_all_dups(sdup_dict,sfeat)) < 4]
+    print >> sys.stderr, small_dups
+    remove_line(small_dups,cns_file)
+    fcnss = open(cns_file, 'a')
+
+    for (qfeat,sfeat) in small_dups:
+        ### remove qfeat,sfeat from file
         qfeat_dups = get_all_dups(qdup_dict,qfeat)
         sfeat_dups = get_all_dups(sdup_dict,sfeat)
-
+        cnss_size = []
         pairs = [True]
         _get_dups_gen = get_dups(qfeat_dups,sfeat_dups,qbed,sbed)
 
@@ -114,7 +143,17 @@ def main(qdups_path,sdups_path,pair_file,fmt,qbed,sbed,qpad,spad,blast_path,mask
                 orient = qfeat['strand'] == sfeat['strand'] and 1 or -1
                 cnss = parse_blast(res, orient, qfeat, sfeat, qbed, sbed, qpad,spad)
                 print >>sys.stderr, "(%i)" % len(cnss)
-        #        cnss_dups["{0}_{1}".format(qfeat["accn"],sfeat["qaccn"])] = cnss
+                cnss_fmt = ",".join(map(lambda l: ",".join(map(str,l)),cnss))
+                cnss_size.append((len(cnss)*-1,qfeat["start"],sfeat["start"],qfeat["accn"],sfeat["accn"],cnss_fmt))
+        if len(cnss_size) == 0 : continue
+        cnss_size.sort()
+        ### sort by size then TODO leftmost genes
+        cns_number,qfeat_start, sfeat_start,qaccn,saccn,largest_cnss = cnss_size[0]
+        qfeat = qbed.accn(qaccn)
+        sfeat = sbed.accn(saccn)
+        print >>sys.stderr, "FINALL{0},{1},{2}".format(qaccn,saccn,cns_number)
+        fcnss.write("%s,%s,%s,%s,%s\n" % (qfeat['seqid'], qaccn,sfeat['seqid'], saccn,largest_cnss))
+
         #### get largest pair
         ### rewrite_file
 
@@ -137,6 +176,7 @@ if __name__ == "__main__":
     parser.add_option("--blast_path", dest="blast_path", type='string', help="path to bl2seq")
     parser.add_option("--qdups", dest="qdups", type='string', help="path to query localdup_file")
     parser.add_option("--sdups", dest="sdups", type='string', help="path to subject localdup_file")
+    parser.add_option("--cns_file",dest="cns_file", type='string', help="path to cns file cns.txt")
     (options, _) = parser.parse_args()
 
     
@@ -144,4 +184,4 @@ if __name__ == "__main__":
     sbed = Bed(options.sbed, options.sfasta); sbed.fill_dict()
     assert options.mask in 'FT'
     
-    main(options.qdups,options.sdups,options.pairs,options.pair_fmt,qbed,sbed,options.qpad,options.spad,options.blast_path,options.mask,options.ncpu)
+    main(options.cns_file,options.qdups,options.sdups,options.pairs,options.pair_fmt,qbed,sbed,options.qpad,options.spad,options.blast_path,options.mask,options.ncpu)
