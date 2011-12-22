@@ -194,7 +194,7 @@ def main(cns_file,qdups_path,sdups_path,pair_file,fmt,qbed,sbed,qpad,spad,blast_
         update_nolocaldups(qbed,qfeat,sfeat,qparent,sparent,qnolocaldups_path,snolocaldups_path)
     sort_qdups = "sort -n -k 1 -k 2 {0} -o {0}".format(qnolocaldups_path)
     commands.getstatusoutput(sort_qdups)
-     sort_sdups = "sort -n -k 1 -k 2 {0} -o {0}".format(snolocaldups_path)
+    sort_sdups = "sort -n -k 1 -k 2 {0} -o {0}".format(snolocaldups_path)
     commands.getstatusoutput(sort_sdups)
     pairs_to_qa(pair_file,qbed.path,sbed.path)
 
