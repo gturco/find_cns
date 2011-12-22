@@ -76,7 +76,7 @@ def get_all_dups(dup_dict,feat):
 def update_pairs(qfeat,sfeat,qparent,sparent,pair_file):
     """replaces the old pair with the new head loaldup pairs"""
     #### new pairs file search and replace
-    search_replace_pairs = "sed 's/{0}\t{1}/\t{2}\t{3}/' -i {4} ".format(qparent,sparent,qfeat,sfeat,pair_file)
+    search_replace_pairs = "sed 's/{0}\t{1}/{2}\t{3}/' -i {4} ".format(qparent,sparent,qfeat,sfeat,pair_file)
     commands.getstatusoutput(search_replace_pairs)
 
 def update_nolocaldups(bed,qfeat,sfeat,qparent,sparent,qnolocaldups_path,snolocaldups_path):
@@ -106,7 +106,12 @@ def pairs_to_qa(pair_file,qbed_file,sbed_file):
     sbed = Orderbed(sbed_file)
     qorder = qbed.get_simple_bed()
     sorder = qbed.get_simple_bed()
-    for qfeat,sfeat in pairfile:
+    fh = open(pair_file)
+    dups = []
+    for line in fh:
+        if line[0] == "#" : continue
+        line = line.strip().split("\t")
+        qfeat,sfeat = line
         qpos = qorder[qfeat][1]
         qchr = qorder[qfeat][0]
         spos = sorder[sfeat][1]
@@ -187,6 +192,10 @@ def main(cns_file,qdups_path,sdups_path,pair_file,fmt,qbed,sbed,qpad,spad,blast_
         fcnss.write("%s,%s,%s,%s,%s\n" % (qfeat['seqid'], qaccn,sfeat['seqid'], saccn,largest_cnss))
         update_pairs(qfeat["accn"],sfeat["accn"],qparent,sparent,pair_file)
         update_nolocaldups(qbed,qfeat,sfeat,qparent,sparent,qnolocaldups_path,snolocaldups_path)
+    sort_qdups = "sort -n -k 1 -k 2 {0} -o {0}".format(qnolocaldups_path)
+    commands.getstatusoutput(sort_qdups)
+     sort_sdups = "sort -n -k 1 -k 2 {0} -o {0}".format(snolocaldups_path)
+    commands.getstatusoutput(sort_sdups)
     pairs_to_qa(pair_file,qbed.path,sbed.path)
 
 if __name__ == "__main__":
