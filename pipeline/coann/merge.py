@@ -4,6 +4,7 @@ import sys
 import heapq
 from random_noncoding_seq import recursive_merge_both
 from collections import deque
+import commands
 
 def parse_missed_genes(missed_genes_path):
     """parses co-anno output: matches.txt tab sep file
@@ -135,7 +136,6 @@ def main(missed_genes_path,old_bed,new_bed,out_file):
     missed_genes = parse_missed_genes(missed_genes_path)
     missed_genes_grouped,missed_genes_dict = group_genes_in_bed(missed_genes,old_bed,new_bed)
     #print "grouped genes"
-    ### make sure this ^^^^ works ^^^^^ 
     new_genes_final = {}
     for qaccn in missed_genes_grouped:
         hits = missed_genes_grouped[qaccn]
@@ -145,7 +145,8 @@ def main(missed_genes_path,old_bed,new_bed,out_file):
         grouped_hits = merge_hits(hits,old_bed,missed_genes_dict)
         new_genes_final.update(grouped_hits)
     write_new_bed(new_genes_final,old_bed,missed_genes,out_file)
-
+    sort_file = "sort -n -k 1 -k 2 {0} -o {0}".format(out_file)
+    commands.getstatusoutput(sort_file)
 
 if __name__ == "__main__":
     import optparse
