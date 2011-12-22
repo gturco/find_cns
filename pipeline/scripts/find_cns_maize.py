@@ -3,6 +3,7 @@ import os
 import os.path as op
 import numpy as np
 import commands
+from find_cns import get_feats_in_space
 from shapely.geometry import Point, Polygon, LineString, MultiLineString
 from flatfeature import Bed
 from pyfasta import Fasta
@@ -14,27 +15,12 @@ pool = None
 
 EXPON = 0.90
 
-def get_feats_in_space(locs, ichr, bpmin, bpmax, bed):
-    """ locs == [start, stop]
-    bpmin is the lower extent of the window, bpmax ...
-    """
-    assert bpmin < bpmax, (locs, ichr, bpmin, bpmax)
-    feats = bed.get_features_in_region(str(ichr), bpmin, bpmax)
-    feats = [f for f in feats if not (f['start'] == locs[0] and f['end'] == locs[1])]
-    if len(feats) != 0:
-        assert feats[0]['seqid'] == str(ichr)
-    return [(f['start'], f['end'], f['accn']) for f in feats]
-
-
 def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad, unmasked_fasta):
     blast = []
     slope = orient
 
     qgene = [qfeat['start'], qfeat['end']]
     sgene = [sfeat['start'], sfeat['end']]
-    qcds = qfeat['locs']
-    scds = sfeat['locs']
-
 
     sgene = sgene[::slope]
     center = sum(qgene)/2., sum(sgene)/2.
@@ -67,8 +53,8 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad, unmaske
         yall = np.hstack((yy,yb[::-1], yy[0]))
 
     feats_nearby = {}
-    feats_nearby['q'] = get_feats_in_space(qgene, qfeat['seqid'], int(x.min()), int(x.max()), qbed)
-    feats_nearby['s'] = get_feats_in_space(sgene, sfeat['seqid'], int(y.min()), int(y.max()), sbed)
+    feats_nearby['q'] = get_feats_in_space(qgene, qfeat['seqid'], int(x.min()),int(x.max()), qbed, qfeat['strand'])
+    feats_nearby['s'] = get_feats_in_space(sgene, sfeat['seqid'], int(y.min()),int(y.max()), sbed, sfeat['strand'])
 
 
 
@@ -82,6 +68,13 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad, unmaske
 
     cnss = set([])
 
+    qgene_space_start = min(qfeat['locs'])[0]
+    qgene_space_end = max(qfeat['locs'])[1]
+    sgene_space_start = min(sfeat['locs'])[0]
+    sgene_space_end = max(sfeat['locs'])[1]
+
+    qgene_space_poly = LineString([(0.0,qgene_space_start),(0.0,qgene_space_end)])
+    sgene_space_poly = LineString([(0.0,sgene_space_start),(0.0,sgene_space_end)])
     qgene_poly = LineString([(0.0, qgene[0]), (0.0, qgene[1])])
     sgene_poly = LineString([(0.0, sgene[0]), (0.0, sgene[1])])
     intronic_removed = 0
@@ -90,6 +83,7 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad, unmaske
         if "WARNING:" in line: continue
         if "ERROR" in line: continue
         line = line.split("\t")
+        if float(line[-1]) < 29.5: continue #finds 15/15 match
         locs = map(int, line[6:10])
         locs.extend(map(float, line[10:]))
 
@@ -110,7 +104,7 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad, unmaske
             cnss.update((locs,))
             continue
         # has to be both or neither.
-        if qgene_poly.intersects(xls) or sgene_poly.intersects(yls):
+        if qgene_space_poly.intersects(xls) or sgene_space_poly.intersects(yls):
             intronic_removed += 1
             continue
         ##########################################################
@@ -369,15 +363,16 @@ def get_masked_fastas(bed):
         fh.close()
     return fastas
 
-def main(qbed, sbed, pairs_file, qpad, spad, unmasked_fasta, pair_fmt, mask='F', ncpu=8):
+def main(qbed, sbed, pairs_file, qpad, spad, unmasked_fasta, pair_fmt,blast_path, mask='F', ncpu=8):
     """main runner for finding cnss"""
-    pool = Pool(options.ncpu)
-
-    bl2seq = "~/src/blast-2.2.25/bin/bl2seq " \
-           "-p blastn -D 1 -E 2 -q -2 -r 1 -G 5 -W 7 -F %s " % mask + \
-           " -e %(e_value).2f -i %(qfasta)s -j %(sfasta)s \
-              -I %(qstart)d,%(qstop)d -J %(sstart)d,%(sstop)d | grep -v '#' \
+    pool = Pool(ncpu)
+    
+    bl2seq = "%s " % blast_path + \
+            "-p blastn -D 1 -E 2 -q -2 -r 1 -G 5 -W 7 -F %s " % mask + \
+            " -e %(e_value).2f -i %(qfasta)s -j %(sfasta)s \
+            -I %(qstart)d,%(qstop)d -J %(sstart)d,%(sstop)d | grep -v '#' \
             | grep -v 'WARNING' | grep -v 'ERROR' "
+
 
     fcnss = sys.stdout
     print >> fcnss, "#qseqid,qaccn,sseqid,saccn,[qstart,qend,sstart,send...]"
@@ -388,14 +383,15 @@ def main(qbed, sbed, pairs_file, qpad, spad, unmasked_fasta, pair_fmt, mask='F',
     pairs = [True]
     _get_pair_gen = get_pair(pairs_file, pair_fmt, qbed, sbed)
     # need this for parallization stuff.
+    
     def get_pair_gen():
         try: return _get_pair_gen.next()
         except StopIteration: return None
 
     while any(pairs):
         pairs = [get_pair_gen() for i in range(ncpu)]
-
         # this helps in parallelizing.
+
         def get_cmd(pair):
             if pair is None: return None
             qfeat, sfeat = pair
@@ -411,16 +407,17 @@ def main(qbed, sbed, pairs_file, qpad, spad, unmasked_fasta, pair_fmt, mask='F',
             assert qstop - qstart > 2 * qpad or qstart == 1, (qstop, qstart)
             assert sstop - sstart > 2 * spad or sstart == 1, (sstop, sstart)
             
-            m = qstop - qstart
-            n = sstop - sstart
+            #m = qstop - qstart
+            #n = sstop - sstart
             # if (m*n) >= 812045000: # if the database and query is large keep e_value at 2.11 else change it to something smaller
             #     e_value = 2.11
             # else:
-            e_value = m*n*(2**(-28.51974)) # bit score above 15/15 noise
-            assert e_value > 0
+            #e_value = m*n*(2**(-28.51974)) # bit score above 15/15 noise
+            #assert e_value > 0
 
             cmd = bl2seq % dict(qfasta=qfasta, sfasta=sfasta, qstart=qstart,
-                                sstart=sstart, qstop=qstop, sstop=sstop, e_value=e_value)
+                                sstart=sstart, qstop=qstop, sstop=sstop,
+                                e_value=30)
             #print >>sys.stderr,  "%s" % (cmd)
             return cmd, qfeat, sfeat
 
@@ -462,6 +459,7 @@ if __name__ == "__main__":
     parser.add_option("--spad", dest="spad", type='int', default=26000,
                     help="how far from the end of the subject gene to look for cnss")
     parser.add_option("--UMfasta", dest="unmasked_fasta", help="path to unmasked fasta file file")
+    parser.add_option("--blast_path", dest="blast_path", type='string', help="path to bl2seq")
     (options, _) = parser.parse_args()
 
 
@@ -473,4 +471,4 @@ if __name__ == "__main__":
     unmasked_fasta = Fasta(options.unmasked_fasta)
     assert options.mask in 'FT'
 
-    main(qbed, sbed, options.pairs, options.qpad, options.spad, unmasked_fasta, options.pair_fmt, options.mask, options.ncpu)
+    main(qbed, sbed, options.pairs, options.qpad, options.spad, unmasked_fasta, options.pair_fmt, options.blast_path, options.mask, options.ncpu)
