@@ -104,18 +104,18 @@ def pairs_to_qa(pair_file,qbed_file,sbed_file):
     new_qa = open("rice_j_sorghum_n.raw.filtered","w")
     qbed = Orderbed(qbed_file)
     sbed = Orderbed(sbed_file)
-    qorder = qbed.get_simple_bed()
-    sorder = qbed.get_simple_bed()
+    qorder = qbed.get_order()
+    sorder = qbed.get_order()
     fh = open(pair_file)
     dups = []
     for line in fh:
         if line[0] == "#" : continue
         line = line.strip().split("\t")
         qfeat,sfeat = line
-        qpos = qorder[qfeat][1]
-        qchr = qorder[qfeat][0]
-        spos = sorder[sfeat][1]
-        schr = sorder[sfeat][0]
+        qpos = qorder[qfeat][0]
+        qchr = qorder[qfeat][1].seqid
+        spos = sorder[sfeat][0]
+        schr = sorder[sfeat][1].seqid
         new_line = "{0}\t{1}\t{2}\t{3}\t50\n".format(qchr,qpos,schr,spos)
         new_qa.write(new_line)
     new_qa.close()
