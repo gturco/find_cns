@@ -79,15 +79,8 @@ def update_pairs(qfeat,sfeat,qparent,sparent,pair_file):
     search_replace_pairs = "sed 's/{0}\t{1}/{2}\t{3}/' -i {4} ".format(qparent,sparent,qfeat,sfeat,pair_file)
     commands.getstatusoutput(search_replace_pairs)
 
-def update_nolocaldups(bed,qfeat,sfeat,qparent,sparent,qnolocaldups_path,snolocaldups_path):
+def update_nolocaldups(bed,qfeat,sfeat,qnolocaldups_path,snolocaldups_path):
     """ removes the old head localdups and appends the new local dups"""
-    remove_qparent = "sed '/{0}/ d' -i {1}".format(qparent,qnolocaldups_path)
-    remove_sparent = "sed '/{0}/ d' -i {1}".format(sparent,snolocaldups_path)
-    x = commands.getstatusoutput(remove_qparent)
-    y = commands.getstatusoutput(remove_sparent)
-    print x,y
-    #### commands getstatusoutput close file!!!!!!!!
-    #print >>sys.stderr, "write {0}".format(qfeat)
     qnolocaldups = open(qnolocaldups_path,'a')
     snolocaldups = open(snolocaldups_path,'a')
     qline = "{0}\n".format(bed.row_string(qfeat))
@@ -147,6 +140,10 @@ def main(cns_file,qdups_path,sdups_path,pair_file,fmt,qbed,sbed,qpad,spad,blast_
     snolocaldups_path = sbed.path.split(".")[0] + ".nolocaldups.bed"
     for (qparent,sparent) in small_dups:
         remove_cnss_line(qparent,sparent,cns_file)
+        remove_qparent = "sed '/{0}/ d' -i {1}".format(qparent,qnolocaldups_path)
+        remove_sparent = "sed '/{0}/ d' -i {1}".format(sparent,snolocaldups_path)
+        x = commands.getstatusoutput(remove_qparent)
+        y = commands.getstatusoutput(remove_sparent)
 
     fcnss = open(cns_file, 'a')
     
@@ -201,7 +198,7 @@ def main(cns_file,qdups_path,sdups_path,pair_file,fmt,qbed,sbed,qpad,spad,blast_
         print >>sys.stderr, "FINALL{0},{1},{2}".format(qaccn,saccn,cns_number)
         fcnss.write("%s,%s,%s,%s,%s\n" % (qfeat['seqid'], qaccn,sfeat['seqid'], saccn,largest_cnss))
         update_pairs(qfeat["accn"],sfeat["accn"],qparent,sparent,pair_file)
-        update_nolocaldups(qbed, qfeat, sfeat, qparent, sparent, qnolocaldups_path, snolocaldups_path)
+        update_nolocaldups(qbed, qfeat, sfeat, qnolocaldups_path, snolocaldups_path)
     fcnss.close()
     sort_qdups = "sort -n -k 1 -k 2 {0} -o {0}".format(qnolocaldups_path)
     commands.getstatusoutput(sort_qdups)
