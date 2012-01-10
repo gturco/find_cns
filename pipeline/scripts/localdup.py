@@ -135,15 +135,24 @@ def main(cns_file,qdups_path,sdups_path,pair_file,fmt,qbed,sbed,qpad,spad,blast_
     qdup_dict = parse_dups(qdups_path)
     sdup_dict = parse_dups(sdups_path)
     dups = get_pairs(pair_file,fmt,qdup_dict,sdup_dict)
-    small_dups = [(qfeat,sfeat) for qfeat,sfeat in dups if len(get_all_dups(qdup_dict,qfeat)) < 4 and len(get_all_dups(sdup_dict,sfeat)) < 4]
+    small_dups = []
+    large_dups = []
+    for qfeat,sfeat in dups:
+        if len(get_all_dups(qdup_dict,qfeat)) < 4 and len(get_all_dups(sdup_dict,sfeat)) < 4:
+            small_dups.append((qfeat,sfeat))
+        else:
+            large_dups.append((qfeat,sfeat))
+
     qnolocaldups_path =  qbed.path.split(".")[0] + ".nolocaldups.bed"
     snolocaldups_path = sbed.path.split(".")[0] + ".nolocaldups.bed"
     for (qparent,sparent) in small_dups:
         remove_cnss_line(qparent,sparent,cns_file)
-        remove_qparent = "sed '/{0}/ d' -i {1}".format(qparent,qnolocaldups_path)
-        remove_sparent = "sed '/{0}/ d' -i {1}".format(sparent,snolocaldups_path)
-        x = commands.getstatusoutput(remove_qparent)
-        y = commands.getstatusoutput(remove_sparent)
+        if qparent not in [qdup for qdup,sdup in large_dups]:
+            remove_qparent = "sed '/{0}/ d' -i {1}".format(qparent,qnolocaldups_path)
+            x = commands.getstatusoutput(remove_qparent)
+        if sparent not in [sdup for qdup,sdup in large_dups]:
+            remove_sparent = "sed '/{0}/ d' -i {1}".format(sparent,snolocaldups_path)
+            y = commands.getstatusoutput(remove_sparent)
 
     fcnss = open(cns_file, 'a')
     
@@ -196,9 +205,12 @@ def main(cns_file,qdups_path,sdups_path,pair_file,fmt,qbed,sbed,qpad,spad,blast_
         qfeat = qbed.accn(qaccn)
         sfeat = sbed.accn(saccn)
         print >>sys.stderr, "FINALL{0},{1},{2}".format(qaccn,saccn,cns_number)
-        fcnss.write("%s,%s,%s,%s,%s\n" % (qfeat['seqid'], qaccn,sfeat['seqid'], saccn,largest_cnss))
-        update_pairs(qfeat["accn"],sfeat["accn"],qparent,sparent,pair_file)
-        update_nolocaldups(qbed, qfeat, sfeat, qnolocaldups_path, snolocaldups_path)
+        if cns_number == 0 :
+            update_nolocaldups(qbed,qbed.accn(qparent), sbed.accn(sparent), qnolocaldups_path, snolocaldups_path)
+        else:
+            fcnss.write("%s,%s,%s,%s,%s\n" % (qfeat['seqid'], qaccn,sfeat['seqid'], saccn,largest_cnss))
+            update_pairs(qfeat["accn"],sfeat["accn"],qparent,sparent,pair_file)
+            update_nolocaldups(qbed, qfeat, sfeat, qnolocaldups_path, snolocaldups_path)
     fcnss.close()
     sort_qdups = "sort -n -k 1 -k 2 {0} -o {0}".format(qnolocaldups_path)
     commands.getstatusoutput(sort_qdups)
