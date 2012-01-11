@@ -90,9 +90,9 @@ def update_nolocaldups(bed,qfeat,sfeat,qnolocaldups_path,snolocaldups_path):
     qnolocaldups.close()
     snolocaldups.close()
   
-def remove_cnss_line(qparent,sparent,cns_file):
+def remove_cnss_line(qbed,sbed,qparent,sparent,cns_file):
     """ removes any cnss with the old parent dup """
-    remove_cnss = "sed '/[0-9]*,{0},[0-9]*,{1}/ d' -i {2}".format(qparent,sparent,cns_file)
+    remove_cnss = "sed '/{0},{1},{2},{3}/ d' -i {4}".format(qbed.accn(qparent)['seqid'],qparent,sbed.accn(sparent)['seqid'],sparent,cns_file)
     commands.getstatusoutput(remove_cnss)
 
 def localdup_file(localdups):
@@ -146,7 +146,7 @@ def main(cns_file,qdups_path,sdups_path,pair_file,fmt,qbed,sbed,qpad,spad,blast_
     qnolocaldups_path =  qbed.path.split(".")[0] + ".nolocaldups.bed"
     snolocaldups_path = sbed.path.split(".")[0] + ".nolocaldups.bed"
     for (qparent,sparent) in small_dups:
-        remove_cnss_line(qparent,sparent,cns_file)
+        remove_cnss_line(qbed,sbed,qparent,sparent,cns_file)
         if qparent not in [qdup for qdup,sdup in large_dups]:
             remove_qparent = "sed '/{0}/ d' -i {1}".format(qparent,qnolocaldups_path)
             x = commands.getstatusoutput(remove_qparent)
