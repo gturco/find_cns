@@ -20,6 +20,7 @@ def parse_dups(localdup_path):
         parent = dups[0]
         child = dups[:]
         dup_dic[parent] = child
+    localdup_file.close()
     return dup_dic
 # create all possible combinations for that pair if len = 3
 
@@ -95,8 +96,17 @@ def remove_cnss_line(qbed,sbed,qparent,sparent,cns_file):
     remove_cnss = "sed '/{0},{1},{2},{3}/ d' -i {4}".format(qbed.accn(qparent)['seqid'],qparent,sbed.accn(sparent)['seqid'],sparent,cns_file)
     commands.getstatusoutput(remove_cnss)
 
-def localdup_file(localdups):
-    pass
+def localdup_file(qparent,sparent,qfile,sfile,neworder):
+    """ replaces the orginal parent local dup with the new order"""
+    
+    qqdups = [qdup for cns_number,q_start,s_start,qdup,sdup,cns in neworder]
+    sdups = [sdup for cns_number,q_start,s_start,qdup,sdup,cns in neworder]
+    qreplace = "\t".join(qdups)
+    sreplace = "\t".join(qdups)
+    qsearch_replace = "sed -i 's/^{0}.*/{1}/g' {2}".format(qparentdup,qreplace,qfile)
+    ssearch_replace = "sed -i 's/^{0}.*/{1}/g'{2}".format(sparentdup,sreplace,sfile)
+    commands.getstatusoutput(qreplace)
+    commands.getstatusoutput(sreplace)
 
 def pairs_to_qa(pair_file,qbed_file,sbed_file):
     """takes new localdups file and new pairs file to create qa file"""
@@ -208,6 +218,7 @@ def main(cns_file,qdups_path,sdups_path,pair_file,fmt,qbed,sbed,qpad,spad,blast_
         if cns_number == 0 :
             update_nolocaldups(qbed,qbed.accn(qparent), sbed.accn(sparent), qnolocaldups_path, snolocaldups_path)
         else:
+            localdup_file(qparent,sparent,qdups_path,sdups_path,cnss_size)
             fcnss.write("%s,%s,%s,%s,%s\n" % (qfeat['seqid'], qaccn,sfeat['seqid'], saccn,largest_cnss))
             update_pairs(qfeat["accn"],sfeat["accn"],qparent,sparent,pair_file)
             update_nolocaldups(qbed, qfeat, sfeat, qnolocaldups_path, snolocaldups_path)
