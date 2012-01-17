@@ -99,12 +99,12 @@ def remove_cnss_line(qbed,sbed,qparent,sparent,cns_file):
 def localdup_file(qparent,sparent,qfile,sfile,neworder):
     """ replaces the orginal parent local dup with the new order"""
     
-    qqdups = [qdup for cns_number,q_start,s_start,qdup,sdup,cns in neworder]
+    qdups = [qdup for cns_number,q_start,s_start,qdup,sdup,cns in neworder]
     sdups = [sdup for cns_number,q_start,s_start,qdup,sdup,cns in neworder]
     qreplace = "\t".join(qdups)
-    sreplace = "\t".join(qdups)
-    qsearch_replace = "sed -i 's/^{0}.*/{1}/g' {2}".format(qparentdup,qreplace,qfile)
-    ssearch_replace = "sed -i 's/^{0}.*/{1}/g'{2}".format(sparentdup,sreplace,sfile)
+    sreplace = "\t".join(sdups)
+    qsearch_replace = "sed -i 's/^{0}.*/{1}/g' {2}".format(qparent,qreplace,qfile)
+    ssearch_replace = "sed -i 's/^{0}.*/{1}/g'{2}".format(sparent,sreplace,sfile)
     commands.getstatusoutput(qreplace)
     commands.getstatusoutput(sreplace)
 
