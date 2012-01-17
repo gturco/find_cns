@@ -105,8 +105,8 @@ def localdup_file(qparent,sparent,qfile,sfile,neworder):
     sreplace = "\t".join(sdups)
     qsearch_replace = "sed -i 's/^{0}.*/{1}/g' {2}".format(qparent,qreplace,qfile)
     ssearch_replace = "sed -i 's/^{0}.*/{1}/g'{2}".format(sparent,sreplace,sfile)
-    commands.getstatusoutput(qreplace)
-    commands.getstatusoutput(sreplace)
+    commands.getstatusoutput(qsearch_replace)
+    commands.getstatusoutput(ssearch_replace)
 
 def pairs_to_qa(pair_file,qbed_file,sbed_file):
     """takes new localdups file and new pairs file to create qa file"""
