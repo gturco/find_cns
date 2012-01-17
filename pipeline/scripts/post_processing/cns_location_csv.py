@@ -4,14 +4,64 @@ from shapely.geometry import Point, Polygon, LineString, MultiLineString
 from flatfeature import Bed
 import pickle
 import MySQLdb
+import csv
+from collections import Counter
 
-def main(cns_pck, query_bed_path, subject_bed_path):
-  cns_handle = open(cns_pck)
-  cns_pickle = pickle.load(cns_handle)
+def group_locations(cns_dict):
+    grouped_locations = []
+    for cns in cns_dict:
+        key = "{0}_{1}_{2}".format(cns["qaccn"],cns["saccn"],cns["type"])
+        grouped_locations.append(key)
+    grouped_locations_dic = Counter(grouped_locations)
+    return grouped_locations_dic
+
+def group_cns_number(cns_dict):
+    grouped_cns = []
+    for cns in cns_dict:
+        key = "{0}_{1}".format(cns["qaccn"],cns["saccn"])
+        grouped_cns.append(key)
+    grouped_cns_number = Counter(grouped_cns)
+    return grouped_cns_number
+
+def cns_to_dic(cns,fmt):
+    """ takes cns file in sql or csv format and creates a pck"""
+    if fmt == "csv":
+        cns_file = csv.DictReader(open(cns))
+    elif fmt == "pck":
+        cns_file = pickle.load(open(cns))
+    return cns_file
+
+def write_to_file_grouped(cns_grouped_number,grouped_locations_dic,cns_path):
+    write_file = open("{0}.location".format(cns_path),"wb")
+
+    for cns in cns_grouped_number:
+        qaccn,saccn = cns.split('_')
+        header = "qaccn,saccn,number_of_cns,5_distant,5_proximal,5_UTR,intron,3_UTR,3_proximal,3_distal\n"
+        write_file.write(header)
+        new_line = "{0},{1},{2},{3},{4},{5},{6},{7},{8},{9}\n".format(qaccn,saccn,cns_grouped_number[cns],
+                grouped_locations_dic["{0}_5-distal".format(cns)],
+        grouped_locations_dic["{0}_5-proximal".format(cns)],
+        grouped_locations_dic["{0}_5-UTR".format(cns)],
+        grouped_locations_dic["{0}_intron".format(cns)],
+        grouped_locations_dic["{0}_3-UTR".format(cns)],
+        grouped_locations_dic["{0}_3-proximal".format(cns)],
+        grouped_locations_dic["{0}_3-distal".format(cns)])
+        write_file.write(new_line)
+
+def write_to_file(cns,fmt):
+    """ imports into sql if fmt is pck otherwise writes file cns.location"""
+    if fmt == "csv":
+        pass
+    elif fmt == "pck":
+        import_into_mysql(cns)
+        #### add load into table stuff here
+
+def main(cns_path, fmt, query_bed_path, subject_bed_path):
+  cns_dic = cns_to_dic(cns_path,fmt)
   query_bed = Bed(query_bed_path)
   subject_bed = Bed(subject_bed_path)
   utr_dict = {}
-  for cns in cns_pickle:
+  for cns in cns_dic:
     qfeat = query_bed.accn(cns['qaccn'])
     sfeat = subject_bed.accn(cns['saccn']) 
     qgene_space_start = min(qfeat['locs'])[0]
@@ -20,19 +70,19 @@ def main(cns_pck, query_bed_path, subject_bed_path):
     qgene_poly = LineString([(0.0, qfeat['start']), (0.0, qfeat['end'])])
     sgene_poly = LineString([(0.0, sfeat['start']), (0.0, sfeat['end'])])
     # if intron of one dont need to check other
-    qcns = LineString([(0,cns['qcns_start']),(0,cns['qcns_end'])])
-    scns = LineString([(0,cns['scns_start']),(0,cns['scns_end'])])
+    qcns = LineString([(0,cns['qstart']),(0,cns['qend'])])
+    scns = LineString([(0,cns['sstart']),(0,cns['send'])])
     cns_type(cns,qgene_space_poly, qgene_poly, sgene_poly, scns, qcns,qgene_space_start,qfeat)
     create_utr_list(utr_dict,qfeat, cns,"q")
     create_utr_list(utr_dict,sfeat, cns,"s")
-  for cns in cns_pickle:
+  for cns in cns_dic:
     if cns['type'] == "5-prox_dist":
       qgene_start = min(utr_dict[cns['qaccn']])
       qgene_stop =  max(utr_dict[cns['qaccn']])
       # sstart = min(utr_dict[cns['saccn']])
       # sstop =  max(utr_dict[cns['saccn']])
-      five_diff_pos = abs(qgene_start - cns["qcns_end"])
-      five_diff_neg = abs(qgene_stop - cns["qcns_start"])
+      five_diff_pos = abs(qgene_start - cns["qend"])
+      five_diff_neg = abs(qgene_stop - cns["qstart"])
       if five_diff_pos <=1000 and cns["qstrand"] == "+" or five_diff_neg <=1000 and cns["qstrand"] == "-":
         cns["type"] = "5-proximal"
       elif five_diff_pos >1000 and cns["qstrand"] == "+" or five_diff_neg >1000 and cns["qstrand"] == "-":
@@ -40,13 +90,20 @@ def main(cns_pck, query_bed_path, subject_bed_path):
     elif cns['type'] == "3-prox_dist":
       qgene_start = min(utr_dict[cns['qaccn']])
       qgene_stop =  max(utr_dict[cns['qaccn']])
-      three_diff_pos =  abs(cns["qcns_start"] - qgene_stop)
-      three_diff_neg =  abs(cns["qcns_end"] - qgene_start)
+      three_diff_pos =  abs(cns["qstart"] - qgene_stop)
+      three_diff_neg =  abs(cns["qend"] - qgene_start)
       if three_diff_pos <=1000 and cns["qstrand"] == "+" or three_diff_neg <=1000 and cns["qstrand"] == "-":
         cns["type"] = "3-proximal"
       elif three_diff_pos > 1000 and cns["qstrand"] == "+" or three_diff_neg > 1000 and cns["qstrand"] == "-":
         cns["type"] = "3-distal"
-    import_into_mysql(cns)
+  return cns_dic
+
+def group_cns(cns_dic,cns_path):
+    grouped_locations_dic = group_locations(cns_dic)
+    cns_grouped_number = group_cns_number(cns_dic)
+    write_to_file_grouped(cns_grouped_number,group_locations,cns_path)
+
+#write_to_file(cns,fmt)
 
 def import_into_mysql(cns):
   db = MySQLdb.connect(host="127.0.0.1", user="root", db = "paper3")
@@ -59,22 +116,22 @@ def cns_type(cns, qgene_space_poly, qgene_poly, sgene_poly, scns, qcns,qgene_spa
   if qgene_space_poly.intersects(qcns):
     cns["type"] = "intron"
   elif qgene_poly.intersects(qcns) or sgene_poly.intersects(scns):
-    if qfeat['strand'] == "+" and cns['qcns_start'] < qgene_space_start or qfeat['strand'] == "-" and cns['qcns_start'] > qgene_space_start:
+    if qfeat['strand'] == "+" and cns['qstart'] < qgene_space_start or qfeat['strand'] == "-" and cns['qstart'] > qgene_space_start:
       cns['type'] = '5-UTR'
-    elif qfeat['strand'] == "+" and cns['qcns_start'] > qgene_space_start or qfeat['strand'] == "-" and cns['qcns_start'] < qgene_space_start:
+    elif qfeat['strand'] == "+" and cns['qstart'] > qgene_space_start or qfeat['strand'] == "-" and cns['qstart'] < qgene_space_start:
       cns['type'] = '3-UTR'
-  elif qfeat['strand'] == "+" and cns['qcns_start'] > qgene_space_start or qfeat['strand'] == "-" and cns['qcns_start'] < qgene_space_start: 
+  elif qfeat['strand'] == "+" and cns['qstart'] > qgene_space_start or qfeat['strand'] == "-" and cns['qstart'] < qgene_space_start: 
     cns["type"] = "3-prox_dist"
-  elif qfeat['strand'] == "+" and cns['qcns_start'] < qgene_space_start or qfeat['strand'] == "-" and cns['qcns_start'] > qgene_space_start: 
+  elif qfeat['strand'] == "+" and cns['qstart'] < qgene_space_start or qfeat['strand'] == "-" and cns['qstart'] > qgene_space_start: 
     cns["type"] = "5-prox_dist"
-
+  return cns
         
 def create_utr_list(utr_dict,feat, cns, letter):
   if feat['accn'] not in utr_dict.keys():
     utr_dict[feat["accn"]] = [feat['start'], feat["end"]]
   if cns['type'] == "UTR":
-    utr_dict[feat['accn']].append((cns['{0}cns_start'.format(letter)]))
-    utr_dict[feat['accn']].append((cns['{0}cns_end'.format(letter)]))
+    utr_dict[feat['accn']].append((cns['{0}start'.format(letter)]))
+    utr_dict[feat['accn']].append((cns['{0}end'.format(letter)]))
 
 def utr_present(cns_pck,query_bed_path, UTR):
   "checks to see if qaccn has utr region"
@@ -153,7 +210,9 @@ if __name__ == "__main__":
   ##### REMINDER CHANGE TABLE INSERTS INTO!! ##############################################
  # x= main("/Users/gturco/data/paper3/paper3_rice_b_sorghum_v1_gturco_2011_4_11app_real.pck","/Users/gturco/data/paper3/rice_b_sorg.nolocaldups.with_new.all.bed","/Users/gturco/data/paper3/sorghum_v1.nolocaldups.with_new.all.bed")
   #x=main("/Users/gturco/find_cns_thaliana_v10_thaliana_v10_gturco_2011_22_11app.pck","/Users/gturco/tair_10.nolocaldups.with_new.all.bed","/Users/gturco/tair_10.nolocaldups.with_new.all.bed")
-  load_in_table("rice_b_sorghum_v1_gturco_2011_4_11app_real_grouped")
+  #load_in_table("rice_b_sorghum_v1_gturco_2011_4_11app_real_grouped")
+  x = main("/Users/gt/rice_j_setaria_n.cns.assigned.csv","csv","/Users/gt/rice_j.nolocaldups.bed","/Users/gt/setaria_n.nolocaldups.bed")
+  group_cns(x,"/Users/gt/rice_j_setaria_n.cns/assigned.csv")
   #utr_present("/Users/gturco/data/find_cns_3_UTR.pck","/Users/gturco/data/rice_v6.nolocaldups.with_new.all.bed", 3)
   #utr_present("/Users/gturco/data/find_cns_5_UTR.pck","/Users/gturco/data/rice_v6.nolocaldups.with_new.all.bed", 5)
   #need to remove all cns rna ones.....
