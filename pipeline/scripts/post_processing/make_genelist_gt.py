@@ -124,12 +124,12 @@ def split_pairs(feat, pairs, orthos, flip=False):
 
 
 def write_genelist(q_or_s, outfile, flat, pairs, orthos, mcnss, link_fmt, this_org, other_org,
-        other_flat, dups):
+        other_flat, dups, local_dups):
     # used in the link_fmt
     qorg, sorg = this_org, other_org
 
     fmt = "%(accn)s\t%(seqid)s\t%(start)i\t%(end)i\t%(ortholog)s\t%(ortho_cns_count)s\t"
-    fmt += "%(ortho_NON_cns_count)s\t%(other_pairs)s\t%(dup_info)s\t%(strand)s\t"
+    fmt += "%(ortho_NON_cns_count)s\t%(other_pairs)s\t%(dup_info)s\t%(local_dup_info)\t%(strand)s\t"
     fmt += "%(new_gene_info)s\t%(link)s"
     header = fmt.replace('%(', '').replace(')s','').replace(')i','')
 
@@ -152,6 +152,7 @@ def write_genelist(q_or_s, outfile, flat, pairs, orthos, mcnss, link_fmt, this_o
         ortho_cns, non_ortho_cns = split_cns(cnss, orthos, q_or_s=='s')
 
         dup_info = dups.get(feat['accn'], '')
+        local_dup_info = local_dups.get(feat['accn'],'')
 
         if ortholog:
             ortho = ortholog[0]
@@ -200,6 +201,8 @@ if __name__ == "__main__":
     parser.add_option("--sorg", dest="sorg", help="name of subject organism")
     parser.add_option("--qdups",  dest="qdups",  help="query dups")
     parser.add_option("--sdups",  dest="sdups",  help="subject dups")
+    parser.add_option("--qlocal", dest="qlocaldups", help="query local dups 3")
+    parser.add_option("--slocal", dest="slocaldups", help="subject local dups 3")
     parser.add_option("--paralogy",  dest="paralogy",  help="paralogy file")
     parser.add_option("--orthology",  dest="orthology",  help="orthology file")
 
@@ -230,7 +233,8 @@ if __name__ == "__main__":
     
     qdups = parse_dups(opts.qdups, qflat)
     sdups = parse_dups(opts.sdups, sflat)
-
+    qlocaldups = parse_dups(opts.qdups,qflat)
+    slocaldups = parse_dups(opts.sdups,sflat)
 
     pairs = parse_pairs(opts.paralogy, qflat_new, sflat_new)
 
@@ -254,7 +258,7 @@ if __name__ == "__main__":
     """link = "http://syntelog.com/gobe-demo/rr/?locs=%(qorg)s..%(qseqid)s..%(qstart)s..%(qstop)i" + \
                                                  "&locs=%(sorg)s..%(sseqid)s..%(sstart)i..%(sstop)i"
     """
-    write_genelist('q', qout, qflat, pairs, orthos, mcns, link, opts.qorg, opts.sorg, sflat, qdups)
+    write_genelist('q', qout, qflat, pairs, orthos, mcns, link, opts.qorg,opts.sorg, sflat, qdups, qlocaldups)
 
     sout = op.join(out_dir, opts.sorg +
             ".genelist-" + tdate + ".csv")
@@ -264,4 +268,4 @@ if __name__ == "__main__":
           "&x1=%(x1)s&x2=%(x2)s&chr1=%(chr1)s&chr2=%(chr2)s&num_seqs=2&autogo=1" 
     """
     if opts.qflat_all != opts.sflat_all:
-        write_genelist('s', sout, sflat, pairs, orthos, mcns, link, opts.sorg, opts.qorg, qflat, sdups)
+        write_genelist('s', sout, sflat, pairs, orthos, mcns, link, opts.sorg, opts.qorg, qflat, sdups, slocaldups)
