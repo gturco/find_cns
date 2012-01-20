@@ -111,7 +111,8 @@ def localdup_file(qparent,sparent,qfile,sfile,neworder):
 def pairs_to_qa(pair_file,qbed_file,sbed_file):
     """takes new localdups file and new pairs file to create qa file"""
     ###-sort sort -n -k 1 -k 2 rice_v6.all2.bed  > rice_v6.all3.bed 
-    new_qa = open("rice_j_sorghum_n.raw.filtered","w")
+    header = pairs_file.split(".")[0]
+    new_qa = open("{0}.raw.filtered".format(header),"wb")
     qbed = Orderbed(qbed_file)
     sbed = Orderbed(sbed_file)
     qorder = qbed.get_order()
