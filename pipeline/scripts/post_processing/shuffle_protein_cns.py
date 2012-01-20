@@ -124,7 +124,7 @@ def main(qbed, sbed, cnsfile, dist, orthology_path):
         for rnew, info in get_new(cns, r_trees, key, nrnas, dist + 1000):
             cns['qaccn'] = rnew['qaccn']
             cns['saccn'] = rnew['saccn']
-   	        cns_str = cns_to_str(cns)
+            cns_str = cns_to_str(cns)
             if cns_str in cns_seen: continue
             cns_seen[cns_str] = 1
             print >>real_cns_fh, cns_str
