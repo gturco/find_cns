@@ -111,7 +111,7 @@ def localdup_file(qparent,sparent,qfile,sfile,neworder):
 def pairs_to_qa(pair_file,qbed_file,sbed_file):
     """takes new localdups file and new pairs file to create qa file"""
     ###-sort sort -n -k 1 -k 2 rice_v6.all2.bed  > rice_v6.all3.bed 
-    header = pairs_file.split(".")[0]
+    header = pair_file.split(".")[0]
     new_qa = open("{0}.raw.filtered".format(header),"wb")
     qbed = Orderbed(qbed_file)
     sbed = Orderbed(sbed_file)
@@ -257,4 +257,8 @@ if __name__ == "__main__":
     sbed = Bed(options.sbed, options.sfasta); sbed.fill_dict()
     assert options.mask in 'FT'
     
-    main(options.cns_file,options.qdups,options.sdups,options.pairs,options.pair_fmt,qbed,sbed,options.qpad,options.spad,options.blast_path,options.mask,options.ncpu)
+
+    qnolocaldups_path =  qbed.path.split(".")[0] + ".nolocaldups.bed"
+    snolocaldups_path =  sbed.path.split(".")[0] + ".nolocaldups.bed"
+    pairs_to_qa(pair_file, qnolocaldups_path, snolocaldups_path)
+    # main(options.cns_file,options.qdups,options.sdups,options.pairs,options.pair_fmt,qbed,sbed,options.qpad,options.spad,options.blast_path,options.mask,options.ncpu)
