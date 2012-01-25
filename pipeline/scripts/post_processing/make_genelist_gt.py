@@ -47,6 +47,7 @@ def parse_pairs(pair_file, qbed, sbed):
             qseqid, qi, sseqid, si = line[:4]
         except ValueError: print >>sys.stderr, line
 
+        print qseqid,qi
         q, s = qbed[int(qi)], sbed[int(si)]
         qname, sname = q['accn'], s['accn']
         
@@ -129,7 +130,7 @@ def write_genelist(q_or_s, outfile, flat, pairs, orthos, mcnss, link_fmt, this_o
     qorg, sorg = this_org, other_org
 
     fmt = "%(accn)s\t%(seqid)s\t%(start)i\t%(end)i\t%(ortholog)s\t%(ortho_cns_count)s\t"
-    fmt += "%(ortho_NON_cns_count)s\t%(other_pairs)s\t%(dup_info)s\t%(local_dup_info)\t%(strand)s\t"
+    fmt +="%(ortho_NON_cns_count)s\t%(other_pairs)s\t%(dup_info)s\t%(local_dup_info)s\t%(strand)s\t"
     fmt += "%(new_gene_info)s\t%(link)s"
     header = fmt.replace('%(', '').replace(')s','').replace(')i','')
 
@@ -152,7 +153,7 @@ def write_genelist(q_or_s, outfile, flat, pairs, orthos, mcnss, link_fmt, this_o
         ortho_cns, non_ortho_cns = split_cns(cnss, orthos, q_or_s=='s')
 
         dup_info = dups.get(feat['accn'], '')
-        local_dup_info = local_dups.get(feat['accn'],'')
+        local_dup_info = local_dups.get(feat['accn'], '')
 
         if ortholog:
             ortho = ortholog[0]
@@ -181,7 +182,8 @@ def write_genelist(q_or_s, outfile, flat, pairs, orthos, mcnss, link_fmt, this_o
         fmt_dict = locals()
         fmt_dict.update(Bed.row_to_dict(feat))
         fmt_dict.update({'ortho_cns_count': len(ortho_cns) if ortholog else "",
-                         'ortho_NON_cns_count': len(non_ortho_cns) if other_pairs else ""})
+                         'ortho_NON_cns_count': len(non_ortho_cns) if
+                         other_pairs else ""})
         print >>out, fmt % fmt_dict
 
 
@@ -233,8 +235,8 @@ if __name__ == "__main__":
     
     qdups = parse_dups(opts.qdups, qflat)
     sdups = parse_dups(opts.sdups, sflat)
-    qlocaldups = parse_dups(opts.qdups,qflat)
-    slocaldups = parse_dups(opts.sdups,sflat)
+    qlocaldups = parse_dups(opts.qlocaldups,qflat)
+    slocaldups = parse_dups(opts.slocaldups,sflat)
 
     pairs = parse_pairs(opts.paralogy, qflat_new, sflat_new)
 
