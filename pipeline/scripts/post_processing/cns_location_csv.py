@@ -202,23 +202,25 @@ def load_in_table(table_name):
     # sgene_poly = LineString([(0,sgene['start']),(0,cns['end'])])
     # 
 if __name__ == "__main__":
-  #pass
-  # import optparse
-  # parser = optparse.OptionParser()
-  # parser.add_option("--qbed", dest="qbed", help="bed file of the query")
-  # parser.add_option("--sbed", dest="sbed", help="bed file of the subject")
-  # parser.add_option("--cns", dest="cns", help="path to the cns file created by find_cns.py")
-  # 
-  # (options, _) = parser.parse_args()
-  # 
+    import optparse
+    parser = optparse.OptionParser()
+    parser.add_option("--qbed", dest="qbed", help="bed file of the query")
+    parser.add_option("--sbed", dest="sbed", help="bed file of the subject")
+    parser.add_option("--cns", dest="cns", help="path to the cns file created by find_cns.py")
+    parser.add_option("--fmt", dest="fmt", help="fmt of file csv file or sql file")
+
+    (options, _) = parser.parse_args()
+
+    x= main(options.cns,options.fmt,options.qbed,options.sbed)
+    group_cns(x,options.cns)
 
   # x= main("/Users/gturco/code/freeling_lab/find_cns_gturco/pipeline/scripts/post_processing/find_cns_cns_test.pck","/Users/gturco/code/freeling_lab/find_cns_gturco/pipeline/scripts/post_processing/query_test.bed","/Users/gturco/code/freeling_lab/find_cns_gturco/pipeline/scripts/post_processing/subject_test.bed")
   ##### REMINDER CHANGE TABLE INSERTS INTO!! ##############################################
  # x= main("/Users/gturco/data/paper3/paper3_rice_b_sorghum_v1_gturco_2011_4_11app_real.pck","/Users/gturco/data/paper3/rice_b_sorg.nolocaldups.with_new.all.bed","/Users/gturco/data/paper3/sorghum_v1.nolocaldups.with_new.all.bed")
   #x=main("/Users/gturco/find_cns_thaliana_v10_thaliana_v10_gturco_2011_22_11app.pck","/Users/gturco/tair_10.nolocaldups.with_new.all.bed","/Users/gturco/tair_10.nolocaldups.with_new.all.bed")
   #load_in_table("rice_b_sorghum_v1_gturco_2011_4_11app_real_grouped")
-  x = main("../../data/rice_b_setaria64/rice_b_setaria64.cns.assigned_real.csv","csv","../../data/rice_b_setaria64/rice_b.nolocaldups.with_new.all.bed","../../data/rice_b_setaria64/setaria64.nolocaldups.with_new.all.bed")
-  group_cns(x,"../../data/rice_b_setaria64/rice_b_setaria64.cns.assigned_real.csv")
+  #x = main("../../data/rice_b_setaria64/rice_b_setaria64.cns.assigned_real.csv","csv","../../data/rice_b_setaria64/rice_b.nolocaldups.with_new.all.bed","../../data/rice_b_setaria64/setaria64.nolocaldups.with_new.all.bed")
+  #group_cns(x,"../../data/rice_b_setaria64/rice_b_setaria64.cns.assigned_real.csv")
   #utr_present("/Users/gturco/data/find_cns_3_UTR.pck","/Users/gturco/data/rice_v6.nolocaldups.with_new.all.bed", 3)
   #utr_present("/Users/gturco/data/find_cns_5_UTR.pck","/Users/gturco/data/rice_v6.nolocaldups.with_new.all.bed", 5)
   #need to remove all cns rna ones.....
