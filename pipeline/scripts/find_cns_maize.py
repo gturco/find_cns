@@ -90,6 +90,18 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad, unmaske
         xx = locs[:2]
         yy = locs[2:4]
 
+        
+        #######################################################
+        # MAIZE BOWTIE : JUST 5 PRIME 3 PRIME
+        #######################################################
+        qcenter = sum(qgene)/2
+        scenter = sum(sgene)/2 * orient
+        qcns_center = sum(xx)/2
+        scns_center = sum(yy)/2 * orient
+        if  scns_center > scenter and qcns_center < qcenter: continue
+        if qcns_center > qcns_center and scns_center < scenter : continue
+        
+        
         # to be saved. a hit must either be in an intron in both
         # genes, or in neither.
 
@@ -429,7 +441,6 @@ def main(qbed, sbed, pairs_file, qpad, spad, unmasked_fasta, pair_fmt,blast_path
             if not res.strip(): continue
             print >>sys.stderr,  "%s %s" % (qfeat["accn"], sfeat['accn']),
             orient = qfeat['strand'] == sfeat['strand'] and 1 or -1
-
             cnss = parse_blast(res, orient, qfeat, sfeat, qbed, sbed, qpad, spad, unmasked_fasta)
             print >>sys.stderr, "(%i)" % len(cnss)
             if len(cnss) == 0: continue
