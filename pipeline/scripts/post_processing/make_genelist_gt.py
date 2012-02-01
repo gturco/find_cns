@@ -8,6 +8,7 @@
 """
 import collections
 import operator
+from bed_utils import Bed as Hbed
 from flatfeature import Bed
 import os.path as op
 import sys
@@ -30,7 +31,6 @@ def merge_flat(new_name, aflat, bflat):
             both.append(row)
     both.sort(key=lambda a: (a['seqid'], a['start']))
     fh = open(new_name, "w")
-    #print >>fh, "\t".join(Flat.names)
     for b in both:
         print >>fh, Bed.row_string(b)
     fh.close()
@@ -49,7 +49,7 @@ def parse_pairs(pair_file, qbed, sbed):
 
         print qseqid,qi
         q, s = qbed[int(qi)], sbed[int(si)]
-        qname, sname = q['accn'], s['accn']
+        qname, sname = q.accn, s.accn
         
         paired[qname].append(sname)
         paired[sname].append(qname)
@@ -151,6 +151,8 @@ def write_genelist(q_or_s, outfile, flat, pairs, orthos, mcnss, link_fmt, this_o
 
         ortholog, other_pairs = split_pairs(feat, [other_flat.d[t] for t in these_pairs], orthos, q_or_s=='s')
         ortho_cns, non_ortho_cns = split_cns(cnss, orthos, q_or_s=='s')
+        if feat['accn'] == 'Os03g18960':
+            print "aaaaa {0}\n{1}".format(ortho_cns,non_ortho_cns)
 
         dup_info = dups.get(feat['accn'], '')
         local_dup_info = local_dups.get(feat['accn'], '')
@@ -238,14 +240,17 @@ if __name__ == "__main__":
     qlocaldups = parse_dups(opts.qlocaldups,qflat)
     slocaldups = parse_dups(opts.slocaldups,sflat)
 
-    pairs = parse_pairs(opts.paralogy, qflat_new, sflat_new)
+    #### use habos verson
+    qflat_h = Hbed(opts.qflat_new)
+    sflat_h = Hbed(opts.sflat_new)
+    pairs = parse_pairs(opts.paralogy, qflat_h, sflat_h)
 
     dpath = get_sheet_from_date(opts.datasheet)
     cns_info_by_hash = dict(parse_cns_datasheet(dpath))
     out_dir = op.dirname(dpath)
 
 
-    orthos = parse_orthology(opts.orthology, qflat_new, sflat_new)
+    orthos = parse_orthology(opts.orthology, qflat_h, sflat_h)
 
     mcns = map_cns(cns_info_by_hash)
     

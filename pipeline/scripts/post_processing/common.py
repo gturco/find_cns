@@ -6,8 +6,8 @@ import collections
 def get_sheet_from_date(flanker_tmpl):
     d = datetime.date.today()
     one_day = datetime.timedelta(days=1)
-    while not op.exists(flanker_tmpl.replace('DATE', str(d))):
-        d -= one_day
+    #while not op.exists(flanker_tmpl.replace('DATE', str(d))):
+    #    d -= one_day
     flanker_file = flanker_tmpl.replace('DATE', str(d))
     return flanker_file
 
@@ -53,13 +53,13 @@ def parse_orthology(ortho_file, qbed, sbed):
         qi, si = int(qi), int(si)
 
         q, s = qbed[qi], sbed[si]
-        qaccn, saccn = q['accn'], s['accn']
-        orthos[(qaccn, saccn)] = {'qseqid': qseqid, 'qpos': qi,
-                                  'sseqid': sseqid, 'spos': si}
+        qaccn, saccn = q.accn, s.accn
+        orthos[(qaccn, saccn)] = {'qseqid': q.seqid, 'qpos': qi,
+                                  'sseqid': s.seqid, 'spos': si}
 
         if qbed.filename == sbed.filename:
-            orthos[(saccn, qaccn)] = {'qseqid': sseqid, 'qpos': si,
-                                  'sseqid': qseqid, 'spos': qi}
+            orthos[(saccn, qaccn)] = {'qseqid': s.seqid, 'qpos': si,
+                                  'sseqid': q.seqid, 'spos': qi}
     return orthos
 
 
@@ -98,7 +98,7 @@ def parse_os_description(desc_file=op.join(PATH, "../data/sativa_v6.1.descriptio
         d[line[0]] = ";".join(line[1:])
     return d
 
-def parse_at_description(desc_file=op.join(PATH, "../data/thaliana_v9.description")):
+def parse_at_description(desc_file=op.join(PATH, "../../data/thaliana_v9.description")):
     desc = collections.defaultdict(str)
     for line in open(desc_file):
         line = line.split("\t")
