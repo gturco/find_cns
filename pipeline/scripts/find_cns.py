@@ -27,7 +27,9 @@ def get_feats_in_space(locs, ichr, bpmin, bpmax, bed, strand):
     return [(f['start'], f['end'], f['accn']) for f in feats]
 
 
-
+def bowtie():
+    """this is the bowtie"""
+    pass
 
 def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
     blast = []
@@ -315,10 +317,34 @@ def get_pair(pair_file, fmt, qbed, sbed, seen={}):
             print >>sys.stderr, "skipped %s %s" % pair
             continue
 
+
+def get_cmd(pair,bl2seq):
+    """creates the blast cmd, 
+    sets: search space, genome file path and blast parmas"""
+    if pair is None: return None
+    qfeat, sfeat = pair
+    #if qfeat['accn'] != "Bradi4g01820": return None
+    #print >>sys.stderr, qfeat, sfeat
+
+    qfasta = qfastas[qfeat['seqid']]
+    sfasta = sfastas[sfeat['seqid']]
+
+    qstart, qstop = max(qfeat['start'] - qpad, 1), qfeat['end'] + qpad
+    sstart, sstop = max(sfeat['start'] - spad, 1), sfeat['end'] + spad
+
+    assert qstop - qstart > 2 * qpad or qstart == 1, (qstop, qstart)
+    assert sstop - sstart > 2 * spad or sstart == 1, (sstop, sstart)
+    
+    cmd = bl2seq % dict(qfasta=qfasta, sfasta=sfasta, qstart=qstart,
+                        sstart=sstart, qstop=qstop, sstop=sstop,
+                        e_value=30)
+    return cmd, qfeat, sfeat
+
+
+
 def get_masked_fastas(bed):
-    """
-    create the masked fasta files per chromosome. needed to run bl2seq.
-    """
+    """create the masked fasta files per chromosome. needed to run bl2seq.
+    and puts it into a dictionary seqid to path to genomic masked fasta"""
     f = bed.fasta.fasta_name
     fname = op.splitext(op.basename(f))[0]
     d = op.dirname(f) + "/%s_split" % fname
@@ -338,8 +364,6 @@ def get_masked_fastas(bed):
 def main(qbed, sbed, pairs_file, qpad, spad, pair_fmt, blast_path, mask='F', ncpu=8):
     """main runner for finding cnss"""
     pool = Pool(ncpu)
-
-
     bl2seq = "%s " % blast_path + \
            "-p blastn -D 1 -E 2 -q -2 -r 1 -G 5 -W 7 -F %s " % mask + \
            " -e %(e_value).2f -i %(qfasta)s -j %(sfasta)s \
@@ -362,35 +386,10 @@ def main(qbed, sbed, pairs_file, qpad, spad, pair_fmt, blast_path, mask='F', ncp
     while any(pairs):
         pairs = [get_pair_gen() for i in range(ncpu)]
 
-        # this helps in parallelizing.
-        def get_cmd(pair):
-            if pair is None: return None
-            qfeat, sfeat = pair
-            #if qfeat['accn'] != "Bradi4g01820": return None
-            #print >>sys.stderr, qfeat, sfeat
-
-            qfasta = qfastas[qfeat['seqid']]
-            sfasta = sfastas[sfeat['seqid']]
-
-            qstart, qstop = max(qfeat['start'] - qpad, 1), qfeat['end'] + qpad
-            sstart, sstop = max(sfeat['start'] - spad, 1), sfeat['end'] + spad
-
-            assert qstop - qstart > 2 * qpad or qstart == 1, (qstop, qstart)
-            assert sstop - sstart > 2 * spad or sstart == 1, (sstop, sstart)
-            
-            #m = qstop - qstart
-            #n = sstop - sstart
-            #e_value = m*n*(2**(-28.51974)) # bit score above 15/15 noise
-            #assert e_value > 0
-
-            cmd = bl2seq % dict(qfasta=qfasta, sfasta=sfasta, qstart=qstart,
-                                sstart=sstart, qstop=qstop, sstop=sstop,
-                                e_value=30)
-            return cmd, qfeat, sfeat
-
-        cmds = [c for c in map(get_cmd, [l for l in pairs if l]) if c]
+        # this helps in parallelizing
+        bl2seq_map =  [bl2seq] * len(pairs)
+        cmds = [c for c in map(get_cmd, [l for l in pairs if l],bl2seq_map) if c]
         results = (r for r in pool.map(commands.getoutput, [c[0] for c in cmds]))
-        #results = (r for r in map(commands.getoutput, [c[0] for c in cmds]))
 
         for res, (cmd, qfeat, sfeat) in zip(results, cmds):
             if not res.strip(): continue
