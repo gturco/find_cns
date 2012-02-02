@@ -47,14 +47,22 @@ def get_new(cns, trees, key, prs, dist, seen={}):
         yield gnew, info
 
 
-def main(qbed, sbed, cnsfile, dist, orthology_path):
+def main(qbed_path, sbed_path, cnsfile, dist, orthology_path):
     """
     here, we remove cnss that have been called proteins/rnas from 
     the cns list, and add them to the bed files.
     AND have to do the preliminary assignment of cnss that remain to the new-genes
     that _were_ cnss. the proper assignment is then handled in assign.py
     """
-    ortho_trees = read_orthos_to_trees(orthology_path, qbed, sbed)
+    qbed_qa = Qabed(qbed_path)
+    sbed_qa = Qabed(sbed_path)
+  
+    ortho_trees = read_orthos_to_trees(orthology_path, qbed_qa,sbed_qa)
+    
+    qbed = Bed(qbed_path); qbed.fill_dict()
+    sbed = Bed(sbed_path); sbed.fill_dict()
+    qbed_qa = Qabed(qbed_path)
+    sbed_qa = Qabed(sbed_path)
 
     name, ext = op.splitext(cnsfile)
     real_cns_fh = open("%s.real%s" % (name, ext), "w")
@@ -168,69 +176,17 @@ def print_bed(flist, old_path):
     fh.close()
     return Bed(path)
 
-def write_new_pairs(old_paralogy_path, old_orthology_path, qbed, qbed_new, sbed, sbed_new, new_pairs):
-    """
-    need to create a new .paralogy/.orthology file that includes the added
-    pairs that were once cns's.
-    this is a bit complicated because we need to map the old indexes in paralogy to the gene names,
-    then back to the new index.
-    """
-    qbed.fill_dict(); sbed.fill_dict()
-    qbed_new.fill_dict(); sbed_new.fill_dict()
-
-    qi_new_lookup = dict((accn, i) for i, accn in enumerate(qbed_new['accn']))
-    si_new_lookup = dict((accn, i) for i, accn in enumerate(sbed_new['accn']))
-
-    ppath, pext = op.splitext(old_paralogy_path)
-    opath, oext = op.splitext(old_orthology_path)
-    ppath = "%s.with_new%s" % (ppath, pext)
-    opath = "%s.with_new%s" % (opath, oext)
-
-    oseen, pseen = {}, {}
-
-    for line in open(old_paralogy_path):
-        if line[0] == "#": continue
-        r = RawLine(line)
-        q, s = qbed[r.pos_a], sbed[r.pos_b]
-        r.pos_a = qi_new_lookup[q['accn']]
-        r.pos_b = si_new_lookup[s['accn']]
-        pseen[(r.pos_a, r.pos_b)] = str(r)
-        #print >>pfh, line,
-
-    for line in open(old_orthology_path):
-        if line[0] == "#": continue
-        r = RawLine(line)
-        q, s = qbed[r.pos_a], sbed[r.pos_b]
-        r.pos_a = qi_new_lookup[q['accn']]
-        r.pos_b = si_new_lookup[s['accn']]
-        assert q['accn'] == qbed_new[r.pos_a]['accn']
-        assert s['accn'] == sbed_new[r.pos_b]['accn']
-        oseen[(r.pos_a, r.pos_b)] = str(r)
-        #print >>ofh, line,
-
-    for p in new_pairs:
-        assert p['qstart'] < p['qend'] and p['sstart'] < p['send'], (p, )
-        qi = qi_new_lookup[p['qaccn']]
-        si = si_new_lookup[p['saccn']]
-        if (qi, si) in pseen: continue
-        line_str = "%s\t%i\t%s\t%i\t%.3g" % \
-                 (p['qseqid'], qi, p['sseqid'], si, 40)
-        pseen[(qi, si)] = line_str
-        #print >>pfh, line_str
-        if p['is_ortho']:
-            if (qi, si) in oseen: continue
-            oseen[(qi, si)] = line_str
-            #print >>ofh, line_str
-
-    print >>sys.stderr, "writing orthology pairs to %s" % opath
-    print >>sys.stderr, "writing paralogy pairs to %s" % ppath
-    pfh = open(ppath, 'wb')
-    ofh = open(opath, 'wb')
-    for qi, si in sorted(oseen):
-        print >>ofh, oseen[(qi, si)]
-    for qi, si in sorted(pseen):
-        print >>pfh, pseen[(qi, si)]
-        
+def write_new_pairs(pair_file_path,new_pairs,qbed_file_new,sbed_path_new):
+    """ appends the new pairs to the end of the pair file and then changes it
+    moves it into qa file fmt"""
+    write_file = open(pair_file_path,'a')
+    for pair in new_pairs:
+        new_line = "{0}\t{1}\n".format(pair['qaccn'],['saccn'])
+        write_file.write(new_line)
+    write_file.close()
+    pairs_to_qa(pair_file_path,qbed_file_new,sbed_path_new)   
+    
+   
         
 def merge_bed(bed, proteins, rnas, ortho_trees, q_or_s):
     """
@@ -291,8 +247,8 @@ def read_orthos_to_trees(forthos, qbed, sbed):
         spos = sbed[raw.pos_b]
         key = (raw.seqid_a, raw.seqid_b)
         if not key in trees: trees[key] = []
-        qpos = (qpos['start'] + qpos['end']) / 2
-        spos = (spos['start'] + spos['end']) / 2
+        qpos = (qpos.start + qpos.end) / 2
+        spos = (spos.start + spos.end) / 2
         trees[key].append((int(qpos), int(spos)))
     for k in trees:
         trees[k] = cKDTree(trees[k])
@@ -313,8 +269,6 @@ if __name__ == "__main__":
     if not (options.sbed and options.qbed and options.cns, options.orthology):
         sys.exit(parser.print_help())
 
-    qbed = Bed(options.qbed); qbed.fill_dict()
-    sbed = Bed(options.sbed); sbed.fill_dict()
     
     qbed_new, sbed_new, new_pairs = main(qbed, sbed, options.cns, options.dist, options.orthology)
-    write_new_pairs(options.paralogy, options.orthology, qbed, qbed_new, sbed, sbed_new, new_pairs) 
+    write_new_pairs(options.paralogy, options.orthology, options.qbed, options.qbed_new, sbed, sbed_new, new_pairs) 
