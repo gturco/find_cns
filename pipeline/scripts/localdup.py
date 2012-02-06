@@ -108,11 +108,10 @@ def localdup_file(qparent,sparent,qfile,sfile,neworder):
     commands.getstatusoutput(qsearch_replace)
     commands.getstatusoutput(ssearch_replace)
 
-def pairs_to_qa(pair_file,qbed_file,sbed_file):
+def pairs_to_qa(pair_file,qbed_file,sbed_file,new_raw_file):
     """takes new localdups file and new pairs file to create qa file"""
     ###-sort sort -n -k 1 -k 2 rice_v6.all2.bed  > rice_v6.all3.bed 
-    header = pair_file.split(".")[0]
-    new_qa = open("{0}.raw.filtered".format(header),"wb")
+    new_qa = open(raw_file,"wb")
     qbed = Orderbed(qbed_file)
     sbed = Orderbed(sbed_file)
     qorder = qbed.get_order()
@@ -228,7 +227,8 @@ def main(cns_file,qdups_path,sdups_path,pair_file,fmt,qbed,sbed,qpad,spad,blast_
     commands.getstatusoutput(sort_qdups)
     sort_sdups = "sort -n -k 1 -k 2 {0} -o {0}".format(snolocaldups_path)
     commands.getstatusoutput(sort_sdups)
-    pairs_to_qa(pair_file, qnolocaldups_path, snolocaldups_path)
+    header = pair_file.split(".")[0]
+    pairs_to_qa(pair_file, qnolocaldups_path, snolocaldups_path, "{0}.raw.filtered".format(header))
 
 if __name__ == "__main__":
     import optparse
@@ -260,5 +260,5 @@ if __name__ == "__main__":
 
     qnolocaldups_path =  qbed.path.split(".")[0] + ".nolocaldups.bed"
     snolocaldups_path =  sbed.path.split(".")[0] + ".nolocaldups.bed"
-    pairs_to_qa(pair_file, qnolocaldups_path, snolocaldups_path)
-    # main(options.cns_file,options.qdups,options.sdups,options.pairs,options.pair_fmt,qbed,sbed,options.qpad,options.spad,options.blast_path,options.mask,options.ncpu)
+    #pairs_to_qa(options.pairs, qnolocaldups_path, snolocaldups_path)
+    main(options.cns_file,options.qdups,options.sdups,options.pairs,options.pair_fmt,qbed,sbed,options.qpad,options.spad,options.blast_path,options.mask,options.ncpu)
