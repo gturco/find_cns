@@ -1,11 +1,13 @@
 import sys
 import os.path as op
 from flatfeature import Bed
-sys.path.append("../")
+from bed_utils import Bed as Qabed
+sys.path.append("scripts/")
 from common import parse_raw_cns
 from common import read_cns_to_rna, read_cns_to_protein_exons
 sys.path.insert(0, "/home/gturco/src/quota-alignment/scripts")
 from bed_utils import RawLine
+from localdup import pairs_to_qa
 import collections
 
 from scipy.spatial import cKDTree
@@ -61,8 +63,6 @@ def main(qbed_path, sbed_path, cnsfile, dist, orthology_path):
     
     qbed = Bed(qbed_path); qbed.fill_dict()
     sbed = Bed(sbed_path); sbed.fill_dict()
-    qbed_qa = Qabed(qbed_path)
-    sbed_qa = Qabed(sbed_path)
 
     name, ext = op.splitext(cnsfile)
     real_cns_fh = open("%s.real%s" % (name, ext), "w")
@@ -138,6 +138,7 @@ def main(qbed_path, sbed_path, cnsfile, dist, orthology_path):
             print >>real_cns_fh, cns_str
 
     qbed_list, qnew_pairs = merge_bed(qbed, nproteins, nrnas, ortho_trees, 'q')
+    print >> sys.stderr, len(qnew_pairs)
     # dont need to do the orthos 2x so send in empty dict.
     sbed_list, snew_pairs_unused = merge_bed(sbed, nproteins, nrnas, {}, 's')
 
@@ -149,7 +150,7 @@ def main(qbed_path, sbed_path, cnsfile, dist, orthology_path):
         qbed_new = print_bed(qbed_list, qbed.path)
         sbed_new = print_bed(sbed_list, sbed.path)
 
-    return qbed_new, sbed_new, qnew_pairs
+    return qbed_new.path, sbed_new.path, qnew_pairs
 
 
 def print_bed(flist, old_path):
@@ -177,17 +178,16 @@ def print_bed(flist, old_path):
     return Bed(path)
 
 def write_new_pairs(pair_file_path,new_pairs,qbed_file_new,sbed_path_new):
-    """ appends the new pairs to the end of the pair file and then changes it
+    """ appends the new pairs to the end of the pair f:/wile and then changes it
     moves it into qa file fmt"""
     write_file = open(pair_file_path,'a')
+    print >>sys.stderr, "AAAAAAAA"
     for pair in new_pairs:
-        new_line = "{0}\t{1}\n".format(pair['qaccn'],['saccn'])
+        new_line = "{0}\t{1}\n".format(pair['qaccn'],pair['saccn'])
         write_file.write(new_line)
     write_file.close()
-    pairs_to_qa(pair_file_path,qbed_file_new,sbed_path_new)   
-    
-   
-        
+    pairs_to_qa(pair_file_path,qbed_file_new,sbed_path_new)
+
 def merge_bed(bed, proteins, rnas, ortho_trees, q_or_s):
     """
     merge the existing bed file with the new genes in proteins and rnas
@@ -263,12 +263,14 @@ if __name__ == "__main__":
     parser.add_option("--dist", dest="dist", type='int', help="max dist from gene to cns", default=12000)
     parser.add_option("--paralogy", dest="paralogy", help="path to paralogy file")
     parser.add_option("--orthology", dest="orthology", help="path to orthology file")
+    parser.add_option("--pairs", dest="pairs", help="path to pairs file")
 
     options, args = parser.parse_args()    
 
     if not (options.sbed and options.qbed and options.cns, options.orthology):
         sys.exit(parser.print_help())
 
-    
-    qbed_new, sbed_new, new_pairs = main(qbed, sbed, options.cns, options.dist, options.orthology)
-    write_new_pairs(options.paralogy, options.orthology, options.qbed, options.qbed_new, sbed, sbed_new, new_pairs) 
+
+
+    qbed_new, sbed_new, new_pairs = main(options.qbed, options.sbed, options.cns, options.dist, options.orthology)
+    write_new_pairs(options.pairs, new_pairs, qbed_new, sbed_new)
