@@ -47,7 +47,6 @@ def parse_pairs(pair_file, qbed, sbed):
             qseqid, qi, sseqid, si = line[:4]
         except ValueError: print >>sys.stderr, line
 
-        print qseqid,qi
         q, s = qbed[int(qi)], sbed[int(si)]
         qname, sname = q.accn, s.accn
         
@@ -151,9 +150,6 @@ def write_genelist(q_or_s, outfile, flat, pairs, orthos, mcnss, link_fmt, this_o
 
         ortholog, other_pairs = split_pairs(feat, [other_flat.d[t] for t in these_pairs], orthos, q_or_s=='s')
         ortho_cns, non_ortho_cns = split_cns(cnss, orthos, q_or_s=='s')
-        if feat['accn'] == 'Os03g18960':
-            print "aaaaa {0}\n{1}".format(ortho_cns,non_ortho_cns)
-
         dup_info = dups.get(feat['accn'], '')
         local_dup_info = local_dups.get(feat['accn'], '')
 
