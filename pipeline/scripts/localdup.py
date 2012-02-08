@@ -1,4 +1,5 @@
 from itertools import product
+sys.path.append("scripts/post_processing/")
 import commands
 from bed_utils import Bed as Orderbed
 from flatfeature import Bed
@@ -108,7 +109,7 @@ def localdup_file(qparent,sparent,qfile,sfile,neworder):
     commands.getstatusoutput(qsearch_replace)
     commands.getstatusoutput(ssearch_replace)
 
-def pairs_to_qa(pair_file,qbed_file,sbed_file,new_raw_file):
+def pairs_to_qa(pair_file,qbed_file,sbed_file,raw_file):
     """takes new localdups file and new pairs file to create qa file"""
     ###-sort sort -n -k 1 -k 2 rice_v6.all2.bed  > rice_v6.all3.bed 
     new_qa = open(raw_file,"wb")
