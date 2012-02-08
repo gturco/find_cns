@@ -59,23 +59,29 @@ def parse_pairs(pair_file, qbed, sbed):
     return new_paired
 
 def parse_dups(dups_file, flat):
+    #####THIS ONLY WORKS IF WE CHANGE QUOTA
     flat.fill_dict()
     d = {}
     for line in open(dups_file):
-        all = [Bed.row_to_dict(flat.d[f]) for f in list(set([x.strip() for x in line.split("\t")]))]
+        line = line.strip().split("\t")
+        parent = line[0]
+        dups = line[1:]
+        
+        all = [Bed.row_to_dict(flat.d[f]) for f in list(set(line))]
         all.sort(key=operator.itemgetter('start'))
-        parent = all[0]
-        last_dup = all[-1]
-        d[parent['accn']] = 'P'
-        for a in all[1:]:
-            #dups[a] = all[0]
-            if not a['accn'] in d:
-                d[a['accn']] = parent['accn']
+        dup_start = all[0]
+        dup_end = all[-1]
+        d[parent] = 'P'
+        seen = [parent]
+        for dup in dups:
+            if dup in seen: continue
+            seen.append(dup)
+            d[dup] = parent
         # so here, there are all the genes that arent part of the local dup
         # array, but we want to mark them with 'I'
-        intervening = flat.get_features_in_region(parent['seqid'], parent['start'], last_dup['end'])
+        intervening = flat.get_features_in_region(dup_start['seqid'], dup_start['start'], dup_end['end'])
         for ii in intervening:
-            if ii == parent or ii == last_dup: continue
+            if ii['accn'] == parent or ii['accn'] == dup_end: continue
             if not ii['accn'] in d:
                 d[ii['accn']] = 'I'
     return d
