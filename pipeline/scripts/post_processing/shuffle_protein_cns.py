@@ -1,15 +1,13 @@
 import sys
 import os.path as op
 from flatfeature import Bed
-from bed_utils import Bed as Qabed
 sys.path.append("scripts/")
 from common import parse_raw_cns
 from common import read_cns_to_rna, read_cns_to_protein_exons
 sys.path.insert(0, "/home/gturco/src/quota-alignment/scripts")
 from bed_utils import RawLine
-from localdup import pairs_to_qa
 import collections
-
+from qa_parsers import pairs_to_qa,RawBed
 from scipy.spatial import cKDTree
 
 def cns_to_str(cns):
@@ -56,10 +54,10 @@ def main(qbed_path, sbed_path, cnsfile, dist, orthology_path):
     AND have to do the preliminary assignment of cnss that remain to the new-genes
     that _were_ cnss. the proper assignment is then handled in assign.py
     """
-    qbed_qa = Qabed(qbed_path)
-    sbed_qa = Qabed(sbed_path)
+    qrawbed = RawBed(qbed_path)
+    srawbed = RawBed(sbed_path)
   
-    ortho_trees = read_orthos_to_trees(orthology_path, qbed_qa,sbed_qa)
+    ortho_trees = read_orthos_to_trees(orthology_path, qrawbed,srawbed)
     
     qbed = Bed(qbed_path); qbed.fill_dict()
     sbed = Bed(sbed_path); sbed.fill_dict()
@@ -240,17 +238,17 @@ def merge_bed(bed, proteins, rnas, ortho_trees, q_or_s):
     return sorted(bedlist, key=lambda a:(a[0], a[1])), new_pairs
        
     
-def read_orthos_to_trees(forthos, qbed, sbed):
+def read_orthos_to_trees(forthos, qrawbed, srawbed):
     trees = {}
     for line in open(forthos):
         if line[0] == "#": continue
         raw = RawLine(line)
-        qpos = qbed[raw.pos_a]
-        spos = sbed[raw.pos_b]
-        key = (raw.seqid_a, raw.seqid_b)
+        qbed = qrawbed.raw_to_bed(raw.pos_a)
+        sbed = srawbed(raw.pos_b)
+        key = (qbed['seqid'], sbed['seqid'])
         if not key in trees: trees[key] = []
-        qpos = (qpos.start + qpos.end) / 2
-        spos = (spos.start + spos.end) / 2
+        qpos = (qbed['start'] + qbed['end']) / 2
+        spos = (sbed['start'] + sbed['end']) / 2
         trees[key].append((int(qpos), int(spos)))
     for k in trees:
         trees[k] = cKDTree(trees[k])
