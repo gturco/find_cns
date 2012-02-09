@@ -35,25 +35,11 @@ def get_dups(qfeat_dups,sfeat_dups,qbed,sbed):
 # add bed files..
 def get_pairs(pair_file,fmt,qdup_dict,sdup_dict):
     skipped = open('data/skipped_dups.txt', 'w')
-    fh = open(pair_file)
     dups = []
-    for line in fh:
+    for line in open(pair_file):
         if line[0] == "#" : continue
-        line = line.strip().split("\t")
-        if fmt == 'dag':
-            assert len(line) > 5, line
-            pair = line[1], line[5]
-        elif fmt in ('cluster', 'qa', 'raw'):
-            assert len(line) == 5, line
-            pair = line[1], line[3]
-        elif fmt == 'pair':
-            if len(line) == 1:
-                line = line.split(",")
-            assert len(line) >= 2, "dont know how to handle %s" % line
-            pair = line[0], line[1]
-
-        if fmt in ('qa', 'raw'):
-            pair = int(pair[0]), int(pair[1])
+        pair_line = ParsePairs(line)
+        pair = getattr(ParsePairs,fmt)()
         pair = tuple(pair)
         if pair[0] in qdup_dict.keys() or pair[1] in sdup_dict.keys():
             dups.append((pair[0],pair[1]))
