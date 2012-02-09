@@ -2,9 +2,11 @@ import sys
 import os
 import os.path as op
 import numpy as np
+sys.path.append("scripts/post_processing/")
 import commands
 from shapely.geometry import Point, Polygon, LineString, MultiLineString
 from flatfeature import Bed
+from qa_parsers import ParsePairs
 import logging
 from processing import Pool
 #LOG_FILENAME = '/Users/gturco/find_cns.log'
@@ -285,24 +287,11 @@ def get_pair(pair_file, fmt, qbed, sbed, seen={}):
     """ read a line and make sure it's unique handles
     dag, cluster, and pair formats."""
     skipped = open('data/skipped.txt', 'w')
-    fh = open(pair_file)
     for line in open(pair_file):
         if line[0] == "#": continue
-        line = line.strip().split("\t")
-        if fmt == 'dag':
-            assert len(line) > 5, line
-            pair = line[1], line[5]
-        elif fmt in ('cluster', 'qa', 'raw'):
-            assert len(line) == 5, line
-            pair = line[1], line[3]
-        elif fmt == 'pair':
-            if len(line) == 1:
-                line = line[0].split(",")
-            assert len(line) >= 2, "dont know how to handle %s" % line
-            pair = line[0], line[1]
-
-        if fmt in ('qa', 'raw'):
-            pair = int(pair[0]), int(pair[1])
+        pair_line = ParsePairs(line)
+        pair = getattr(pair_line,fmt)()
+        ### based on what the fmt is will call this function in ParsePairs
         pair = tuple(pair)
         if pair in seen:
             continue
@@ -318,7 +307,7 @@ def get_pair(pair_file, fmt, qbed, sbed, seen={}):
             continue
 
 
-def get_cmd(pair,bl2seq):
+def get_cmd(pair,bl2seq,qfastas,sfastas,spad,qpad):
     """creates the blast cmd, 
     sets: search space, genome file path and blast parmas"""
     if pair is None: return None
@@ -387,8 +376,13 @@ def main(qbed, sbed, pairs_file, qpad, spad, pair_fmt, blast_path, mask='F', ncp
         pairs = [get_pair_gen() for i in range(ncpu)]
 
         # this helps in parallelizing
+        spad_map = [spad] * len(pairs)
+        qpad_map = [qpad] * len(pairs)
+        sfastas_map = [sfastas] * len(pairs)
+        qfastas_map = [qfastas] * len(pairs)
         bl2seq_map =  [bl2seq] * len(pairs)
-        cmds = [c for c in map(get_cmd, [l for l in pairs if l],bl2seq_map) if c]
+        cmds = [c for c in map(get_cmd, [l for l in pairs if
+            l],bl2seq_map,qfastas_map,sfastas_map,qpad_map,spad_map) if c]
         results = (r for r in pool.map(commands.getoutput, [c[0] for c in cmds]))
 
         for res, (cmd, qfeat, sfeat) in zip(results, cmds):
