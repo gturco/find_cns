@@ -28,33 +28,19 @@ def get_feats_in_space(locs, ichr, bpmin, bpmax, bed, strand):
     return [(f['start'], f['end'], f['accn']) for f in feats]
 
 
-def bowtie():
-    """this is the bowtie"""
-    pass
-
-def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
-    blast = []
-    slope = orient
-
-    qgene = [qfeat['start'],qfeat['end']]
-    sgene = [sfeat['start'], sfeat['end']]
-
-    sgene = sgene[::slope]
-    center = sum(qgene)/2., sum(sgene)/2.
-
+def in_bowtie(qgene,sgene,slope,qcns,scns):
+    """returns true or flase if cnss fit  bowtie"""
     EXP = EXPON
     if abs(abs(qgene[1] - qgene[0]) - abs(sgene[1] - sgene[0])) > 3000:
         EXP = 0.94
 
-
-    #intercept = (sgene[0] + sgene[1])/2.  - slope * (qgene[0] + qgene[1])/2.
-    intercept = center[1] - slope * center[0]
     rngx = qgene[1] - qgene[0]
     rngy = abs(sgene[1] - sgene[0])
-
+    
+    center = sum(qgene)/2., sum(sgene)/2.
+    intercept = center[1] - slope * center[0]
     x = np.linspace(qgene[0] - qpad, qgene[1] + qpad, 50)
     y = slope * x + intercept
-
 
     xb = x + -slope * rngx/3. + -slope * np.abs(x - center[0])**EXP
     yb = y + rngy/3. + np.abs(y - center[1])**EXP
@@ -69,13 +55,27 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
         xall = np.hstack((xy, xb[::-1], xy[0]))
         yall = np.hstack((yy,yb[::-1], yy[0]))
 
+    genespace_poly = Polygon(zip(xall, yall))
+    return genespace_poly.contains(LineString(zip(qcns, scns)))
+
+
+def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
+    blast = []
+    slope = orient
+
+    qgene = [qfeat['start'],qfeat['end']]
+    sgene = [sfeat['start'], sfeat['end']]
+
+    sgene = sgene[::slope]
+    center = sum(qgene)/2., sum(sgene)/2.
+
+    intercept = center[1] - slope * center[0]
+    x = np.linspace(qgene[0] - qpad, qgene[1] + qpad, 50)
+    y = slope * x + intercept
+    
     feats_nearby = {}
     feats_nearby['q'] = get_feats_in_space(qgene, qfeat['seqid'], int(x.min()), int(x.max()), qbed, qfeat["strand"])
     feats_nearby['s'] = get_feats_in_space(sgene, sfeat['seqid'], int(y.min()), int(y.max()), sbed, sfeat["strand"])
-
-
-
-    genespace_poly = Polygon(zip(xall, yall))
 
     for sub in ('q', 's'):
         if len(feats_nearby[sub]) !=0:
@@ -156,8 +156,7 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
 
         ##########################################################
 
-        # this is the bowtie.
-        if not genespace_poly.contains(LineString(zip(xx, yy))): continue
+        if not in_bowtie(qgene,sgene,slope,xx, yy): continue
         cnss.update((locs,))
 
     # cant cross with < 2 cnss.
