@@ -25,7 +25,6 @@ def get_feats_in_space(locs, ichr, bpmin, bpmax, bed, strand):
     feats = [f for f in feats if not (f['start'] == locs[0] and f['end'] == locs[1])]
     if len(feats) != 0:
         assert feats[0]['seqid'] == str(ichr)
-    #return [(f['start'], f['end'], f['accn']) for f in feats if f["strand"] == strand]
     return [(f['start'], f['end'], f['accn']) for f in feats]
 
 
@@ -312,8 +311,6 @@ def get_cmd(pair,bl2seq,qfastas,sfastas,spad,qpad):
     sets: search space, genome file path and blast parmas"""
     if pair is None: return None
     qfeat, sfeat = pair
-    #if qfeat['accn'] != "Bradi4g01820": return None
-    #print >>sys.stderr, qfeat, sfeat
 
     qfasta = qfastas[qfeat['seqid']]
     sfasta = sfastas[sfeat['seqid']]
@@ -375,14 +372,16 @@ def main(qbed, sbed, pairs_file, qpad, spad, pair_fmt, blast_path, mask='F', ncp
     while any(pairs):
         pairs = [get_pair_gen() for i in range(ncpu)]
 
-        # this helps in parallelizing
+        # this helps in parallization
         spad_map = [spad] * len(pairs)
         qpad_map = [qpad] * len(pairs)
         sfastas_map = [sfastas] * len(pairs)
         qfastas_map = [qfastas] * len(pairs)
         bl2seq_map =  [bl2seq] * len(pairs)
+        #################################
+
         cmds = [c for c in map(get_cmd, [l for l in pairs if
-            l],bl2seq_map,qfastas_map,sfastas_map,qpad_map,spad_map) if c]
+                l],bl2seq_map,qfastas_map,sfastas_map,qpad_map,spad_map) if c]
         results = (r for r in pool.map(commands.getoutput, [c[0] for c in cmds]))
 
         for res, (cmd, qfeat, sfeat) in zip(results, cmds):
