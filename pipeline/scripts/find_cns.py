@@ -16,6 +16,20 @@ pool = None
 
 EXPON = 0.90
 
+def get_genespace(qfeat,sfeat,qgene,sgene):
+    #changed length of gene to only contain from coding region to coding region
+    #to avoid miss annot UTR confusion
+    qgene_space_start = min(qfeat['locs'])[0]
+    qgene_space_end = max(qfeat['locs'])[1]
+    sgene_space_start = min(sfeat['locs'])[0]
+    sgene_space_end = max(sfeat['locs'])[1]
+
+    qgene_space_poly = LineString([(0.0, qgene_space_start), (0.0, qgene_space_end)])
+    sgene_space_poly = LineString([(0.0, sgene_space_start), (0.0, sgene_space_end)])
+    qgene_poly = LineString([(0.0, qgene[0]), (0.0, qgene[1])])
+    sgene_poly = LineString([(0.0, sgene[0]), (0.0, sgene[1])])
+    return qgene_space_poly,qgene_poly,sgene_space_poly,sgene_poly
+
 def get_feats_in_space(locs, ichr, bpmin, bpmax, bed, strand):
     """ locs == [start, stop]
     bpmin is the lower extent of the window, bpmax ...
@@ -27,9 +41,20 @@ def get_feats_in_space(locs, ichr, bpmin, bpmax, bed, strand):
         assert feats[0]['seqid'] == str(ichr)
     return [(f['start'], f['end'], f['accn']) for f in feats]
 
+def get_feats_nearby(qgene,sgene,qfeat,sfeat,x,y.qbed,sbed):
+    feats_nearby = {}
+    feats_nearby['q'] = get_feats_in_space(qgene, qfeat['seqid'], int(x.min()), int(x.max()), qbed, qfeat["strand"])
+    feats_nearby['s'] = get_feats_in_space(sgene, sfeat['seqid'], int(y.min()), int(y.max()), sbed, sfeat["strand"])
 
-def in_bowtie(qgene,sgene,slope,qcns,scns):
-    """returns true or flase if cnss fit  bowtie"""
+    for sub in ('q', 's'):
+        if len(feats_nearby[sub]) !=0:
+            feats_nearby[sub] = MultiLineString([[(0, c0),(0, c1)] for c0, c1, fname in feats_nearby[sub]])#another dictioary gt
+        else:
+            feats_nearby[sub] = None
+    return feats_nearby
+
+def create_bowtie(qgene,sgene,slope):
+    """returns bowtie"""
     EXP = EXPON
     if abs(abs(qgene[1] - qgene[0]) - abs(sgene[1] - sgene[0])) > 3000:
         EXP = 0.94
@@ -56,7 +81,7 @@ def in_bowtie(qgene,sgene,slope,qcns,scns):
         yall = np.hstack((yy,yb[::-1], yy[0]))
 
     genespace_poly = Polygon(zip(xall, yall))
-    return genespace_poly.contains(LineString(zip(qcns, scns)))
+    return genespace_poly
 
 
 def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
@@ -73,30 +98,13 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
     x = np.linspace(qgene[0] - qpad, qgene[1] + qpad, 50)
     y = slope * x + intercept
     
-    feats_nearby = {}
-    feats_nearby['q'] = get_feats_in_space(qgene, qfeat['seqid'], int(x.min()), int(x.max()), qbed, qfeat["strand"])
-    feats_nearby['s'] = get_feats_in_space(sgene, sfeat['seqid'], int(y.min()), int(y.max()), sbed, sfeat["strand"])
-
-    for sub in ('q', 's'):
-        if len(feats_nearby[sub]) !=0:
-            feats_nearby[sub] = MultiLineString([[(0, c0),(0, c1)] for c0, c1, fname in feats_nearby[sub]])#another dictioary gt
-        else:
-            feats_nearby[sub] = None
-
+    bowtie = create_bowtie(qgene,sgene,slope)
+    feats_nearby = get_feats_nearby(qgene,sgene,qfeat,sfeat,x,y.qbed,sbed)
     cnss = set([])
     
     #changed length of gene to only contain from coding region to coding region
     #to avoid miss annot UTR confusion
-    qgene_space_start = min(qfeat['locs'])[0]
-    qgene_space_end = max(qfeat['locs'])[1]
-    sgene_space_start = min(sfeat['locs'])[0]
-    sgene_space_end = max(sfeat['locs'])[1]
-
-    qgene_space_poly = LineString([(0.0, qgene_space_start), (0.0, qgene_space_end)])
-    sgene_space_poly = LineString([(0.0, sgene_space_start), (0.0, sgene_space_end)])
-    qgene_poly = LineString([(0.0, qgene[0]), (0.0, qgene[1])])
-    sgene_poly = LineString([(0.0, sgene[0]), (0.0, sgene[1])])
-     
+    qgene_space_poly,qgene_poly,sgene_space_poly,sgene_poly = get_genespace(qfeat,sfeat,qgene,sgene)
     intronic_removed = 0
 
     for line in blast_str.split("\n"):
@@ -117,13 +125,12 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
         except:
             print >>sys.stderr, blast_str
             raise
-
-        # to be saved. a hit must either be in an intron in both
-        # genes, or in neither.
-
         ##########################################################
         # DEAL WITH INTRONIC cnss in the gene of interest.
         ##########################################################
+        # to be saved. a hit must either be in an intron in both
+        # genes, or in neither.
+
         xls = LineString([(0, locs[0]), (0, locs[1])])
         yls = LineString([(0, locs[2]), (0, locs[3])])
 
@@ -131,8 +138,6 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
         if qgene_poly.intersects(xls) and sgene_poly.intersects(yls):
             cnss.update((locs,))
             continue
-
-        # has to be both or neither.#dont want to remove if utrs
         if qgene_space_poly.intersects(xls) or sgene_space_poly.intersects(yls):
             intronic_removed += 1
             continue
@@ -156,7 +161,7 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
 
         ##########################################################
 
-        if not in_bowtie(qgene,sgene,slope,xx, yy): continue
+        if not bowtie.contains(LineString(zip(xx, yy))): continue
         cnss.update((locs,))
 
     # cant cross with < 2 cnss.
@@ -291,8 +296,7 @@ def get_pair(pair_file, fmt, qbed, sbed, seen={}):
         pair = getattr(pair_line,fmt)()
         ### based on what the fmt is will call this function in ParsePairs
         pair = tuple(pair)
-        if pair in seen:
-            continue
+        if pair in seen: continue
         seen[pair] = True
         try:
             if isinstance(pair[0], (int, long)):
