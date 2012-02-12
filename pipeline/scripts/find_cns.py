@@ -100,13 +100,10 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
     
     bowtie = create_bowtie(qgene,sgene,slope)
     feats_nearby = get_feats_nearby(qgene,sgene,qfeat,sfeat,x,y.qbed,sbed)
-    cnss = set([])
-    
-    #changed length of gene to only contain from coding region to coding region
-    #to avoid miss annot UTR confusion
     qgene_space_poly,qgene_poly,sgene_space_poly,sgene_poly = get_genespace(qfeat,sfeat,qgene,sgene)
     intronic_removed = 0
-
+    
+    cnss = set([])
     for line in blast_str.split("\n"):
         if "WARNING:" in line: continue
         if "ERROR" in line: continue
