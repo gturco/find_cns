@@ -9,7 +9,7 @@ from collections import defaultdict
 
 from flatfeature import Bed
 from find_cns import parse_blast, get_masked_fastas
-from qa_parsers import pairs_to_qa,ParsePairs
+from qa_parsers import pairs_to_qa,ParsePairs,write_nolocaldups
 from orderedset import OrderedSet
 from cleanup import DupLine
 
@@ -136,11 +136,13 @@ def make_copy_of_file(file1):
 def update_pairs(qaccn,saccn,qparent,sparent,pair_file):
     """replaces the old pair with the new head loaldup pairs"""
     #### new pairs file search and replace
+    print >>sys.stderr, "write tandem-filtered bed file {0}".format(pair_file)
     search_replace_pairs = "sed 's/{0}\t{1}/{2}\t{3}/' -i {4}".format(qparent,sparent,qaccn,saccn,pair_file)
     commands.getstatusoutput(search_replace_pairs)
 
 def update_cnss_line(qfeat,sfeat,qparent,sparent,largest_cnss,ncns_file):
     """ removes any cnss with the old parent dup """
+    print >>sys.stderr, "write tandem-filtered bed file {0}".format(ncns_file)
     search_cns = '^{0},{1},{2},{3}.*'.format(qfeat['seqid'],qparent,sfeat['seqid'],sparent)
     replace_cns = '{0},{1},{2},{3},{4}'.format(qfeat['seqid'],qfeat['accn'],sfeat['seqid'],sfeat['accn'],largest_cnss))
     s_and_r = "sed 's/{0}/{1}/' -i {2}'".format(search_cns,replace_cns,ncns_file)
@@ -148,6 +150,7 @@ def update_cnss_line(qfeat,sfeat,qparent,sparent,largest_cnss,ncns_file):
 
 def write_localdup_file(qparent,sparent,qfile,sfile,neworder):
     """ replaces the orginal parent local dup with the new order"""
+    print >>sys.stderr, "write tandem-filtered bed file {0}\t{1}".format(qfile,sfile)
     qdups = [qdup for cns_number,q_start,s_start,qdup,sdup,cns in neworder]
     sdups = [sdup for cns_number,q_start,s_start,qdup,sdup,cns in neworder]
     qdup_set = list(OrderedSet(qdups))
@@ -160,6 +163,7 @@ def write_localdup_file(qparent,sparent,qfile,sfile,neworder):
     ssearch_replace = "sed -i 's/^{0}.*/{1}/g'{2}".format(sparent,sreplace,sfile)
     commands.getstatusoutput(qsearch_replace)
     commands.getstatusoutput(ssearch_replace)
+
 ###############################################################
 
 def main(cns_file,qdups_path,sdups_path,pair_file,fmt,qbed,sbed,qpad,spad,blast_path,mask='F',ncpu=8):
@@ -236,10 +240,9 @@ def main(cns_file,qdups_path,sdups_path,pair_file,fmt,qbed,sbed,qpad,spad,blast_
             write_new_dups(npair_file,ncns_file,,nqlocaldups,nslocaldups,cnss_size,qparent,sparent,qfeat,sfeat)
     
     best_repeats(rdups,npair_file,ncns_file,nqlocaldups,nslocaldups,qbed,sbed)
-    write_new_nolocal_bed(bed, children)
-    write_new_nolocal_bed(bed,children)
-    header = pair_file.split(".")[0]
-    pairs_to_qa(pair_file, qnolocaldups_path, snolocaldups_path, "{0}.raw.filtered".format(header))
+    write_nolocaldups(qbed.path,qdups_path,"{0}.nolocaldups.local".format(qbed.path.split(".")[0]))
+    write_nolocaldups(sbed.path,sdups_path,"{0}.nolocaldups.local".format(sbed.path.split(".")[0]))
+    pairs_to_qa(pair_file, qnolocaldups_path, snolocaldups_path,"{0}.raw.filtered.local".format(pair_file.split(".")[0]))
 
 if __name__ == "__main__":
     import optparse
