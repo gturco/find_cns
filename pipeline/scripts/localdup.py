@@ -8,10 +8,16 @@ from itertools import product, chain
 from collections import defaultdict
 
 from flatfeature import Bed
-from find_cns import parse_blast, get_masked_fastas
+from find_cns import parse_blast, get_masked_fastas,get_cmd
 from qa_parsers import pairs_to_qa,ParsePairs,write_nolocaldups
 from orderedset import OrderedSet
 from cleanup import DupLine
+
+def append_no_cnss(real_res,expected_res,cnss_size):
+    for res in expected_res:
+        if res in real_res: continue
+        cnss_size.append((0,res[0]["start"],res[1]["start"],res[0]["accn"],res[1]["accn"],'none'))
+    return cnss_size
 
 def condense_rdups(parents,q):
     """condensed the rdups of the same group meaning if
@@ -21,12 +27,13 @@ def condense_rdups(parents,q):
     for repeat in parents.keys():
         repeat_group = defaultdict(list)
         for cnss in parents[repeat]:
-            cns_number,qfeat_start, sfeat_start,qaccn,saccn,largest_cnss = parent[repeat]
+            cns_number,qfeat_start, sfeat_start,qaccn,saccn,largest_cnss = cnss
             #### sort cns by qaccn key
             isoform = qaccn if q else saccn
             repeat_group[isoform].append(cnss)
         for isoform in repeat_group.keys():
-           repeats_cond[isoform].append(repeat_group[isoform].sort()[0])
+            repeat_group[isoform].sort()
+            repeats_cond[isoform].append(repeat_group[isoform][-1])
     return repeats_cond
 
 def write_reps(isoform_tuple,npair_file,ncns_file,nqlocaldups,nslocaldups,qbed,sbed):
@@ -35,21 +42,23 @@ def write_reps(isoform_tuple,npair_file,ncns_file,nqlocaldups,nslocaldups,qbed,s
         cns_number,qfeat_start, sfeat_start,qaccn,saccn,largest_cnss = cnss_size[0]
         qfeat = qbed.accn(qaccn)
         sfeat = sbed.accn(saccn)
-        write_new_dups(npair_file,ncns_file,,nqlocaldups,nslocaldups,cnss_size,qparent,sparent,qfeat,sfeat)
+        write_new_dups(npair_file,ncns_file,nqlocaldups,nslocaldups,cnss_size,qparent,sparent,qfeat,sfeat)
 
-def best_repeats(rdups,npair_file,ncns_file,nqlocaldups,nslocaldups,qbed,sbed):
+def best_repeats(rdups):
     """finds best dup when dups are repeated"""
+    best_rep = []
     for rdup in rdups.keys():
         parents = rdups[rdup]
-        q=(rdup == parents[0])
+        q=(rdup == parents.keys()[0][0])
         cond_reps =condense_rdups(parents,q)
         isoform_tuple = []
         for isoform in cond_reps.keys():
             cns_total = [cns_number for cns_number,qfeat_start,
             sfeat_start,qaccn,saccn,largest_cnss in cond_reps[isoform]]
-            isoform_tuple.append(sum(cns_total),cond_reps[isoform])
+            isoform_tuple.append((sum(cns_total),cond_reps[isoform]))
         isoform_tuple.sort()
-        write_reps(isoform_tuple[-1],npair_file,ncns_file,nqlocaldups,nslocaldups,qbed,sbed)
+        best_rep += isoform_tuple[-1][1]
+    return best_rep
 
 
 def get_large_dups(pairs,qdup_dict,sdup_dict):
@@ -58,17 +67,17 @@ def get_large_dups(pairs,qdup_dict,sdup_dict):
         qfeat_dups = get_all_dups(qdup_dict,qparent)
         sfeat_dups = get_all_dups(sdup_dict,sparent)
         if len(list(product(qfeat_dups,sfeat_dups))) > 9:
-            large_dups.append(qparent,sparent)
+            large_dups.append((qparent,sparent))
     return large_dups
 
 def skip_pair(qparent,sparent,rdups,ldups):
     """return ture if should be skiped because its a large dup seen more then
     once, too large of a combo, or both the query and subject are repeated more
     then once"""
-    ldups_list = list(chain(*x))
-    if qparent in rdups and ldups_list: return True
-    elif sparent in rdups and ldups: return True
-    elif qparent and sparent in rdups: return True
+    ldups_list = list(chain(*ldups))
+    if qparent in rdups and qparent in ldups_list: return True
+    elif sparent in rdups and sparent in ldups_list: return True
+    elif qparent in rdups and sparent in rdups: return True
     elif (qparent,sparent) in ldups: return True
     else: return False
 
@@ -98,16 +107,14 @@ def get_pairs(pair_file,fmt,qdup_dict,sdup_dict):
     for line in open(pair_file):
         if line[0] == "#" : continue
         pair_line = ParsePairs(line)
-        pair = getattr(ParsePairs,fmt)()
+        pair = getattr(pair_line,fmt)()
         pair = tuple(pair)
+        if pair[0] in seen: rdups.append(pair[0])
+        if pair[1] in seen: rdups.append(pair[1])
         if pair[0] in qdup_dict.keys() or pair[1] in sdup_dict.keys():
             dups.append((pair[0],pair[1]))
-            seen.append(pair[0])
-            seen.append(pair[1])
-            if pair[0] in seen:
-                rdups.append(pair[0])
-            if pair[1] in seen:
-                rdups.append(pair[1])
+            if pair[0] in qdup_dict.keys(): seen.append(pair[0])
+            if pair[1] in sdup_dict.keys(): seen.append(pair[1])
         else: continue
     return dups,rdups
 
@@ -119,11 +126,12 @@ def get_all_dups(dup_dict,feat):
         dups = [feat]
     return dups
 ############### update files ####################
-def write_new_dups(npair_file,ncns_file,,nqlocaldups,nslocaldups,cnss_size,qparent,sparent,qfeat,sfeat):
+def write_new_dups(npair_file,ncns_file,nqlocaldups,nslocaldups,cnss_size,qparent,sparent,qfeat,sfeat):
     """ reseach and replace cns file, localdups and pairs file"""
     cns_number,qfeat_start, sfeat_start,qaccn,saccn,largest_cnss = cnss_size[0]
     update_pairs(qfeat['accn'],sfeat['accn'],qparent,sparent,npair_file)
-    update_cnss_line(qfeat,sfeat,qparent,sparent,largest_cnss,ncns_file)
+    if largest_cnss != 'none':
+        update_cnss_line(qfeat,sfeat,qparent,sparent,largest_cnss,ncns_file)
     write_localdup_file(qparent,sparent,nqlocaldups,nslocaldups,cnss_size)
 
 def make_copy_of_file(file1):
@@ -144,8 +152,8 @@ def update_cnss_line(qfeat,sfeat,qparent,sparent,largest_cnss,ncns_file):
     """ removes any cnss with the old parent dup """
     print >>sys.stderr, "write tandem-filtered bed file {0}".format(ncns_file)
     search_cns = '^{0},{1},{2},{3}.*'.format(qfeat['seqid'],qparent,sfeat['seqid'],sparent)
-    replace_cns = '{0},{1},{2},{3},{4}'.format(qfeat['seqid'],qfeat['accn'],sfeat['seqid'],sfeat['accn'],largest_cnss))
-    s_and_r = "sed 's/{0}/{1}/' -i {2}'".format(search_cns,replace_cns,ncns_file)
+    replace_cns = '{0},{1},{2},{3},{4}'.format(qfeat['seqid'],qfeat['accn'],sfeat['seqid'],sfeat['accn'],largest_cnss)
+    s_and_r = "sed 's/{0}/{1}/' -i {2}".format(search_cns,replace_cns,ncns_file)
     commands.getstatusoutput(s_and_r)
 
 def write_localdup_file(qparent,sparent,qfile,sfile,neworder):
@@ -180,19 +188,20 @@ def main(cns_file,qdups_path,sdups_path,pair_file,fmt,qbed,sbed,qpad,spad,blast_
     ################# file paths #####################
     qnolocaldups_path =  qbed.path.split(".")[0] + ".nolocaldups.bed"
     snolocaldups_path = sbed.path.split(".")[0] + ".nolocaldups.bed"
-    qlocaldups_path = qbed.path.split(".")[0] + "localdups"
-    slocaldups_path = sbed.path.split(".")[0] + "localdups"
+    qlocaldups_path = qbed.path.split(".")[0] + ".localdups"
+    slocaldups_path = sbed.path.split(".")[0] + ".localdups"
     npair_file,nqlocaldups,nslocaldups, ncns_file = map(make_copy_of_file,[pair_file,qlocaldups_path,slocaldups_path,cns_file])
     ##########################################
     
     qdups = parse_dups(qdups_path)
     sdups = parse_dups(sdups_path)
     dups,rdups = get_pairs(pair_file,fmt,qdups,sdups)
+    print len(dups), len(rdups)
     ldups = get_large_dups(dups,qdups,sdups)
 
-    rdups_dic = {}
+    rdups_dic = defaultdict(dict)
     for (qparent,sparent) in dups:
-        if skip_pair(qparent,sparent,rdups,ldups): continue
+        if skip_pair(qparent,sparent,rdups,ldups):continue
         cnss_size = []
         qfeat_dups = get_all_dups(qdups,qparent)
         sfeat_dups = get_all_dups(sdups,sparent)
@@ -202,6 +211,8 @@ def main(cns_file,qdups_path,sdups_path,pair_file,fmt,qbed,sbed,qpad,spad,blast_
         def get_dups_gen():
             try: return _get_dups_gen.next()
             except StopIteration: return None
+        expected_res = []
+        real_res = []
         while any(pairs):
             cnss_dups = []
             pairs = [get_dups_gen() for i in range(ncpu)]
@@ -215,34 +226,47 @@ def main(cns_file,qdups_path,sdups_path,pair_file,fmt,qbed,sbed,qpad,spad,blast_
             cmds = [c for c in map(get_cmd, [l for l in pairs if l],
                 bl2seq_map,qfastas_map,sfastas_map,qpad_map,spad_map) if c]
             results = (r for r in pool.map(commands.getoutput, [c[0] for c in cmds]))
-
+            map(expected_res.append,[l for l in pairs if l])
             for res, (cmd, qfeat, sfeat) in zip(results, cmds):
                 if not res.strip(): continue
                 print >>sys.stderr,  "%s %s" % (qfeat["accn"], sfeat['accn'])
                 orient = qfeat['strand'] == sfeat['strand'] and 1 or -1
                 cnss = parse_blast(res, orient, qfeat, sfeat, qbed, sbed, qpad,spad)
+                real_res.append((qfeat,sfeat))
                 print >>sys.stderr, "(%i)" % len(cnss)
                 cnss_fmt = ",".join(map(lambda l: ",".join(map(str,l)),cnss))
                 cnss_size.append((len(cnss)*-1,qfeat["start"],sfeat["start"],qfeat["accn"],sfeat["accn"],cnss_fmt))
-        
+        if len(expected_res) > len(real_res):
+            print >>sys.stderr, "real {1} expected {0},{2},{3}".format(len(expected_res),len(real_res),qparent,sparent)
+            cns_size = append_no_cnss(real_res,expected_res,cnss_size)
         ######################################################################
         if qparent in rdups:
-            rdups_dic[qparent]= {(qparent,sparent):cnss_size}
+            ############## chanfge to append and add info for if cns = 0
+            try:
+                rdups_dic[qparent][(qparent,sparent)].append(cnss_size)
+            except:
+                rdups_dic[qparent].update({(qparent,sparent):[cnss_size]})
         elif sparent in rdups:
-            rdups_dic[sparent] = {(qparent,sparent):cnss_size}
+            try:
+                rdups_dic[sparent][(qparent,sparent)].append(cnss_size)
+            except:
+                rdups_dic[sparent].update({(qparent,sparent):[cnss_size]})
         else:
             cnss_size.sort()
             cns_number,qfeat_start, sfeat_start,qaccn,saccn,largest_cnss = cnss_size[0]
             qfeat = qbed.accn(qaccn)
             sfeat = sbed.accn(saccn)
             print >>sys.stderr, "FINAL: {0},{1},{2}".format(qaccn,saccn,cns_number)
-            if len(cnss_size) == 0 : continue
-            write_new_dups(npair_file,ncns_file,,nqlocaldups,nslocaldups,cnss_size,qparent,sparent,qfeat,sfeat)
+            write_new_dups(npair_file,ncns_file,nqlocaldups,nslocaldups,cnss_size,qparent,sparent,qfeat,sfeat)
     
-    best_repeats(rdups,npair_file,ncns_file,nqlocaldups,nslocaldups,qbed,sbed)
-    write_nolocaldups(qbed.path,qdups_path,"{0}.nolocaldups.local".format(qbed.path.split(".")[0]))
-    write_nolocaldups(sbed.path,sdups_path,"{0}.nolocaldups.local".format(sbed.path.split(".")[0]))
-    pairs_to_qa(pair_file, qnolocaldups_path, snolocaldups_path,"{0}.raw.filtered.local".format(pair_file.split(".")[0]))
+    best_reps = best_repeats(rdups_dic)
+    for cnss in best_reps:
+        cns_number,qfeat_start, sfeat_start,qaccn,saccn,largest_cnss = cnss
+        write_new_dups(npair_file,ncns_file,nqlocaldups,nslocaldups,cnss_size,qparent,sparent,qfeat,sfeat)
+
+    write_nolocaldups(qbed.path,nqlocaldups,"{0}.nolocaldups.local".format(qbed.path.split(".")[0]))
+    write_nolocaldups(sbed.path,nslocaldups,"{0}.nolocaldups.local".format(sbed.path.split(".")[0]))
+    pairs_to_qa(npair_file,'pair',qnolocaldups_path, snolocaldups_path,"{0}.raw.filtered.local".format(pair_file.split(".")[0]))
 
 if __name__ == "__main__":
     import optparse
