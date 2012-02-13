@@ -1,7 +1,6 @@
-#import pylab
 import sys
 from pyfasta import Fasta
-from common import parse_raw_cns
+from cns_utils import CNS
 
 def main(cnsfile, qfasta_file, sfasta_file, qorg, sorg, min_len):
     """empty docstring"""
@@ -17,31 +16,30 @@ def main(cnsfile, qfasta_file, sfasta_file, qorg, sorg, min_len):
     last_qchr, last_schr = None, None
 
     seen = {}
-    for cns_id, cns_dict in parse_raw_cns(cnsfile):
-        cns = cns_dict
-        qseq = qfasta[str(cns['qseqid'])]
-        sseq = sfasta[str(cns['sseqid'])]
+    for cns in CNS.parse_raw_line(cnsfile):
+        qseq = qfasta[str(cns.qseqid)]
+        sseq = sfasta[str(cns.sseqid)]
 
 
-        sstart, send = sorted((cns['sstart'], cns['send']))
-        qkey = (cns['qseqid'], cns['qstart'], cns['qend'])
-        skey = (cns['sseqid'], cns['sstart'], cns['send'])
+        sstart, send = sorted((cns.sstart, cns.sstop))
+        qkey = (cns.qseqid, cns.qstart, cns.qstop)
+        skey = (cns.sseqid, cns.sstart, cns.sstop)
 
         assert sstart < send
 
-        if cns['qend'] - cns['qstart'] < min_len: continue
+        if cns.qstop - cns.qstart < min_len: continue
         if send - sstart < min_len: continue
 
 
         if not (qkey in seen and skey in seen):
-            print ">q__" + cns_id
-            seqstr = str(qseq[cns['qstart'] - 1: cns['qend']]).replace('R', 'N').replace('W', 'N').replace('M', 'N')
-            assert set(seqstr.lower()).issubset("actgnx"), ('q', 'q__' + cns_id, seqstr)
+            print ">q__" + cns.cns_id
+            seqstr = str(qseq[cns.qstart - 1: cns.qstop]).replace('R', 'N').replace('W', 'N').replace('M', 'N')
+            assert set(seqstr.lower()).issubset("actgnx"), ('q', 'q__' + cns.cns_id, seqstr)
             print seqstr.upper()
 
-            print ">s__" + cns_id
+            print ">s__" + cns.cns_id
             seqstr = str(sseq[sstart - 1: send]).replace('R', 'N').replace('W', 'N').replace('M', 'N')
-            assert set(seqstr.lower()).issubset("actgnx"), ('s', 's__' + cns_id, seqstr)
+            assert set(seqstr.lower()).issubset("actgnx"), ('s', 's__' + cns.cns_id, seqstr)
             print seqstr.upper()
 
         seen[qkey] = 1
@@ -64,7 +62,5 @@ if __name__ == "__main__":
         sys.exit(parser.print_help())
 
     sys.path.insert(0, os.path.dirname(__file__))
-    from common import get_sheet_from_date
-    #cnsfile = get_sheet_from_date(options.cnsfile)
     main(options.cnsfile, options.qfasta, options.sfasta, options.qorg, options.sorg, int(options.min_len))
 
