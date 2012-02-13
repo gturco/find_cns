@@ -41,7 +41,7 @@ def get_feats_in_space(locs, ichr, bpmin, bpmax, bed, strand):
         assert feats[0]['seqid'] == str(ichr)
     return [(f['start'], f['end'], f['accn']) for f in feats]
 
-def get_feats_nearby(qgene,sgene,qfeat,sfeat,x,y.qbed,sbed):
+def get_feats_nearby(qgene,sgene,qfeat,sfeat,x,y,qbed,sbed):
     feats_nearby = {}
     feats_nearby['q'] = get_feats_in_space(qgene, qfeat['seqid'], int(x.min()), int(x.max()), qbed, qfeat["strand"])
     feats_nearby['s'] = get_feats_in_space(sgene, sfeat['seqid'], int(y.min()), int(y.max()), sbed, sfeat["strand"])
@@ -53,7 +53,7 @@ def get_feats_nearby(qgene,sgene,qfeat,sfeat,x,y.qbed,sbed):
             feats_nearby[sub] = None
     return feats_nearby
 
-def create_bowtie(qgene,sgene,slope):
+def create_bowtie(qgene,sgene,slope,qpad,spad):
     """returns bowtie"""
     EXP = EXPON
     if abs(abs(qgene[1] - qgene[0]) - abs(sgene[1] - sgene[0])) > 3000:
@@ -98,8 +98,8 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
     x = np.linspace(qgene[0] - qpad, qgene[1] + qpad, 50)
     y = slope * x + intercept
     
-    bowtie = create_bowtie(qgene,sgene,slope)
-    feats_nearby = get_feats_nearby(qgene,sgene,qfeat,sfeat,x,y.qbed,sbed)
+    bowtie = create_bowtie(qgene,sgene,slope,qpad,spad)
+    feats_nearby = get_feats_nearby(qgene,sgene,qfeat,sfeat,x,y,qbed,sbed)
     qgene_space_poly,qgene_poly,sgene_space_poly,sgene_poly = get_genespace(qfeat,sfeat,qgene,sgene)
     intronic_removed = 0
     
