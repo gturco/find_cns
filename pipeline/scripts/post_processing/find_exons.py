@@ -24,11 +24,9 @@ the big ones.
 """
 
 
-def main(blast_files, out_dir, qorg, sorg):
+def main(blast_files, out_dir,raw_cns):
     """empty docstring"""
-    raw_cns = "%s/%s_%s.cns.txt" % (out_dir, qorg, sorg)
-    assert os.path.exists(raw_cns)
-    cns_by_id = dict(parse_raw_cns(raw_cns))
+    cns_by_id = {cns.cns_id: cns for cns in CNS.parse_raw_line(cnsfile)}
 
     exons = collections.defaultdict(dict)
     for blast_file in blast_files:
@@ -54,7 +52,7 @@ def main(blast_files, out_dir, qorg, sorg):
             cns = cns_by_id[key]
 
             # qstart?
-            qlen = cns['qend'] - cns['qstart']
+            qlen = cns.qstop - cns.qstart
             coverage = (b.hitlen * 3.) / qlen
             #print >>sys.stderr, coverage
             if coverage < 0.90: continue
@@ -86,10 +84,9 @@ if __name__ == "__main__":
     import optparse
     parser = optparse.OptionParser("%prog [options] [blast_files]")
     parser.add_option("-o", "--out_dir", dest="out_dir", help="")
-    parser.add_option("-q", "--query", dest="query", help=" query organism name")
-    parser.add_option("-s", "--subject", dest="subject", help=" subject organism name")
+    parser.add_option("--cns", dest="cns", help=" raw cns file cns.txt or cns.txt.local")
     (opts, blast_files) = parser.parse_args()
     if not (opts.out_dir and opts.query and opts.subject):
         sys.exit(parser.print_help())
 
-    main(blast_files, opts.out_dir, opts.query, opts.subject)
+    main(blast_files, opts.out_dir, opts.cns)
