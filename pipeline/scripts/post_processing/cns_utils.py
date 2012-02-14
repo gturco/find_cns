@@ -1,3 +1,9 @@
+import datetime
+import os.path as op
+PATH=op.dirname(__file__)
+import collections
+
+
 class CNS(object):
     def __init__(self, cns_key,cns_info):
         self.qseqid, self.qaccn, self.sseqid, self.saccn = cns_key
@@ -50,5 +56,16 @@ class BlastLine(object):
         #def g(attr):
         #    return getattr(self, attr)
         return "\t".join(map(str, (getattr(self, attr) for attr in BlastLine.__slots__)))
+
+def parse_at_description(desc_file=op.join(PATH, "../../data/thaliana_v9.description")):
+    desc = collections.defaultdict(str)
+    for line in open(desc_file):
+        line = line.split("\t")
+        name = line[0][:line[0].find(".")]
+        if name in desc:
+            desc[name] += ";;" + line[-1].rstrip()
+        else:
+            desc[name] = line[-1].rstrip()
+    return desc
 
 
