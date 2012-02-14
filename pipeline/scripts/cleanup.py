@@ -19,6 +19,7 @@ class LocalDups(object):
             for i in intervening:
                 if i in d.keys():continue
                 d[i] = "I"
+        self.filename.close()
         return d
 
     def get_dups(self):
@@ -32,14 +33,15 @@ class LocalDups(object):
             for i in intervening:
                 if i in d.keys(): continue
                 d[i] = "I"
+        self.filename.close()
         return d
 
 class DupLine(object):
     def __init__(self,line):
         args = line.strip().split("\t")
         self.parent = args[0]
-        self.children = args[1:]
-        self.dups = [self.parent] + self.children
+        self.children = list(set(args[1:]))
+        self.dups = list(set([self.parent] + self.children))
 
     def __str__(self):
         return "\t".join(self.dups)
@@ -58,5 +60,4 @@ class DupLine(object):
         dups = [bed.row_to_dict(bed.d[dup]) for dup in self.dups]
         dups.sort(key=operator.itemgetter('start'))
         return dups
-
 
