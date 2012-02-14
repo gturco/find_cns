@@ -9,8 +9,6 @@ from flatfeature import Bed
 from qa_parsers import ParsePairs
 import logging
 from processing import Pool
-#LOG_FILENAME = '/Users/gturco/find_cns.log'
-#logging.basicConfig(filename=LOG_FILENAME,level=logging.INFO)
 pool = None
 
 
