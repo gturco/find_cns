@@ -1,7 +1,7 @@
 import sys
 import os
 sys.path.insert(0, os.path.dirname(__file__))
-from common import BlastLine, parse_raw_cns
+from cns_utils import BlastLine, CNS
 import collections
 """
 Each CNS was blastx's to all arabidopsis protein, and the hit's with
