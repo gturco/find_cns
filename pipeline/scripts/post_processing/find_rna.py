@@ -2,7 +2,7 @@ import sys
 import os.path as op
 sys.path.insert(0, op.dirname(__file__))
 sys.path.append("../")
-from common import BlastLine, parse_at_description
+from cns_utils import BlastLine, parse_at_description
 import collections
 from pyfasta import Fasta
 import operator
