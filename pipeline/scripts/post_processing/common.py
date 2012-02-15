@@ -41,7 +41,8 @@ def parse_raw_cns(raw_cns):
             d = {'qseqid': qseqid, 'sseqid':sseqid,
                    'qaccn': qaccn, 'saccn': saccn, 'qstart': int(qstart),
                    'qend': int(qend), 'sstart': int(sstart), 'send': int(send),"eval": evalue}
-            yield key % d, d
+            key = "{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}".format(d['qseqid'],d['qaccn'],d['sseqid'],d['saccn'],d['qstart'],d['qstop'],d['sstart'],d['sstop'])
+            yield key
 
 
 def parse_orthology(ortho_file, qbed, sbed):

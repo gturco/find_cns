@@ -8,10 +8,13 @@
 """
 import collections
 import operator
-from bed_utils import Bed as Hbed
+import sys
+sys.path.append('scripts/')
+from qa_parsers import RawBed
+sys.path.insert(0, "/home/gturco/src/quota-alignment/scripts")
+from bed_utils import RawLine
 from flatfeature import Bed
 import os.path as op
-import sys
 sys.path.insert(0, op.dirname(__file__))
 from common import parse_cns_datasheet, get_sheet_from_date, parse_orthology
 
@@ -38,18 +41,14 @@ def merge_flat(new_name, aflat, bflat):
 
 import datetime
 
-def parse_pairs(pair_file, qbed, sbed):
+def parse_pairs(pair_file, qrawbed, srawbed):
     paired = collections.defaultdict(list)
     for line in open(pair_file):
-        if line[0] =='#': continue
-        line = line.split("\t")
-        try:
-            qseqid, qi, sseqid, si = line[:4]
-        except ValueError: print >>sys.stderr, line
-
-        q, s = qbed[int(qi)], sbed[int(si)]
-        qname, sname = q.accn, s.accn
-        
+        if line[0] == "#": continue 
+        raw = RawLine(line)
+        q = qrawbed.raw_to_bed(raw.pos_a)
+        s = srawbed.raw_to_bed(raw.pos_b)
+        qname, sname = q['accn'], s['accn']
         paired[qname].append(sname)
         paired[sname].append(qname)
     new_paired = {}
@@ -243,17 +242,16 @@ if __name__ == "__main__":
     slocaldups = parse_dups(opts.slocaldups,sflat)
 
     #### use habos verson
-    qflat_h = Hbed(opts.qflat_new)
-    sflat_h = Hbed(opts.sflat_new)
-    pairs = parse_pairs(opts.paralogy, qflat_h, sflat_h)
+    qrawbed = RawBed(opts.qflat_new)
+    srawbed = RawBed(opts.sflat_new)
+    pairs = parse_pairs(opts.paralogy, qrawbed, srawbed)
 
     dpath = get_sheet_from_date(opts.datasheet)
     cns_info_by_hash = dict(parse_cns_datasheet(dpath))
     out_dir = op.dirname(dpath)
 
 
-    orthos = parse_orthology(opts.orthology, qflat_h, sflat_h)
-
+    orthos = parse_orthology(opts.orthology, qrawbed.bed, srawbed.bed)
     mcns = map_cns(cns_info_by_hash)
     
     tdate = str(datetime.date.today())
