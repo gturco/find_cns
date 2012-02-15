@@ -26,8 +26,10 @@ class CNS(object):
         cnss = args[4:]
         cns = [CNS(cns_key,cnss[cns:cns + 5]) for cns in range(0,len(cnss),5)]
         return cns
-
-
+    
+    def to_dict(self):
+         return {'qseqid':self.qseqid,'qaccn':self.qaccn,'sseqid':self.sseqid,'saccn':self.saccn,
+             'qstart':self.qstart,'qend':self.qstop,'sstart':self.sstart,'send':self.sstop,'eval':self.evalue}
 
 class BlastLine(object):
     __slots__ = ('query', 'subject', 'pctid', 'hitlen', 'nmismatch', 'ngaps', \
@@ -68,4 +70,16 @@ def parse_at_description(desc_file=op.join(PATH, "../../data/thaliana_v9.descrip
             desc[name] = line[-1].rstrip()
     return desc
 
+def read_cns_to_rna(outdir):
+    d = {}
+    for line in open(outdir + "/cns_to_rna.csv"):
+        hash, evalue, desc = line.rstrip("\n").split("\t")
+        d[hash] = evalue + "|" +  desc
+    return d
 
+def read_cns_to_protein_exons(outdir):
+    d = {}
+    for sline in open(outdir + "/cns_to_protein_exons.csv"):
+        hash, accns = sline.rstrip("\n").split("\t")
+        d[hash] = "#".join(accns.split(","))
+    return d
