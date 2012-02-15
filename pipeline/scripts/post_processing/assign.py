@@ -4,7 +4,7 @@ import sys
 import os
 import os.path as op
 sys.path.insert(0, os.path.dirname(__file__))
-sys.path.append("../")
+sys.path.append("scripts/")
 from find_cns import get_pair
 
 
@@ -146,12 +146,12 @@ def assign(cnsdict,qbed, sbed, qpair_map, spair_map):
         
         
 def main(cnsfile, qbed_file, sbed_file, pairsfile, pairs_fmt, qdsid, sdsid,qpad,spad):
-    qcns_file = qbed_file.replace(".bed", "_cns.gff")
+    qcns_file = qbed_file.replace(".local", "_cns.gff")
     assert qcns_file != qbed_file
     qcns_gff = open(qcns_file, 'w')
     print >>qcns_gff, "##gff-version 3"
     if sbed_file != qbed_file:
-        scns_file = sbed_file.replace(".bed", "_cns.gff")
+        scns_file = sbed_file.replace(".local", "_cns.gff")
         assert scns_file != sbed_file
         scns_gff = open(scns_file, 'w')
         print >>scns_gff, "##gff-version 3"
