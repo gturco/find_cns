@@ -125,7 +125,7 @@ def write_new_dups(npair_file,ncns_file,nqlocaldups,nslocaldups,cnss_size,qparen
     """ reseach and replace cns file, localdups and pairs file"""
     cns_number,qfeat_start, sfeat_start,qaccn,saccn,largest_cnss = cnss_size[0]
     update_pairs(qfeat['accn'],sfeat['accn'],qparent,sparent,npair_file)
-    if cns_number > 0:
+    if abs(cns_number) > 0:
         update_cnss_line(qfeat,sfeat,qparent,sparent,largest_cnss,ncns_file)
     write_localdup_file(qparent,sparent,nqlocaldups,nslocaldups,cnss_size)
 
@@ -148,7 +148,7 @@ def update_cnss_line(qfeat,sfeat,qparent,sparent,largest_cnss,ncns_file):
     search_cns = '^{0},{1},{2},{3}.*'.format(qfeat['seqid'],qparent,sfeat['seqid'],sparent)
     replace_cns = '{0},{1},{2},{3},{4}'.format(qfeat['seqid'],qfeat['accn'],sfeat['seqid'],sfeat['accn'],largest_cnss)
     s_and_r = "sed 's/{0}/{1}/' -i {2}".format(search_cns,replace_cns,ncns_file)
-    commands.getstatusoutput(s_and_r)
+    x= commands.getstatusoutput(s_and_r)
 
 def write_localdup_file(qparent,sparent,qfile,sfile,neworder):
     """ replaces the orginal parent local dup with the new order"""
@@ -249,7 +249,7 @@ def main(cns_file,qdups_path,sdups_path,pair_file,fmt,qbed,sbed,qpad,spad,blast_
 
     write_nolocaldups(qbed.path,nqlocaldups,"{0}.nolocaldups.local".format(qbed.path.split(".")[0]))
     write_nolocaldups(sbed.path,nslocaldups,"{0}.nolocaldups.local".format(sbed.path.split(".")[0]))
-    pairs_to_qa(npair_file,'pair',qnolocaldups_path, snolocaldups_path,"{0}.raw.filtered.local".format(pair_file.split(".")[0]))
+    pairs_to_qa(npair_file,'pair',"{0}.nolocaldups.local".format(qbed.path.split(".")[0]),"{0}.nolocaldups.local".format(sbed.path.split(".")[0]),"{0}.raw.filtered.local".format(options.pairs.split(".")[0]))
 
 if __name__ == "__main__":
     import optparse
@@ -281,7 +281,8 @@ if __name__ == "__main__":
 
     qnolocaldups_path =  qbed.path.split(".")[0] + ".nolocaldups.bed"
     snolocaldups_path =  sbed.path.split(".")[0] + ".nolocaldups.bed"
-    #pairs_to_qa(npair_file,'pair',qnolocaldups_path,snolocaldups_path,"{0}.raw.filtered.local".format(options.pairs.split(".")[0]))
+    #pairs_to_qa("{0}.local".format(options.pairs),'pair',"{0}.nolocaldups.local".format(qbed.path.split(".")[0]),"{0}.nolocaldups.local".format(sbed.path.split(".")[0]),"{0}.raw.filtered.local".format(options.pairs.split(".")[0]))
+
 
 
     main(options.cns_file,options.qdups,options.sdups,options.pairs,options.pair_fmt,qbed,sbed,options.qpad,options.spad,options.blast_path,options.mask,options.ncpu)
