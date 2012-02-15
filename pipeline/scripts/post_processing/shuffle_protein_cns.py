@@ -2,8 +2,8 @@ import sys
 import os.path as op
 from flatfeature import Bed
 sys.path.append("scripts/")
-from common import parse_raw_cns
-from common import read_cns_to_rna, read_cns_to_protein_exons
+from cns_utils import CNS
+from cns_utils import read_cns_to_rna, read_cns_to_protein_exons
 sys.path.insert(0, "/home/gturco/src/quota-alignment/scripts")
 from bed_utils import RawLine
 import collections
@@ -71,11 +71,13 @@ def main(qbed_path, sbed_path, cnsfile, dist, orthology_path):
     crna = read_cns_to_rna(outdir)
     cpro = read_cns_to_protein_exons(outdir)
 
-    cns_items = list(parse_raw_cns(cnsfile))
+    #cns_items = list(parse_raw_cns(cnsfile))
     proteins = collections.defaultdict(list)
     rnas = collections.defaultdict(list)
     real_cns_items = []
-    for cns_id, cns in cns_items:
+    for cnsi in CNS.parse_raw_line(cnsfile):
+        cns_id = cnsi.cns_id
+        cns = cnsi.to_dict()
         key = (cns['qseqid'], cns['sseqid'])
         if cns_id in cpro:
             proteins[key].append((cns, cpro[cns_id]))
@@ -179,14 +181,13 @@ def write_new_pairs(pair_file_path,new_pairs,qbed_file_new,sbed_path_new):
     """ appends the new pairs to the end of the pair f:/wile and then changes it
     moves it into qa file fmt"""
     write_file = open(pair_file_path,'a')
-    print >>sys.stderr, "AAAAAAAA"
     for pair in new_pairs:
         new_line = "{0}\t{1}\n".format(pair['qaccn'],pair['saccn'])
         write_file.write(new_line)
     write_file.close()
     header = pair_file_path.split(".")[0]
     raw_file = "{0}.raw.with_new.filtered".format(header)
-    pairs_to_qa(pair_file_path,qbed_file_new,sbed_path_new,raw_file)
+    pairs_to_qa(pair_file_path,'pair',qbed_file_new,sbed_path_new,raw_file)
 
 def merge_bed(bed, proteins, rnas, ortho_trees, q_or_s):
     """
@@ -244,7 +245,7 @@ def read_orthos_to_trees(forthos, qrawbed, srawbed):
         if line[0] == "#": continue
         raw = RawLine(line)
         qbed = qrawbed.raw_to_bed(raw.pos_a)
-        sbed = srawbed(raw.pos_b)
+        sbed = srawbed.raw_to_bed(raw.pos_b)
         key = (qbed['seqid'], sbed['seqid'])
         if not key in trees: trees[key] = []
         qpos = (qbed['start'] + qbed['end']) / 2
