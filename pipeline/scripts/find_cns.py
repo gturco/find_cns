@@ -203,6 +203,7 @@ def remove_overlapping_cnss(cnss):
 
 
 def remove_crossing_cnss(cnss, qgene, sgene):
+    if len(cnss)<= 1: return cnss
     diff = qgene[0] - sgene[0] # adjust subject so it's in same range as query
     cns_shapes = [LineString([((c[0] + c[1])/2., 0 ), ((c[2] + c[3])/2. + diff, 1000)]) for c in cnss]
 
