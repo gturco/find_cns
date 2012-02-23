@@ -193,18 +193,11 @@ def remove_overlapping_cnss(cnss):
             for _j, csj in enumerate(zcnss[i + 1:]):
                 j = i + _j + 1 # cause enumerate starts at 0
                 if csi.overlaps(csj):
-                    if cnss[i][-2] < cnss[j][-2] or cnss[i][-1] > cnss[j][-2] or csi.y < csj.y:
-                        remove.append(j)
-                    else:
-                        remove.append(i)
-                    logging.info("overlapping:{0}".format(csi))
+                    if cnss[i][-2] < cnss[j][-2] or cnss[i][-1] > cnss[j][-2] or csi.y < csj.y: remove.append(j)
+                    else: remove.append(i)
                 if csi.contains(csj):
-                    if cnss[i][-2] < cnss[j][-2] or cnss[i][-1] > cnss[j][-2] or cnss[i][1] < cnss[j][3]:
-                        remove.append(j)
-                    else:
-                        remove.append(i)
-                    logging.info("intersecting:{0}".format(cnss[i]))
-                    #print >> sys.stderr, csi
+                    if cnss[i][-2] < cnss[j][-2] or cnss[i][-1] > cnss[j][-2] or cnss[i][1] < cnss[j][3]: remove.append(j)
+                    else: remove.append(i)
     remove = frozenset(remove)
     return [cns for i, cns in enumerate(cnss) if not i in remove]
 
