@@ -3,7 +3,7 @@ import os
 import os.path as op
 import numpy as np
 import commands
-from find_cns import get_feats_in_space
+from find_cns import get_masked_fastas,get_cmd,get_pair,get_feats_nearby,get_genespace
 from shapely.geometry import Point, Polygon, LineString, MultiLineString
 from flatfeature import Bed
 from pyfasta import Fasta
@@ -12,8 +12,6 @@ import re
 from processing import Pool
 pool = None
 
-
-EXPON = 0.90
 
 def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad, unmasked_fasta):
     blast = []
@@ -25,60 +23,17 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad, unmaske
     sgene = sgene[::slope]
     center = sum(qgene)/2., sum(sgene)/2.
 
-    EXP = EXPON
-    if abs(abs(qgene[1] - qgene[0]) - abs(sgene[1] - sgene[0])) > 3000:
-        EXP = 0.94
 
 
-    #intercept = (sgene[0] + sgene[1])/2.  - slope * (qgene[0] + qgene[1])/2.
     intercept = center[1] - slope * center[0]
-    rngx = qgene[1] - qgene[0]
-    rngy = abs(sgene[1] - sgene[0])
-
     x = np.linspace(qgene[0] - qpad, qgene[1] + qpad, 50)
     y = slope * x + intercept
 
-
-    xb = x + -slope * rngx/3. + -slope * np.abs(x - center[0])**EXP
-    yb = y + rngy/3. + np.abs(y - center[1])**EXP
-
-    xy = x + slope * rngx/3. + slope * np.abs(x - center[0])**EXP
-    yy = y - rngy/3. - np.abs(y - center[1])**EXP
-
-    if slope == 1:
-        xall = np.hstack((xy[::-1], xb[::slope], xy[-1]))
-        yall = np.hstack((yy[::-1],yb, yy[-1]))
-    if slope == -1:
-        xall = np.hstack((xy, xb[::-1], xy[0]))
-        yall = np.hstack((yy,yb[::-1], yy[0]))
-
-    feats_nearby = {}
-    feats_nearby['q'] = get_feats_in_space(qgene, qfeat['seqid'], int(x.min()),int(x.max()), qbed, qfeat['strand'])
-    feats_nearby['s'] = get_feats_in_space(sgene, sfeat['seqid'], int(y.min()),int(y.max()), sbed, sfeat['strand'])
-
-
-
-    genespace_poly = Polygon(zip(xall, yall))
-
-    for sub in ('q', 's'):
-        if len(feats_nearby[sub]) !=0:
-            feats_nearby[sub] = MultiLineString([[(0, c0),(0, c1)] for c0, c1, fname in feats_nearby[sub]])
-        else:
-            feats_nearby[sub] = None
-
-    cnss = set([])
-
-    qgene_space_start = min(qfeat['locs'])[0]
-    qgene_space_end = max(qfeat['locs'])[1]
-    sgene_space_start = min(sfeat['locs'])[0]
-    sgene_space_end = max(sfeat['locs'])[1]
-
-    qgene_space_poly = LineString([(0.0,qgene_space_start),(0.0,qgene_space_end)])
-    sgene_space_poly = LineString([(0.0,sgene_space_start),(0.0,sgene_space_end)])
-    qgene_poly = LineString([(0.0, qgene[0]), (0.0, qgene[1])])
-    sgene_poly = LineString([(0.0, sgene[0]), (0.0, sgene[1])])
+    feats_nearby = get_feats_nearby(qgene,sgene,qfeat,sfeat,x,y,qbed,sbed)    
+    qgene_space_poly,qgene_poly,sgene_space_poly,sgene_poly = get_genespace(qfeat,sfeat,qgene,sgene)
     intronic_removed = 0
-
+    
+    cnss = set([])
     for line in blast_str.split("\n"):
         if "WARNING:" in line: continue
         if "ERROR" in line: continue
@@ -136,9 +91,6 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad, unmaske
         if intronic: continue
 
         ##########################################################
-
-        # this is the bowtie.
-        # if not genespace_poly.contains(LineString(zip(xx, yy))): continue
         cnss.update((locs,))
 
     # cant cross with < 2 cnss.
@@ -224,156 +176,6 @@ def cns_opp_strand(cnss, qgene, sgene):
     cnss_fixed = [(c[0], c[1], -c[2], -c[3]) for c in cnss]
     return cnss_fixed
 
-def remove_overlapping_cnss(cnss):
-    """for cases when there is nearly the same cns, but with 1
-    basepair shfit up/down. that create many cnss stacked on top
-    of each other. this reduces those down to one."""
-    qcnss = [LineString([(0, cns[0]), (0, cns[1])]) for i, cns in enumerate(cnss)]
-    scnss = [LineString([(0, cns[2]), (0, cns[3])]) for i, cns in enumerate(cnss)]
-
-    remove = []
-    for zcnss in (qcnss, scnss):
-        for i, csi in enumerate(zcnss[:-1]):
-            for _j, csj in enumerate(zcnss[i + 1:]):
-                j = i + _j + 1 # cause enumerate starts at 0
-                if csi.overlaps(csj):
-                    if cnss[i][-2] < cnss[j][-2] or cnss[i][-1] > cnss[j][-2] or csi.y < csj.y:
-                        remove.append(j)
-                    else:
-                        remove.append(i)
-    remove = frozenset(remove)
-    return [cns for i, cns in enumerate(cnss) if not i in remove]
-
-
-def remove_crossing_cnss(cnss, qgene, sgene):
-    if len(cnss) <= 1:
-      return cnss
-    diff = qgene[0] - sgene[0] # adjust subject so it's in same range as query
-    cns_shapes = [LineString([((c[0] + c[1])/2., 0 ), ((c[2] + c[3])/2. + diff, 1000)]) for c in cnss]
-
-    overlapping = len(cnss)
-    cnss = remove_overlapping_cnss(cnss)
-    overlapping -= len(cnss)
-    cns_shapes = [LineString([((c[0] + c[1])/2., 0 ), ((c[2] + c[3])/2. + diff, 1000)]) for c in cnss]
-
-
-    # and save a reference to the orginal cnss as that's the data we want.
-    for cs, cns in zip(cns_shapes, cnss):
-        cs.cns = cns
-        # hold the number of times an hsp crosses any other.
-        cs.cross_list = set([])
-        # mark for removal.
-        cs.do_remove = False
-
-
-    for csi in cns_shapes:
-        for csj in cns_shapes:
-            if csi == csj: continue
-            if csi.crosses(csj):
-                csi.cross_list.update([csj])
-                csj.cross_list.update([csi])
-
-    ######################################################################
-    # first remove anything that cross more than 5 other cnss.
-    ######################################################################
-    nremoved = 0
-    any_removed = True
-    while any_removed:
-        # need this outer loop to refresh the sorting.
-        cns_shapes = sorted(cns_shapes, reverse=True, cmp=lambda a, b: cmp(len(a.cross_list), len(b.cross_list)))[:]
-        any_removed = False
-        for i, cs in enumerate(cns_shapes):
-            if len(cs.cross_list) > 3:
-                # remove this from all other lists as it's a bad guy.
-                for crossed in cs.cross_list:
-                    crossed.cross_list.difference_update(set([cs]))
-                cs.do_remove = True
-                any_removed = True
-                nremoved += 1
-                del cns_shapes[i]
-                break
-
-    ######################################################################
-    # then remove crosses one-by-one, keeping the < evalue, > bitscore.
-    ######################################################################
-    for csi in cns_shapes:
-        if csi.do_remove or len(csi.cross_list) == 0: continue
-        for csj in cns_shapes:
-            if csj.do_remove or len(csj.cross_list) == 0: continue
-            if csi.do_remove or len(csi.cross_list) == 0: continue
-            if csi.crosses(csj):
-                # access the assocated cns.
-                # evalue: less is better       bitscore: more is better
-                if csi.cns[-2] < csj.cns[-2] or csi.cns[-1] > csj.cns[-1]:
-                    csj.do_remove = 1
-                    map(lambda crossed: crossed.cross_list.difference_update(set([csj])), csj.cross_list)
-
-                else:
-                    csi.do_remove = 1
-                    map(lambda crossed: crossed.cross_list.difference_update(set([csi])), csi.cross_list)
-                    break
-
-    for c in cns_shapes:
-        if not c.do_remove: continue
-        nremoved += 1
-    return [c.cns for c in cns_shapes if not c.do_remove]
-
-
-def get_pair(pair_file, fmt, qbed, sbed, seen={}):
-    """ read a line and make sure it's unique handles
-    dag, cluster, and pair formats."""
-    skipped = open('data/skipped.txt', 'w')
-    fh = open(pair_file)
-    for line in open(pair_file):
-        if line[0] == "#": continue
-        line = line.strip().split("\t")
-        if fmt == 'dag':
-            assert len(line) > 5, line
-            pair = line[1], line[5]
-        elif fmt in ('cluster', 'qa', 'raw'):
-            assert len(line) == 5, line
-            pair = line[1], line[3]
-        elif fmt == 'pair':
-            if len(line) == 1:
-                line = line.split(",")
-            assert len(line) >= 2, "dont know how to handle %s" % line
-            pair = line[0], line[1]
-
-        if fmt in ('qa', 'raw'):
-            pair = int(pair[0]), int(pair[1])
-        pair = tuple(pair)
-        if pair in seen:
-            continue
-        seen[pair] = True
-        try:
-            if isinstance(pair[0], (int, long)):
-                yield qbed[pair[0]], sbed[pair[1]]
-            else:
-                yield qbed.d[pair[0]], sbed.d[pair[1]]
-        except KeyError, IndexError:
-            print >>skipped, "%s\t%s" % pair
-            print >>sys.stderr, "skipped %s %s" % pair
-            continue
-
-def get_masked_fastas(bed):
-    """
-    create the masked fasta files per chromosome. needed to run bl2seq.
-    """
-    f = bed.fasta.fasta_name
-    fname = op.splitext(op.basename(f))[0]
-    d = op.dirname(f) + "/%s_split" % fname
-    try: os.mkdir(d)
-    except OSError: pass
-
-    fastas = {}
-    for seqid, seq in bed.mask_cds():
-        f = d + "/%s.fasta" % seqid
-        fastas[seqid] = f
-        if op.exists(f): continue
-        fh = open(f, "wb")
-        print >>fh, seq
-        fh.close()
-    return fastas
 
 def main(qbed, sbed, pairs_file, qpad, spad, unmasked_fasta, pair_fmt,blast_path, mask='F', ncpu=8):
     """main runner for finding cnss"""
@@ -403,39 +205,16 @@ def main(qbed, sbed, pairs_file, qpad, spad, unmasked_fasta, pair_fmt,blast_path
     while any(pairs):
         pairs = [get_pair_gen() for i in range(ncpu)]
         # this helps in parallelizing.
-
-        def get_cmd(pair):
-            if pair is None: return None
-            qfeat, sfeat = pair
-            #if qfeat['accn'] != "Bradi4g01820": return None
-            #print >>sys.stderr, qfeat, sfeat
-
-            qfasta = qfastas[qfeat['seqid']]
-            sfasta = sfastas[sfeat['seqid']]
-
-            qstart, qstop = max(qfeat['start'] - qpad, 1), qfeat['end'] + qpad
-            sstart, sstop = max(sfeat['start'] - spad, 1), sfeat['end'] + spad
-
-            assert qstop - qstart > 2 * qpad or qstart == 1, (qstop, qstart)
-            assert sstop - sstart > 2 * spad or sstart == 1, (sstop, sstart)
-            
-            #m = qstop - qstart
-            #n = sstop - sstart
-            # if (m*n) >= 812045000: # if the database and query is large keep e_value at 2.11 else change it to something smaller
-            #     e_value = 2.11
-            # else:
-            #e_value = m*n*(2**(-28.51974)) # bit score above 15/15 noise
-            #assert e_value > 0
-
-            cmd = bl2seq % dict(qfasta=qfasta, sfasta=sfasta, qstart=qstart,
-                                sstart=sstart, qstop=qstop, sstop=sstop,
-                                e_value=30)
-            #print >>sys.stderr,  "%s" % (cmd)
-            return cmd, qfeat, sfeat
-
-        cmds = [c for c in map(get_cmd, [l for l in pairs if l]) if c]
+	spad_map = [spad] * len(pairs)
+        qpad_map = [qpad] * len(pairs)
+        sfastas_map = [sfastas] * len(pairs)
+        qfastas_map = [qfastas] * len(pairs)
+        bl2seq_map =  [bl2seq] * len(pairs)
+	####################################       
+ 
+   	cmds = [c for c in map(get_cmd, [l for l in pairs if
+                l],bl2seq_map,qfastas_map,sfastas_map,qpad_map,spad_map) if c]
         results = (r for r in pool.map(commands.getoutput, [c[0] for c in cmds]))
-        #results = (r for r in map(commands.getoutput, [c[0] for c in cmds]))
 
         for res, (cmd, qfeat, sfeat) in zip(results, cmds):
             if not res.strip(): continue
