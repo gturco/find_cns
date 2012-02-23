@@ -219,13 +219,13 @@ def main(cns_file,qdups_path,sdups_path,pair_file,fmt,qbed,sbed,qpad,spad,blast_
                 bl2seq_map,qfastas_map,sfastas_map,qpad_map,spad_map) if c]
             results = (r for r in pool.map(commands.getoutput, [c[0] for c in cmds]))
             for res, (cmd, qfeat, sfeat) in zip(results, cmds):
-                if not res.strip(): continue
-                print >>sys.stderr,  "%s %s" % (qfeat["accn"], sfeat['accn'])
-                orient = qfeat['strand'] == sfeat['strand'] and 1 or -1
-                cnss = parse_blast(res, orient, qfeat, sfeat, qbed, sbed, qpad,spad)
+                orient = qfeat['strand'] == sfeat['strand'] and 1 or -1 
+                if not res.strip(): cnss = []
+                else: cnss = parse_blast(res, orient, qfeat, sfeat, qbed, sbed, qpad,spad)
                 print >>sys.stderr, "(%i)" % len(cnss)
                 cnss_fmt = ",".join(map(lambda l: ",".join(map(str,l)),cnss))
                 cnss_size.append((len(cnss)*-1,qfeat["start"],sfeat["start"],qfeat["accn"],sfeat["accn"],cnss_fmt))
+            pairs = [pairs[-1]]
         ######################################################################
         if qparent in rdups:
             if (qparent,sparent) in rdups_dic[qparent].keys(): logging.info((qparent,sparent))
@@ -235,7 +235,7 @@ def main(cns_file,qdups_path,sdups_path,pair_file,fmt,qbed,sbed,qpad,spad,blast_
             rdups_dic[sparent].update({(qparent,sparent):cnss_size})
         else:
             cnss_size.sort()
-            cns_number,qfeat_start, sfeat_start,qaccn,saccn,largest_cnss = cnss_size[0]
+            cns_number,qfeat_start,sfeat_start,qaccn,saccn,largest_cnss = cnss_size[0]
             qfeat = qbed.accn(qaccn)
             sfeat = sbed.accn(saccn)
             print >>sys.stderr, "FINAL: {0},{1},{2}".format(qaccn,saccn,cns_number)
