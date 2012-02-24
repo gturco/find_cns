@@ -3,7 +3,7 @@ import os
 import os.path as op
 import numpy as np
 import commands
-from find_cns import get_masked_fastas,get_cmd,get_pair,get_feats_nearby,get_genespace
+from find_cns import get_masked_fastas,get_cmd,get_pair,get_feats_nearby,get_genespace,remove_crossing_cnss
 from shapely.geometry import Point, Polygon, LineString, MultiLineString
 from flatfeature import Bed
 from pyfasta import Fasta
@@ -212,9 +212,9 @@ def main(qbed, sbed, pairs_file, qpad, spad, unmasked_fasta, pair_fmt,blast_path
         bl2seq_map =  [bl2seq] * len(pairs)
 	####################################       
  
-   	cmds = [c for c in map(get_cmd, [l for l in pairs if
+	cmds = [c for c in map(get_cmd, [l for l in pairs if
                 l],bl2seq_map,qfastas_map,sfastas_map,qpad_map,spad_map) if c]
-        results = (r for r in pool.map(commands.getoutput, [c[0] for c in cmds]))
+	results = (r for r in pool.map(commands.getoutput, [c[0] for c in cmds]))
 
         for res, (cmd, qfeat, sfeat) in zip(results, cmds):
             if not res.strip(): continue
