@@ -6,10 +6,9 @@ import sys
 import os
 import os.path as op
 sys.path.insert(0, os.path.dirname(__file__))
-sys.path.append("../")
 from find_cns import get_pair
-#from assign import get_cns_dict, cns_fmt_dict
-from assign_region import nearest_feat, get_cns_dict, cns_fmt_dict
+from assign_org import get_cns_dict, cns_fmt_dict
+from assign_region import nearest_feat
 
 # the assign used for maize, assigns only based on qfeat
 
