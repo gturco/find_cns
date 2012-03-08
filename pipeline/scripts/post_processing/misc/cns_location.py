@@ -1,3 +1,4 @@
+import sys
 import numpy
 from shapely.geometry import Point, Polygon, LineString, MultiLineString
 from flatfeature import Bed
@@ -48,9 +49,9 @@ def main(cns_pck, query_bed_path, subject_bed_path):
     import_into_mysql(cns)
 
 def import_into_mysql(cns):
-  db = MySQLdb.connect(host="127.0.0.1", user="root", db = "find_cns")
+  db = MySQLdb.connect(host="127.0.0.1", user="root", db = "paper4")
   cursor = db.cursor()
-  stmt = "INSERT INTO cns_postion_info (cns_id, qaccn, qseqid,qcns_start,qcns_end,qstrand, saccn, sseqid, scns_start, scns_end, sstrand, urls, postion) values('{0}','{1}',{2},{3},{4},'{5}','{6}',{7},{8},{9},'{10}','{11}','{12}')".format(cns['cns_id'], cns['qaccn'], cns["qseqid"],cns["qcns_start"],cns["qcns_end"],cns["qstrand"], cns["saccn"], cns["sseqid"], cns["scns_start"], cns["scns_end"], cns["sstrand"], cns["urls"], cns["type"])     
+  stmt = "INSERT INTO cns_postion_info (cns_id,qaccn,qseqid,qcns_start,qcns_end,qstrand, saccn, sseqid, scns_start, scns_end,sstrand, urls, postion) values('{0}','{1}',{2},{3},{4},'{5}','{6}','{7}',{8},{9},'{10}','{11}','{12}')".format(cns['cns_id'], cns['qaccn'], cns["qseqid"],cns["qcns_start"],cns["qcns_end"],cns["qstrand"], cns["saccn"], cns["sseqid"], cns["scns_start"], cns["scns_end"], cns["sstrand"], cns["urls"], cns["type"])     
   print stmt
   cursor.execute(stmt)
     
@@ -100,7 +101,33 @@ def utr_present(cns_pck,query_bed_path, UTR):
         stmt = "update MUSA_GENE_LIST_copy set MUSA_GENE_LIST_copy.5_UTR = 'ND' where MUSA_GENE_LIST_copy.Rice_MSU6_genes = '{0}'".format(cns['qaccn'])
         print stmt
         cursor.execute(stmt)
-    
+
+def load_in_table(table_name):
+    "preprocessing create table cns_postion_info_grouped  as (select qaccn, \
+    saccn, count(postion) as postion_number , postion from cns_postion_info \
+    group by qaccn, saccn, postion) index qaccn, saccn"
+    db = MySQLdb.connect(host="127.0.0.1", user="root", db = "paper3")
+    cursor = db.cursor()
+    colm_dict = {"3-distal":"3_distal",
+            "3-proximal":"3_proximal",
+            "3-UTR":"3_UTR",
+            "5-distal":"5_distal",
+            "5-proximal":"5_proximal",
+            "5-UTR":"5_UTR",
+            "intron": "intron"}
+    keys =['5-distal','5-proximal','5-UTR','intron','3-UTR','3-proximal','3-distal']
+    for key in keys:
+        value = colm_dict[key]
+        add_col = "ALTER TABLE {0} ADD COLUMN {1} int".format(table_name,value)
+        cursor.execute(add_col)
+        update = "UPDATE {0}, cns_postion_info_grouped SET {0}.{1} =cns_postion_info_grouped.postion_number WHERE {0}.qaccn =cns_postion_info_grouped.qaccn AND cns_postion_info_grouped.saccn = {0}.saccn and cns_postion_info_grouped.postion = '{2}'".format(table_name,value,key)
+        #print >>sys.stderr,  update
+        cursor.execute(update)
+        update_null = "UPDATE {0} SET {0}.{1} = 0 where {0}.{1} is null".format(table_name, value)
+        cursor.execute(update_null)
+    cursor.close()
+    db.commit()
+    db.close()
 
 
   
@@ -112,7 +139,7 @@ def utr_present(cns_pck,query_bed_path, UTR):
     # sgene_poly = LineString([(0,sgene['start']),(0,cns['end'])])
     # 
 if __name__ == "__main__":
-  pass
+  #pass
   # import optparse
   # parser = optparse.OptionParser()
   # parser.add_option("--qbed", dest="qbed", help="bed file of the query")
@@ -123,11 +150,11 @@ if __name__ == "__main__":
   # 
 
   # x= main("/Users/gturco/code/freeling_lab/find_cns_gturco/pipeline/scripts/post_processing/find_cns_cns_test.pck","/Users/gturco/code/freeling_lab/find_cns_gturco/pipeline/scripts/post_processing/query_test.bed","/Users/gturco/code/freeling_lab/find_cns_gturco/pipeline/scripts/post_processing/subject_test.bed")
-  #x= main("/Users/gturco/data/find_cns_rice_v6_sorg_v1_gturco_2011_06_14app.pck","/Users/gturco/data/rice_v6.nolocaldups.with_new.all.bed","/Users/gturco/data/sorghum_v1.nolocaldups.with_new.all.bed")
-  utr_present("/Users/gturco/data/find_cns_3_UTR.pck","/Users/gturco/data/rice_v6.nolocaldups.with_new.all.bed", 3)
-  utr_present("/Users/gturco/data/find_cns_5_UTR.pck","/Users/gturco/data/rice_v6.nolocaldups.with_new.all.bed", 5)
-  
-  # 
-
-
-#need to remove all cns rna ones.....
+  ##### REMINDER CHANGE TABLE INSERTS INTO!! ##############################################
+ # x= main("/Users/gturco/data/paper3/paper3_rice_b_sorghum_v1_gturco_2011_4_11app_real.pck","/Users/gturco/data/paper3/rice_b_sorg.nolocaldups.with_new.all.bed","/Users/gturco/data/paper3/sorghum_v1.nolocaldups.with_new.all.bed")
+  #x=main("/Users/gturco/find_cns_thaliana_v10_thaliana_v10_gturco_2011_22_11app.pck","/Users/gturco/tair_10.nolocaldups.with_new.all.bed","/Users/gturco/tair_10.nolocaldups.with_new.all.bed")
+  x = main("/Users/gt/data/paper4/paper4_rice_j_sorghum_n_gturco_2012_15_2app_real.pck","/Users/gt/data/paper4/rice_j_sorghum_n/rice_j.nolocaldups.with_new.all.local","/Users/gt/data/paper4/rice_j_sorghum_n/sorghum_n.nolocaldups.with_new.all.local")
+  #load_in_table("rice_b_sorghum_v1_gturco_2011_4_11app_real_grouped")
+  #utr_present("/Users/gturco/data/find_cns_3_UTR.pck","/Users/gturco/data/rice_v6.nolocaldups.with_new.all.bed", 3)
+  #utr_present("/Users/gturco/data/find_cns_5_UTR.pck","/Users/gturco/data/rice_v6.nolocaldups.with_new.all.bed", 5)
+  #need to remove all cns rna ones.....
