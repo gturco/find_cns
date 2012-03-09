@@ -49,7 +49,7 @@ Inputs
  + Fasta File (it is recommended to run `50x mask repeat <http://code.google.com/p/bpbio/source/browse/trunk/scripts/mask_genome/mask_genome.py>`_)
  + Bed File (supports `UCSC bed format <http://genome.ucsc.edu/FAQ/FAQformat#format1>`_)
 
- + If you have access Coge the fasta and bed file for each organism can be obtained using export_to_bed.pl e.g.::
+ + If you have access to Coge the fasta and bed file for each organism can be obtained using export_to_bed.pl e.g.::
 
     perl scripts/export_to_bed.pl \
                           -fasta_name rice_v6.fasta \
