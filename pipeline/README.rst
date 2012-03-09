@@ -15,7 +15,10 @@ This application works by first attempting to correct annotation errors between 
 
 Installation
 ============
- + `bl2seq/blastall <ftp://ftp.ncbi.nlm.nih.gov/blast/executables/LATEST/>`_
+ + Python version >= 2.7
+
+ + `blast <ftp://ftp.ncbi.nlm.nih.gov/blast/executables/LATEST/>`_
+   (download latest and run)
 
  + `lastz <http://www.bx.psu.edu/~rsharris/lastz/newer/>`_
    (download latest .tar.gz; configure; make; make install) and adjust path in quota.sh)
@@ -41,7 +44,8 @@ Installation
 Run
 ===
 GFF To Bed
-Run.shkl
+
+Run.sh
  + *Once only*: edit quota.sh to correct path for ``quota-alignment``
  + for each organism, use export_to_bed.pl to get data out of CoGe. e.g.::
 
