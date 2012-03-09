@@ -48,6 +48,10 @@ Inputs
 
  + Fasta File (it is recommended to run `50x mask repeat <http://code.google.com/p/bpbio/source/browse/trunk/scripts/mask_genome/mask_genome.py>`_)
  + Bed File (supports `UCSC bed format <http://genome.ucsc.edu/FAQ/FAQformat#format1>`_)
+   converting GFF to Bed
+  ``BCBio`` module required::
+   python scripts/gff_to_bed.py rice_v6.gff >rice_v6.bed
+
 
  + If you have access to Coge the fasta and bed file for each organism can be obtained using export_to_bed.pl e.g.::
 
@@ -64,20 +68,13 @@ Inputs
    prefer the readable Os01g101010 names over the names like m103430.
 
 
-GFF To Bed
-:::::::::::
-
-``BCBio`` module required::
-
-  python gff_to_bed.py rice_v6.gff >rice_v6athaliana.bed
-
-
 Editing Run File
 ::::::::::::::::
 
  + *Once only*: edit quota.sh to correct path for ``quota-alignment``
  + edit quota.sh to the correct `ORGA`, `ORGB`, `QUOTA`
- + run `sh run.sh` # that will call quota.sh (this will take a long time as it's doing
+ + run::
+   sh run.sh # that will call quota.sh (this will take a long time as it's doing
    a full blast (lastz) and then all of quota align, then cns pipeline).
  + this will create png's for the dotplots. check those to make sure the quota-blocks look correct.
 
