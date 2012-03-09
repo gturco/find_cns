@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 """
-gff_to_bed code <https://github.com/tanghaibao/quota-alignment/blob/master/scripts/gff_to_bed.py>
+gff_to_bed some code from <https://github.com/tanghaibao/quota-alignment/blob/master/scripts/gff_to_bed.py>
 Author: Haibao Tang
 """
 
@@ -10,6 +10,7 @@ Author: Haibao Tang
 
 convert the gff format into the bed format 
 """
+#TODO change names to regex and change cds for splicing with how coge does it
 
 import os.path as op
 import sys
@@ -22,24 +23,33 @@ except:
     sys.exit(1)
 
 
-def gff_to_bed(gff_file, bed_fh=sys.stdout, cds=True):
+def gff_to_bed(gff_file):
 
+    bed_fh=sys.stdout
     parser = GFFParser()
     seqids = parser.parse(gff_file, None)
 
     for seqid in seqids:
         for feat in seqid.features:
             subf = feat.sub_features
+            
             if feat.type in ("chromosome", "protein"): continue
+            strand = "+" if ==else
             is_cds = any(f.type=="mRNA" or f.type=="CDS" for f in subf) and\
                     feat.type=="gene"
-            if cds == is_cds:
+            if is_cds:
+                cds = [(int(f.location.start),int(f.location.end)) for f in
+                        subf[0].sub_features if f.type=="CDS"]
+                cds.sort()
+                cds_col1 = ','.join([str(end-start) for start,end in cds])
+                cds_col2 = ','.join([str(start - feat.location.start) for start,end in cds])
+                
                 print >>bed_fh, "\t".join(str(x) for x in (seqid.id, feat.location.start, \
-                        feat.location.end, feat.id, feat.type))
+                        feat.location.end, feat.id,(feat.location.end -
+                            feat.location.start),feat.strand,'.',-1,-1,len(cds),cds_col1,cds_col2))
 
 
 if __name__ == "__main__":
-
     import optparse
 
     parser = optparse.OptionParser(__doc__)
@@ -52,5 +62,5 @@ if __name__ == "__main__":
 
     gff_file = args[0]
 
-    gff_to_bed(gff_file, cds=options.cds)
+    gff_to_bed(gff_file)
 
