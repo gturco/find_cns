@@ -74,10 +74,7 @@ Editing Run File
 
  + *Once only*: edit quota.sh to correct path for ``quota-alignment``
  + edit quota.sh to the correct `ORGA`, `ORGB`, `QUOTA`
- + run::
-
-    sh run.sh 
- + that will call quota.sh (this will take a long time as it's doing a full blast (lastz) and then all of quota align, then cns pipeline).
+ + run cmd: ``sh run.sh`` #that will call quota.sh (this will take a long time as it's doing a full blast (lastz) and then all of quota align, then cns pipeline).
  + this will create png's for the dotplots. check those to make sure the quota-blocks look correct.
 
 Output files
