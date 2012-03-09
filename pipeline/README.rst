@@ -15,9 +15,7 @@ This application works by first attempting to correct annotation errors between 
 
 Installation
 ============
-
- + `flatfeature <http://github.com/brentp/flatfeature/>`_
-   (check with git and run ``sudo python setup.py install``)
+ + `bl2seq/blastall <ftp://ftp.ncbi.nlm.nih.gov/blast/executables/LATEST/>`_
 
  + `lastz <http://www.bx.psu.edu/~rsharris/lastz/newer/>`_
    (download latest .tar.gz; configure; make; make install) and adjust path in quota.sh)
@@ -25,21 +23,20 @@ Installation
  + `quota-align <http://github.com/tanghaibao/quota-alignment>`_
    (checkout with git and adjust path in quota.sh)
 
+ + `flatfeature <http://github.com/brentp/flatfeature/>`_
+   (check with git and run ``sudo python setup.py install``)
+
+ + `pyfasta <https://github.com/brentp/pyfasta>`_ (``sudo easy_install -UZ pyfasta`` you will have latest from pypi).
+
+ + `shapely <http://pypi.python.org/pypi/Shapely#downloads>`_ (``sudo apt-get install libgeos-dev``, ``sudo easy_install -UZ 'shapely==1.0.0'``)
+
  + `numpy <http://github.com/numpy/numpy/>`_ checkout and run ``sudo python setup.py install``
 
- + `pyfasta` (``sudo easy_install -UZ pyfasta`` you will have latest from pypi).
+ + `processing <http://pypi.python.org/pypi/processing#downloads>`_ (``sudo easy_install -UZ processing``)
 
- + `shapely` (``sudo apt-get install libgeos-dev``, ``sudo easy_install -UZ 'shapely==1.0.0'``)
+ + `bpbio <http://pypi.python.org/pypi/processing#downloads>`_ (``svn checkout http://bpbio.googlecode.com/svn/trunk/ bpbio-read-only``)
+   (run biostuff,coanno and bblast ``sudo python setup.py install``)
 
- + `processing` (``sudo easy_install -UZ processing``)
-
- + `bl2seq/blastall` `<ftp://ftp.ncbi.nlm.nih.gov/blast/executables/LATEST/>`
-
- + `bpbio` (``svn checkout http://bpbio.googlecode.com/svn/trunk/ bpbio-read-only``)
-
-biostuff
-coanno
-bblast
 
 Run
 ===
