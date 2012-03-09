@@ -67,8 +67,9 @@ Inputs
 GFF To Bed
 :::::::::::
 
-(``BCBio`` module required)::
-  gff_to_bed.py rice_v6.gff >rice_v6athaliana.bed
+``BCBio`` module required::
+
+  python gff_to_bed.py rice_v6.gff >rice_v6athaliana.bed
 
 
 Editing Run File
@@ -82,9 +83,9 @@ Editing Run File
 
 Output files
 ::::::::::::
- +Query and subject CNS position
+
+ + Query and subject CNS position
  + Missing Exons from ORGA ORGB blast
  + CNS blast to  RNA file
  + CNS blast to proteins file
  + CNS assigned to nearest Ortholog
-sh run.sh 
