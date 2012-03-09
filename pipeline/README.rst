@@ -43,11 +43,13 @@ Installation
 
 Run
 ===
-GFF To Bed
+Inputs
+-------
 
-Run.sh
- + *Once only*: edit quota.sh to correct path for ``quota-alignment``
- + for each organism, use export_to_bed.pl to get data out of CoGe. e.g.::
+ +Fasta File: if is recommended to run `50x mask repeat <http://code.google.com/p/bpbio/source/browse/trunk/scripts/mask_genome/mask_genome.py>`_ on the genome if it has not already been ran.
+ +Bed File: (support `UCSC bed format <http://genome.ucsc.edu/FAQ/FAQformat#format1>`_)
+
+ + If you have server access the fasta and bed file for each organism can be obtained using export_to_bed.pl e.g.::
 
     perl scripts/export_to_bed.pl \
                           -fasta_name rice_v6.fasta \
@@ -61,18 +63,28 @@ Run.sh
    The -name_re regular expression is not required, but in this case, it will
    prefer the readable Os01g101010 names over the names like m103430.
 
+
+GFF To Bed
+:::::::::::
+
+(``BCBio`` module required)::
+  gff_to_bed.py rice_v6.gff >rice_v6athaliana.bed
+
+
+Editing Run File
+::::::::::::::::
+
+ + *Once only*: edit quota.sh to correct path for ``quota-alignment``
  + edit quota.sh to the correct `ORGA`, `ORGB`, `QUOTA`
  + run `sh run.sh` # that will call quota.sh (this will take a long time as it's doing
    a full blast (lastz) and then all of quota align, then cns pipeline).
  + this will create png's for the dotplots. check those to make sure the quota-blocks look correct.
 
- +Inputs : ORGA.fasta, ORGA.bed, ORGB.fasta, ORGB.bed  
-  Bed file (support UCSC bed format)
-  Can use own Bedfile or use ``export_to_bed`` dsg ids from coge organism view
-
- +Output: Query, Query CNS position, Subject, Subject CNS position
-   Missing Exons from ORGA ORGB blast
-   CNS blast to  RNA file
-   CNS blast to proteins file
-   CNS assigned to nearest Ortholog
+Output files
+::::::::::::
+ +Query and subject CNS position
+ + Missing Exons from ORGA ORGB blast
+ + CNS blast to  RNA file
+ + CNS blast to proteins file
+ + CNS assigned to nearest Ortholog
 sh run.sh 
