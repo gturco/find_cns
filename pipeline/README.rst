@@ -8,7 +8,7 @@ CNS Pipeline
 
 Description
 ===========
-Python application to automate large-scale identification of thousands of CNSs between two `usefully diverged <http://genomevolution.org/wiki/index.php/Useful_divergence>`_ plant species.
+Python application to automate large-scale identification of conserved noncoding sequences (CNS) between two `usefully diverged <http://genomevolution.org/wiki/index.php/Useful_divergence>`_ plant species.
 This application works by first attempting to correct annotation errors between the two species. It then condenses local duplicates and finds syntenic regions based on `ploidy relationships <https://github.com/tanghaibao/quota-alignment.git>`_. BLAST is then applied to the syntenic regions between the two species to find CNSs. CNSs are found through blastn at an e-value less than or equal to a 15/15 exact base pair match. Nonsyntenic CNSs are removed along with CNS with hits to known RNA or exons.
 
 Installation
