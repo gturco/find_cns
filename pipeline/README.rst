@@ -1,13 +1,17 @@
 CNS Pipeline
 ============
-
-:Author: Brent Pedersen (brentp)
-:Email: bpederse@gmail.com
-:License: MIT
-
+:Author: Gina Turco (`gturco <https://github.com/gturco>`_), Brent Pedersen (`brentp <http://github.com/brentp>`_)
+:Email: gturco88@gmail.com
+:License:
 .. contents ::
 
-Requirements
+
+Description
+===========
+We developed a Python application to automate large-scale identification of thousands of CNSs between `useful divergence <http://genomevolution.org/wiki/index.php/Useful_divergence>`_.
+This application works by first attempting to correct annotation errors between the two species. Afterwards, it condenses local duplicates and finds syntenic regions based on ploidy relationships. BLAST is applied to the syntenic regions between the two species to find CNSs. CNSs are found through blastn at an e-value less than or equal to a 15/15 exact base pair match. Nonsyntenic CNSs are removed along with CNS with hits to known RNA or exons.
+
+Installation
 ============
 
  + `flatfeature <http://github.com/brentp/flatfeature/>`_
@@ -31,11 +35,14 @@ Requirements
 
  + `bpbio` (``svn checkout http://bpbio.googlecode.com/svn/trunk/ bpbio-read-only``)
 
-
+biostuff
+coanno
+bblast
 
 Run
 ===
-
+GFF To Bed
+Run.shkl
  + *Once only*: edit quota.sh to correct path for ``quota-alignment``
  + for each organism, use export_to_bed.pl to get data out of CoGe. e.g.::
 
@@ -65,4 +72,4 @@ Run
    CNS blast to  RNA file
    CNS blast to proteins file
    CNS assigned to nearest Ortholog
- 
+sh run.sh 
