@@ -13,10 +13,6 @@ from qa_parsers import pairs_to_qa,ParsePairs,write_nolocaldups
 from orderedset import OrderedSet
 from cleanup import DupLine
 
-import logging
-LOG_FILENAME = '/home/gturco/src/find_cns_gturco/pipeline/dup_rdups.log'
-logging.basicConfig(filename=LOG_FILENAME,level=logging.INFO)
-
 def condense_rdups(parents,q):
     """condensed the rdups of the same group meaning if
     a:(a,b),(a,b),(A,B),(A,b) condense to (a,b),(A,b) of best b"""
@@ -282,6 +278,10 @@ if __name__ == "__main__":
     qnolocaldups_path =  qbed.path.split(".")[0] + ".nolocaldups.bed"
     snolocaldups_path =  sbed.path.split(".")[0] + ".nolocaldups.bed"
     #pairs_to_qa("{0}.local".format(options.pairs),'pair',"{0}.nolocaldups.local".format(qbed.path.split(".")[0]),"{0}.nolocaldups.local".format(sbed.path.split(".")[0]),"{0}.raw.filtered.local".format(options.pairs.split(".")[0]))
+
+    import logging
+    LOG_FILENAME = path.dirname(options.qfasta) + "dup_rdups.log"
+    logging.basicConfig(filename=LOG_FILENAME,level=logging.INFO)
 
 
 
