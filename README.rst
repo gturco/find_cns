@@ -74,6 +74,7 @@ Editing Run File
 
  + *Once only*: edit quota.sh to correct path for ``quota-alignment``
  + edit quota.sh to the correct `ORGA`, `ORGB`, `QUOTA`
+ + under the data directory create a new directory titled ORGA_ORGB with their corresponding beds and fasta eg ``mkdir data/rice_v6_sorghum_v1``
  + run cmd: ``sh run.sh`` #that will call quota.sh (this will take a long time as it's doing a full blast (lastz) and then all of quota align, then cns pipeline).
  + this will create png's for the dotplots. check those to make sure the quota-blocks look correct.
 
