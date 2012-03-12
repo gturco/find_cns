@@ -17,6 +17,9 @@ if __name__ == "__main__":
     parser.add_option("--subject", dest="subject", help="name of subject org or ORGB")
     parser.add_option("--blast_path",dest="blast", help="location of most up todate blast dir")    
     (options, _) = parser.parse_args()
-
+    
+    try: open("data/{0}_{1}/{0}_{1}.json".format(options.query,options.subject), "w"):
+    except NameError:
+        print "cannot  find dir {0}_{1} make sure to store data in {0}_{1}".format(options.query,options.subject)    
     create_json(options.query, options.subject,options.blast)
 
