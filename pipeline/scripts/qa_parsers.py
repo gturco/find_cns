@@ -75,7 +75,6 @@ def pairs_to_qa(pair_file,fmt,qbed_file,sbed_file,raw_file):
     new_qa = open(raw_file,'wb')
     qbed= RawBed(qbed_file)
     sbed = RawBed(sbed_file)
-    dups = []
     print >>sys.stderr, "write tandem-filtered bed file {0}".format(raw_file)
     for line in open(pair_file):
             if line[0] == "#" : continue
@@ -99,3 +98,6 @@ def write_nolocaldups(bed_path,localdups_file,out_name):
         if row['accn'] in children: continue
         print >>fh, row
     fh.close()
+
+#write_nolocaldups("../data/dick_m_tair_10/dick_m.bed","../data/dick_m_tair_10/dick_m.localdups","../data/dick_m_tair_10/dick_m.nolocaldups.bed")
+#pairs_to_qa("../data/tair_9_tair_9/tair_9_tair_9.pairs.txt.local","pair","../data/tair_9_tair_9/tair_9.bed","../data/tair_9_tair_9/tair_9.bed","../data/tair_9_tair_9/tair_9_tair_9.filtered.raw")
