@@ -142,9 +142,9 @@ def update_pairs(qaccn,saccn,qparent,sparent,pair_file):
 def update_cnss_line(qfeat,sfeat,qparent,sparent,largest_cnss,ncns_file):
     """ removes any cnss with the old parent dup and adds new one """
     rm_cns = '^{0},{1},{2},{3}.*'.format(qfeat['seqid'],qparent,sfeat['seqid'],sparent)
-    removed = commands.getstatusoutput("sed '/{1}/ d' -i {2}".format(rm_cns,ncns_file))
+    removed = commands.getstatusoutput("sed '/{0}/ d' -i {1}".format(rm_cns,ncns_file))
     cns_line = '{0},{1},{2},{3},{4}'.format(qfeat['seqid'],qfeat['accn'],sfeat['seqid'],sfeat['accn'],largest_cnss)
-    add_cns = commands.getstatusoutput("cat {0} | sed '$a {1}' -i {0}".format(ncns_file,add_cns))
+    add_cns = commands.getstatusoutput("cat {0} | sed '$a {1}' -i {0}".format(ncns_file,cns_line))
     assert add_cns[0] == 0
 
 def write_localdup_file(qparent,sparent,qfile,sfile,neworder):
