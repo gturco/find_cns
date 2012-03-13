@@ -140,11 +140,12 @@ def update_pairs(qaccn,saccn,qparent,sparent,pair_file):
     commands.getstatusoutput(search_replace_pairs)
 
 def update_cnss_line(qfeat,sfeat,qparent,sparent,largest_cnss,ncns_file):
-    """ removes any cnss with the old parent dup """
-    search_cns = '^{0},{1},{2},{3}.*'.format(qfeat['seqid'],qparent,sfeat['seqid'],sparent)
-    replace_cns = '{0},{1},{2},{3},{4}'.format(qfeat['seqid'],qfeat['accn'],sfeat['seqid'],sfeat['accn'],largest_cnss)
-    s_and_r = "sed 's/{0}/{1}/' -i {2}".format(search_cns,replace_cns,ncns_file)
-    x= commands.getstatusoutput(s_and_r)
+    """ removes any cnss with the old parent dup and adds new one """
+    rm_cns = '^{0},{1},{2},{3}.*'.format(qfeat['seqid'],qparent,sfeat['seqid'],sparent)
+    removed = commands.getstatusoutput("sed '/{1}/ d' -i {2}".format(rm_cns,ncns_file))
+    cns_line = '{0},{1},{2},{3},{4}'.format(qfeat['seqid'],qfeat['accn'],sfeat['seqid'],sfeat['accn'],largest_cnss)
+    add_cns = commands.getstatusoutput("cat {0} | sed '$a {1}' -i {0}".format(ncns_file,add_cns))
+    assert add_cns[0] == 0
 
 def write_localdup_file(qparent,sparent,qfile,sfile,neworder):
     """ replaces the orginal parent local dup with the new order"""
