@@ -22,6 +22,18 @@ class LocalDups(object):
         self.filename.close()
         return d
 
+    def write_ordered(self,out_fh):
+        """write localdups to outfile"""
+        localdup_fh = open(out_fh, "w")
+        d = {}
+        for line in open(self.filename):
+            dupline = DupLine(line)
+            dups = dupline.get_order(self.bed)
+            line = "{0}\n".format("\t".join(dups))
+            localdup_fh.write(line)
+        localdup_fh.close()
+
+
     def get_dups(self):
         d = {}
         for  line in open(self.filename):
