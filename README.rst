@@ -5,20 +5,20 @@ CNS Pipeline
 :License: MIT
 .. contents ::
 
-
 Description
 ===========
 Python application to automate large-scale identification of conserved noncoding sequences (CNS) between two `usefully diverged <http://genomevolution.org/wiki/index.php/Useful_divergence>`_ plant species.
-This application works by first attempting to correct annotation errors between the two species. It then condenses local duplicates and finds syntenic regions based on `ploidy relationships <https://github.com/tanghaibao/quota-alignment>`_. BLAST is then applied to the syntenic regions between the two species to find CNSs. CNSs are found through blastn at an e-value less than or equal to a 15/15 exact base pair match. Nonsyntenic CNSs are removed along with CNS with hits to known RNA or exons.
+This application works by first attempting to correct annotation errors between the two species using `co-anno <https://github.com/gturco/co-anno>`_. It then condenses local duplicates and finds syntenic regions based on ploidy relationships using `quota-alignment <https://github.com/tanghaibao/quota-alignment>`_. BLAST is then applied to the `syntenic regions <http://genomevolution.org/wiki/index.php/Syntenic_regions>`_ between the two species to find CNSs. CNSs are found through blastn at an e-value less than or equal to a 15/15 exact base pair match (`Kaplinsky et al. <http://www.pnas.org/content/99/9/6147.long>`_). Nonsyntenic CNSs are removed along with CNS with hits to known RNA or exons.
+Created in the `Freeling Lab <http://microscopy.berkeley.edu/~freeling/>`_ at UC Berkeley
 
-.. image:: http://genomevolution.org/wiki/images/6/6e/Peach-Chocolate-example.png
+.. image:: http://upload.wikimedia.org/wikipedia/commons/0/08/Pipeline_git.png
 
 Installation
 ============
  + Python version >= 2.7
 
  + `blast <ftp://ftp.ncbi.nlm.nih.gov/blast/executables/LATEST/>`_
-   (download latest and run)
+   (download latest at ftp://ftp.ncbi.nlm.nih.gov/blast/executables/LATEST/  and run)
 
  + `lastz <http://www.bx.psu.edu/~rsharris/lastz/newer/>`_
    (download latest .tar.gz; configure; make; make install) and adjust path in quota.sh)
