@@ -54,6 +54,17 @@ def main(qbed_path, sbed_path, cnsfile, dist, orthology_path):
     AND have to do the preliminary assignment of cnss that remain to the new-genes
     that _were_ cnss. the proper assignment is then handled in assign.py
     """
+    qcns_file = qbed_file.replace(".bed", "_cns.gff")
+    assert qcns_file != qbed_file
+    qcns_gff = open(qcns_file, 'w')
+    print >>qcns_gff, "##gff-version 3"
+    if sbed_file != qbed_file:
+        scns_file = sbed_file.replace(".bed", "_cns.gff")
+        assert scns_file != sbed_file
+        scns_gff = open(scns_file, 'w')
+        print >>scns_gff, "##gff-version 3"
+    else: scns_gff = qcns_gff
+
     qrawbed = RawBed(qbed_path)
     srawbed = RawBed(sbed_path)
   
