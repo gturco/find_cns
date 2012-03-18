@@ -17,24 +17,11 @@ NCPU=8
 #############################################
 DIR=data/${ORGA}_${ORGB}/
 
-#echo checking for unannotated proteins......
-#python scripts/create_json.py \
-#      --query $ORGA \
-#      --subject $ORGB \
-#      --blast_path $BLAST_DIR
-#coannotate.py $DIR/${ORGA}_${ORGB}.json
-#python scripts/merge.py \
-#        --missed ${DIR}/missed_${ORGA}_from_${ORGB}.bed \
-#        --match ${DIR}/missed_${ORGA}_from_${ORGB}.matches.txt \
-#        --org ${DIR}/${ORGA}.bed
-#python scripts/merge.py \
-#        --missed ${DIR}/missed_${ORGB}_from_${ORGA}.bed \
-#        --match ${DIR}/missed_${ORGB}_from_${ORGA}.matches.txt \
-#        --org ${DIR}/${ORGB}.bed
-#
-#echo finding syntenic regions...
+echo checking for unannotated proteins......
+sh coann/co-anno.sh
+echo finding syntenic regions...
 sh quota.sh $DIR/${ORGA} $DIR/${ORGB} $QUOTA $NCPU
-#echo finding cns...
+echo finding cns...
 python scripts/find_cns.py \
 	-q $DIR/${ORGA}.fasta --qbed $DIR/${ORGA}.bed \
 	-s $DIR/${ORGB}.fasta --sbed $DIR/${ORGB}.bed \
@@ -45,15 +32,15 @@ python scripts/find_cns.py \
         --spad 12000 \
         --blast_path ${BLAST_DIR}/bl2seq \
         --pair_fmt pair > $DIR/${ORGA}_${ORGB}.cns.txt
-#
-#python scripts/cns_to_fasta.py \
-#                -c $DIR/${ORGA}_${ORGB}.cns.txt \
-#                --qfasta $DIR/${ORGA}.genomic.masked.fasta \
-#                --sfasta $DIR/${ORGB}.genomic.masked.fasta \
-#                --qorg ${ORGA} \
-#                --sorg ${ORGB} \
-#                --min_len=18 \
-#                > $DIR/${ORGA}_${ORGB}.cns.fasta
+
+python scripts/cns_to_fasta.py \
+                -c $DIR/${ORGA}_${ORGB}.cns.txt \
+                --qfasta $DIR/${ORGA}.genomic.masked.fasta \
+                --sfasta $DIR/${ORGB}.genomic.masked.fasta \
+                --qorg ${ORGA} \
+                --sorg ${ORGB} \
+                --min_len=18 \
+                > $DIR/${ORGA}_${ORGB}.cns.fasta
 #echo removing cns that have hits in arabidopsis as rna or protein
 #wget -O data/at_protein.fasta ftp://ftp.arabidopsis.org/home/tair/Sequences/blast_datasets/TAIR10_blastsets/TAIR10_pep_20101214
 #wget -O data/os_protein.fasta ftp://ftp.plantbiology.msu.edu/pub/data/Eukaryotic_Projects/o_sativa/annotation_dbs/pseudomolecules/version_6.1/all.dir/all.pep
