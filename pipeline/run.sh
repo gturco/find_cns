@@ -12,6 +12,9 @@ ORGA=rice_j
 ORGB=sorghum_n
 QUOTA=1:1
 NCPU=8
+#### look on coge for dsgid information
+qDSGID=95
+sDSGID=9109
 #############################################
 # dont edit below here
 #############################################
@@ -95,8 +98,8 @@ python scripts/post_processing/assign.py \
       --sbed $DIR/${ORGB}.nolocaldups.bed \
       --cns $DIR/${ORGA}_${ORGB}.cns.txt \
       --pairs $DIR/${ORGA}_${ORGB}.pairs.txt \
-      --qdsid 9109 \
-      --sdsid 95 \
+      --qdsid $qDSGID \
+      --sdsid $sDSGID\
       --qpad 15000 \
       --spad 15000 \
       --pair_fmt pair > $DIR/${ORGA}_${ORGB}.cns.assigned.csv
