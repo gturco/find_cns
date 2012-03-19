@@ -18,13 +18,13 @@ NCPU=8
 DIR=data/${ORGA}_${ORGB}/
 
 echo checking for unannotated proteins......
-sh coann/co-anno.sh
+sh coann/co-anno.sh ${ORGA} ${ORGB} $QUOTA $BLAST_DIR
 echo finding syntenic regions...
 sh quota.sh $DIR/${ORGA} $DIR/${ORGB} $QUOTA $NCPU
 echo finding cns...
 python scripts/find_cns.py \
-	-q $DIR/${ORGA}.fasta --qbed $DIR/${ORGA}.bed \
-	-s $DIR/${ORGB}.fasta --sbed $DIR/${ORGB}.bed \
+	-q $DIR/${ORGA}.fasta --qbed $DIR/${ORGA}.all.bed \
+	-s $DIR/${ORGB}.fasta --sbed $DIR/${ORGB}.all.bed \
         -p $DIR/${ORGA}_${ORGB}.pairs.txt \
         -F T \
         -n 8 \
@@ -110,20 +110,3 @@ python scripts/post_processing/assign.py \
 #                --sorg ${ORGB} \
 #                > $DIR/${ORGA}_${ORGB}.cns_real.fasteI
 #
-#echo "pipeline completed would you like to remove large and now nolonger needed files?(yes/no)"
-#read remove_files
-#if [ "$remove_files" = "yes" ]
-#then
-#	echo "yay!"
-#else	
-#	echo "no!!!!!"
-#fi
-#
-##rm $DIR/*.features*
-##mkdir $DIR/mised_exons
-##mv $DIR/miss* $DIR/mised_exons # ... irgnor error for mv dir
-###rm *.blast
-###rm  *.raw
-###rm *.raw.merged
-###finding syntenic regions
-##rm -r ${ORGA}_split/ rm -r ${ORGB}_split/
