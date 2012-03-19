@@ -1,5 +1,4 @@
 #!/bin/sh
-BLAST_DIR=~/src/blast-2.2.25/bin/
 #on new synteny, run these. and put .bed and .fasta files in data/ directory.
 #  perl export_to_bed.pl -fasta_name rice_v6.fasta -dsg 8163 -name_re "^Os\d\dg\d{5}$" > rice_v6.bed
 # perl export_to_bed.pl -fasta_name sorghum_v1.4.fasta -dsg 95 > sorghum_v1.4.bed
@@ -8,19 +7,23 @@ BLAST_DIR=~/src/blast-2.2.25/bin/
 # use OrganismView in CoGe to look up other dsgs.
 
 
-ORGA=rice_v6
-ORGB=sorghum_v1
-QUOTA=1:1
-NCPU=8
+ORGA=$1
+ORGB=$2
+QUOTA=$3
+NCPU=$4
+BLAST_DIR=$5
+
 #############################################
 # dont edit below here
 #############################################
-DIR=data/${ORGA}_${ORGB}/
+DIR=../data/${ORGA}_${ORGB}/
 
-python create_json.py \
+python scripts/create_json.py \
       --query $ORGA \
       --subject $ORGB \
-      --blast_path $BLAST_DIR
+      --blast_path $BLAST_DIR \
+      --out_dir $DIR
+
 coannotate.py $DIR/${ORGA}_${ORGB}.json
 python scripts/merge.py \
         --missed_bed ${DIR}/missed_${ORGA}_from_${ORGB}.bed \
