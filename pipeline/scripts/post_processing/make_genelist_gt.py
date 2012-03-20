@@ -60,7 +60,9 @@ def parse_pairs(pair_file, qrawbed, srawbed):
 def parse_dups(dups_file, flat):
     #####THIS ONLY WORKS IF WE CHANGE QUOTA
     flat.fill_dict()
-    d = {}
+    dup_dic = {}
+    seen = []
+
     for line in open(dups_file):
         line = line.strip().split("\t")
         parent = line[0]
@@ -70,20 +72,20 @@ def parse_dups(dups_file, flat):
         all.sort(key=operator.itemgetter('start'))
         dup_start = all[0]
         dup_end = all[-1]
-        d[parent] = 'P'
-        seen = [parent]
+        dup_dic[parent] = 'P'
+        seen += [parent]
         for dup in dups:
             if dup in seen: continue
             seen.append(dup)
-            d[dup] = parent
+            dup_dic[dup] = parent
         # so here, there are all the genes that arent part of the local dup
         # array, but we want to mark them with 'I'
         intervening = flat.get_features_in_region(dup_start['seqid'], dup_start['start'], dup_end['end'])
         for ii in intervening:
             if ii['accn'] == parent or ii['accn'] == dup_end: continue
-            if not ii['accn'] in d:
-                d[ii['accn']] = 'I'
-    return d
+            if not ii['accn'] in dup_dic.keys():
+                dup_dic[ii['accn']] = 'I'
+    return dup_dic
 
 def map_cns(cnss):
     """cnss are stored by an id,
