@@ -12,32 +12,22 @@ ORGA=rice_j
 ORGB=sorghum_n
 QUOTA=1:1
 NCPU=8
+#### look on coge for dsgid information
+qDSGID=95
+sDSGID=9109
 #############################################
 # dont edit below here
 #############################################
 DIR=data/${ORGA}_${ORGB}/
 
-#echo checking for unannotated proteins......
-#python scripts/create_json.py \
-#      --query $ORGA \
-#      --subject $ORGB \
-#      --blast_path $BLAST_DIR
-#coannotate.py $DIR/${ORGA}_${ORGB}.json
-#python scripts/merge.py \
-#        --missed ${DIR}/missed_${ORGA}_from_${ORGB}.bed \
-#        --match ${DIR}/missed_${ORGA}_from_${ORGB}.matches.txt \
-#        --org ${DIR}/${ORGA}.bed
-#python scripts/merge.py \
-#        --missed ${DIR}/missed_${ORGB}_from_${ORGA}.bed \
-#        --match ${DIR}/missed_${ORGB}_from_${ORGA}.matches.txt \
-#        --org ${DIR}/${ORGB}.bed
-#
-#echo finding syntenic regions...
+echo checking for unannotated proteins......
+sh coann/co-anno.sh ${ORGA} ${ORGB} $QUOTA $BLAST_DIR
+echo finding syntenic regions...
 sh quota.sh $DIR/${ORGA} $DIR/${ORGB} $QUOTA $NCPU
-#echo finding cns...
+echo finding cns...
 python scripts/find_cns.py \
-	-q $DIR/${ORGA}.fasta --qbed $DIR/${ORGA}.bed \
-	-s $DIR/${ORGB}.fasta --sbed $DIR/${ORGB}.bed \
+	-q $DIR/${ORGA}.fasta --qbed $DIR/${ORGA}.all.bed \
+	-s $DIR/${ORGB}.fasta --sbed $DIR/${ORGB}.all.bed \
         -p $DIR/${ORGA}_${ORGB}.pairs.txt \
         -F T \
         -n 8 \
@@ -45,15 +35,15 @@ python scripts/find_cns.py \
         --spad 12000 \
         --blast_path ${BLAST_DIR}/bl2seq \
         --pair_fmt pair > $DIR/${ORGA}_${ORGB}.cns.txt
-#
-#python scripts/cns_to_fasta.py \
-#                -c $DIR/${ORGA}_${ORGB}.cns.txt \
-#                --qfasta $DIR/${ORGA}.genomic.masked.fasta \
-#                --sfasta $DIR/${ORGB}.genomic.masked.fasta \
-#                --qorg ${ORGA} \
-#                --sorg ${ORGB} \
-#                --min_len=18 \
-#                > $DIR/${ORGA}_${ORGB}.cns.fasta
+
+python scripts/cns_to_fasta.py \
+                -c $DIR/${ORGA}_${ORGB}.cns.txt \
+                --qfasta $DIR/${ORGA}.genomic.masked.fasta \
+                --sfasta $DIR/${ORGB}.genomic.masked.fasta \
+                --qorg ${ORGA} \
+                --sorg ${ORGB} \
+                --min_len=18 \
+                > $DIR/${ORGA}_${ORGB}.cns.fasta
 #echo removing cns that have hits in arabidopsis as rna or protein
 #wget -O data/at_protein.fasta ftp://ftp.arabidopsis.org/home/tair/Sequences/blast_datasets/TAIR10_blastsets/TAIR10_pep_20101214
 #wget -O data/os_protein.fasta ftp://ftp.plantbiology.msu.edu/pub/data/Eukaryotic_Projects/o_sativa/annotation_dbs/pseudomolecules/version_6.1/all.dir/all.pep
@@ -108,8 +98,8 @@ python scripts/post_processing/assign.py \
       --sbed $DIR/${ORGB}.nolocaldups.bed \
       --cns $DIR/${ORGA}_${ORGB}.cns.txt \
       --pairs $DIR/${ORGA}_${ORGB}.pairs.txt \
-      --qdsid 9109 \
-      --sdsid 95 \
+      --qdsid $qDSGID \
+      --sdsid $sDSGID\
       --qpad 15000 \
       --spad 15000 \
       --pair_fmt pair > $DIR/${ORGA}_${ORGB}.cns.assigned.csv
@@ -123,20 +113,3 @@ python scripts/post_processing/assign.py \
 #                --sorg ${ORGB} \
 #                > $DIR/${ORGA}_${ORGB}.cns_real.fasteI
 #
-#echo "pipeline completed would you like to remove large and now nolonger needed files?(yes/no)"
-#read remove_files
-#if [ "$remove_files" = "yes" ]
-#then
-#	echo "yay!"
-#else	
-#	echo "no!!!!!"
-#fi
-#
-##rm $DIR/*.features*
-##mkdir $DIR/mised_exons
-##mv $DIR/miss* $DIR/mised_exons # ... irgnor error for mv dir
-###rm *.blast
-###rm  *.raw
-###rm *.raw.merged
-###finding syntenic regions
-##rm -r ${ORGA}_split/ rm -r ${ORGB}_split/
