@@ -10,27 +10,28 @@
 ORGA=$1
 ORGB=$2
 QUOTA=$3
-NCPU=$4
-BLAST_DIR=$5
+BLAST_DIR=$4
 
 #############################################
 # dont edit below here
 #############################################
-DIR=../data/${ORGA}_${ORGB}/
+DIR=data/${ORGA}_${ORGB}/
+echo $DIR
+python coann/create_json.py \
+      --query ${ORGA} \
+      --subject ${ORGB} \
+      --out_dir ${DIR} \
+      --blast_path ${BLAST_DIR}
 
-python scripts/create_json.py \
-      --query $ORGA \
-      --subject $ORGB \
-      --blast_path $BLAST_DIR \
-      --out_dir $DIR
+
 
 coannotate.py $DIR/${ORGA}_${ORGB}.json
-python scripts/merge.py \
+python merge.py \
         --missed_bed ${DIR}/missed_${ORGA}_from_${ORGB}.bed \
         --missed_matches ${DIR}/missed_${ORGA}_from_${ORGB}.matches.txt \
         --old_bed ${DIR}/${ORGA}.bed \
         --out ${DIR}/${ORGA}.all.bed
-python scripts/merge.py \
+python merge.py \
         --missed_bed ${DIR}/missed_${ORGB}_from_${ORGA}.bed \
         --missed_matches ${DIR}/missed_${ORGB}_from_${ORGA}.matches.txt \
         --old_bed ${DIR}/${ORGB}.bed \
