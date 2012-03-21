@@ -26,12 +26,12 @@ python coann/create_json.py \
 
 
 coannotate.py $DIR/${ORGA}_${ORGB}.json
-python merge.py \
+python coann/merge.py \
         --missed_bed ${DIR}/missed_${ORGA}_from_${ORGB}.bed \
         --missed_matches ${DIR}/missed_${ORGA}_from_${ORGB}.matches.txt \
         --old_bed ${DIR}/${ORGA}.bed \
         --out ${DIR}/${ORGA}.all.bed
-python merge.py \
+python coann/merge.py \
         --missed_bed ${DIR}/missed_${ORGB}_from_${ORGA}.bed \
         --missed_matches ${DIR}/missed_${ORGB}_from_${ORGA}.matches.txt \
         --old_bed ${DIR}/${ORGB}.bed \
