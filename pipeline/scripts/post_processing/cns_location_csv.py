@@ -49,7 +49,7 @@ def write_to_file_grouped(cns_grouped_number,grouped_locations_dic,cns_path):
         write_file.write(new_line)
     write_file.close()
 
-def write_to_file(cns_dict,fmt,out_fh):
+def write_one_to_file(cns_dict,fmt,out_fh):
     """ imports into sql if fmt is pck otherwise writes file cns.location"""
     write_file = open(out_fh,"wb")
     if fmt == "csv":
