@@ -56,7 +56,7 @@ def write_one_to_file(cns_dict,fmt,out_fh):
         for cns in cns_dict:
             #string_values = map(str,cns.values())
             #all_values = "\t".join(string_values)
-            new_line = "{0}\t{1}\n".format(cns["cns_id"],cns["type"])
+            new_line = "{0}\t{1}\n".format(cns["#cns_id"],cns["type"])
             write_file.write(new_line)
         write_file.close()
     elif fmt == "pck":
