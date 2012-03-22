@@ -49,10 +49,16 @@ def write_to_file_grouped(cns_grouped_number,grouped_locations_dic,cns_path):
         write_file.write(new_line)
     write_file.close()
 
-def write_to_file(cns,fmt):
+def write_to_file(cns_dict,fmt,out_fh):
     """ imports into sql if fmt is pck otherwise writes file cns.location"""
+    write_file = open(out_fh,"wb")
     if fmt == "csv":
-        pass
+        for cns in cns_dict:
+            #string_values = map(str,cns.values())
+            #all_values = "\t".join(string_values)
+            new_line = "{0}\t{1}\n".format(cns["cns_id"],cns["type"])
+            write_file.write(new_line)
+        write_file.close()
     elif fmt == "pck":
         import_into_mysql(cns)
         #### add load into table stuff here
@@ -212,6 +218,7 @@ if __name__ == "__main__":
     (options, _) = parser.parse_args()
 
     x= main(options.cns,options.fmt,options.qbed,options.sbed)
+    write_one_to_file(x,"csv","{0}.location_indvi".format(options.cns))
     group_cns(x,options.cns)
 
   # x= main("/Users/gturco/code/freeling_lab/find_cns_gturco/pipeline/scripts/post_processing/find_cns_cns_test.pck","/Users/gturco/code/freeling_lab/find_cns_gturco/pipeline/scripts/post_processing/query_test.bed","/Users/gturco/code/freeling_lab/find_cns_gturco/pipeline/scripts/post_processing/subject_test.bed")
