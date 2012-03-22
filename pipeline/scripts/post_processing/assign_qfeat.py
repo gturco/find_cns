@@ -3,6 +3,7 @@ import collections
 import numpy
 from numpy import array
 import sys
+sys.path.append("scripts/")
 import os
 import os.path as op
 sys.path.insert(0, os.path.dirname(__file__))
@@ -57,7 +58,9 @@ def main(cnsfile, qbed_file, sbed_file, qorg, sorg, padding):
     print >>out, "#" + fmt.replace("%(","").replace(")s","").replace(")i","")
     for cns, qfeat, sfeat in assign(cnsdict, qbed, sbed): 
         d = cns_fmt_dict(cns, qfeat, sfeat)
-        d['link'] = assign_url(cns.sstart, cns.schr, cns.qstart, cns.qchr, sorg, qorg, padding)
+	if d['sstop'] < d['sstart']:
+            d['sstop'], d['sstart'] = d['sstart'], d['sstop']        
+	d['link'] = assign_url(cns.sstart, cns.schr, cns.qstart, cns.qchr, sorg, qorg, padding)
         print >>out, fmt % d
         
         
