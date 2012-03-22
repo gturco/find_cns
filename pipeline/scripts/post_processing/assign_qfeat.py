@@ -14,7 +14,7 @@ from assign_region import nearest_feat
 # the assign used for maize, assigns only based on qfeat
 
 def assign_url(scns, sseqid, qcns, qseqid, sorg, qorg, padding,
-               base = "http://synteny.cnr.berkeley.edu/CoGe/GEvo.pl?prog=blastn&autogo=1&"):
+               base = "http://coge.iplantcollaborative.org/CoGe/GEvo.pl?prog=blast{0}&autogo=1&show_cns=1&"):
     "lines up coge based on the cns postion"
     inside = "dsgid1={4}&chr1={0}&x1={1}&dr1up={6}&dr1down={6}&dsgid2={5}&chr2={2}&x2={3}&dr2up={6};dr2down={6}&"\
              "num_seqs=2;hsp_overlap_limit=0;hsp_size_limit=0".format(sseqid, scns, qseqid, qcns, sorg, qorg, padding)
