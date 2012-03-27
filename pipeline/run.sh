@@ -36,7 +36,7 @@ python scripts/find_cns.py \
         --blast_path ${BLAST_DIR}/bl2seq \
         --pair_fmt pair > $DIR/${ORGA}_${ORGB}.cns.txt
 
-python scripts/cns_to_fasta.py \
+python scripts/post_processing/cns_to_fasta.py \
                 -c $DIR/${ORGA}_${ORGB}.cns.txt \
                 --qfasta $DIR/${ORGA}.genomic.masked.fasta \
                 --sfasta $DIR/${ORGB}.genomic.masked.fasta \
@@ -98,8 +98,8 @@ python scripts/post_processing/assign.py \
       --sbed $DIR/${ORGB}.nolocaldups.bed \
       --cns $DIR/${ORGA}_${ORGB}.cns.txt \
       --pairs $DIR/${ORGA}_${ORGB}.pairs.txt \
-      --qdsid $qDSGID \
-      --sdsid $sDSGID\
+      --qdsgid $qDSGID \
+      --sdsgid $sDSGID\
       --qpad 15000 \
       --spad 15000 \
       --pair_fmt pair > $DIR/${ORGA}_${ORGB}.cns.assigned.csv
