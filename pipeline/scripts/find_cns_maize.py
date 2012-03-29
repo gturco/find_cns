@@ -134,17 +134,17 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad, unmaske
           sgene[0] *= -1
           sgene[1] *= -1
       if abs(sgene[1]) in range(key[0], key[1]): # if the cns fall in same group as gene we know its same stand  as gene and dont need to run rest
-        cnss_same_strand = [l[:4] for l in remove_crossing_cnss(same_strand, qgene, sgene)]
+        cnss_same_strand = [(c[0], c[1], c[2], c[3],c[-2]) for c in remove_crossing_cnss(same_strand, qgene, sgene)]
         map(cns_by_group.append, cnss_same_strand)
       else:
-        cnss_same_strand = [l[:4] for l in remove_crossing_cnss(same_strand, qgene, sgene)]
+        cnss_same_strand = [(c[0], c[1], c[2], c[3],c[-2]) for c in remove_crossing_cnss(same_strand, qgene, sgene)]
         cnss_opp_strand = cns_opp_strand(opp_strand, qgene, sgene) # alternitive for cns on opp strand
         if len(cnss_same_strand) < len(cnss_opp_strand):
           map(cns_by_group.append, cnss_opp_strand)
         else: # what about if they are the same, use non reverse complment
           map(cns_by_group.append, cnss_same_strand)
     if orient == -1:
-        cns_by_group = [(c[0], c[1], -c[2], -c[3]) for c in cns_by_group]
+        cns_by_group = [(c[0], c[1], -c[2], -c[3],c[-1]) for c in cns_by_group]
 
     return cns_by_group
     
@@ -173,8 +173,8 @@ def cns_opp_strand(cnss, qgene, sgene):
     sgene[0] *= -1
     sgene[1] *= -1
 
-    cnss = [l[:4] for l in remove_crossing_cnss(cnss, qgene, sgene)]
-    cnss_fixed = [(c[0], c[1], -c[2], -c[3]) for c in cnss]
+    cnss = [(c[0], c[1], c[2], c[3],c[-2]) in remove_crossing_cnss(cnss, qgene, sgene)]
+    cnss_fixed = [(c[0], c[1], -c[2], -c[3],c[-1]) for c in cnss]
     return cnss_fixed
 
 
