@@ -96,7 +96,7 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad, unmaske
 
     # cant cross with < 2 cnss.
     # get rid of the eval, bitscore stuff.
-    if len(cnss) < 2: return [l[:4] for l in cnss]
+    if len(cnss) < 2: return [(c[0], c[1], c[2], c[3],c[-2]) for c in cnss]
     cnss = list(cnss)
     ####################################################################################
     #########split cns into groups based on inversion, seq marks in maize ##########
@@ -173,7 +173,7 @@ def cns_opp_strand(cnss, qgene, sgene):
     sgene[0] *= -1
     sgene[1] *= -1
 
-    cnss = [(c[0], c[1], c[2], c[3],c[-2]) in remove_crossing_cnss(cnss, qgene, sgene)]
+    cnss = [(c[0], c[1], c[2], c[3],c[-2]) for c in remove_crossing_cnss(cnss, qgene, sgene)]
     cnss_fixed = [(c[0], c[1], -c[2], -c[3],c[-1]) for c in cnss]
     return cnss_fixed
 
