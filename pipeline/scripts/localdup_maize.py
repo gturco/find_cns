@@ -165,7 +165,7 @@ def write_localdup_file(qparent,sparent,qfile,sfile,neworder):
 
 ###############################################################
 
-def main(cns_file,qdups_path,sdups_path,pair_file,fmt,qbed,sbed,qpad,spad,blast_path,mask='F',ncpu=8):
+def main(cns_file,qdups_path,sdups_path,pair_file,fmt,qbed,sbed,qpad,spad,blast_path,unmasked_fasta,mask='F',ncpu=8):
     pool = Pool(ncpu)
     bl2seq = "%s " % blast_path + \
             "-p blastn -D 1 -E 2 -q -2 -r 1 -G 5 -W 7 -F %s " % mask + \
@@ -219,7 +219,7 @@ def main(cns_file,qdups_path,sdups_path,pair_file,fmt,qbed,sbed,qpad,spad,blast_
             for res, (cmd, qfeat, sfeat) in zip(results, cmds):
                 orient = qfeat['strand'] == sfeat['strand'] and 1 or -1 
                 if not res.strip(): cnss = []
-                else: cnss = parse_blast(res, orient, qfeat, sfeat, qbed, sbed, qpad,spad)
+                else: cnss = parse_blast(res, orient, qfeat, sfeat, qbed, sbed, qpad,spad,unmasked_fasta)
                 print >>sys.stderr, "(%i)" % len(cnss)
                 cnss_fmt = ",".join(map(lambda l: ",".join(map(str,l)),cnss))
                 cnss_size.append((len(cnss)*-1,qfeat["start"],sfeat["start"],qfeat["accn"],sfeat["accn"],cnss_fmt))
@@ -269,6 +269,7 @@ if __name__ == "__main__":
     parser.add_option("--qdups", dest="qdups", type='string', help="path to query localdup_file")
     parser.add_option("--sdups", dest="sdups", type='string', help="path to subject localdup_file")
     parser.add_option("--cns_file",dest="cns_file", type='string', help="path to cns file cns.txt")
+    parser.add_option("--UMfasta", dest="unmasked_fasta", help="path to unmasked fasta file file")    
     (options, _) = parser.parse_args()
 
     
@@ -287,4 +288,4 @@ if __name__ == "__main__":
 
 
 
-    main(options.cns_file,options.qdups,options.sdups,options.pairs,options.pair_fmt,qbed,sbed,options.qpad,options.spad,options.blast_path,options.mask,options.ncpu)
+    main(options.cns_file,options.qdups,options.sdups,options.pairs,options.pair_fmt,qbed,sbed,options.qpad,options.spad,options.blast_path,options.unmasked_fasta,options.mask,options.ncpu)
