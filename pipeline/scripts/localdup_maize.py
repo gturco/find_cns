@@ -8,6 +8,7 @@ from itertools import product, chain
 from collections import defaultdict
 
 from flatfeature import Bed
+from pyfasta import Fasta
 from find_cns_maize import parse_blast
 from find_cns import get_masked_fastas, get_cmd
 from qa_parsers import pairs_to_qa,ParsePairs,write_nolocaldups
@@ -275,6 +276,7 @@ if __name__ == "__main__":
     
     qbed = Bed(options.qbed, options.qfasta); qbed.fill_dict()
     sbed = Bed(options.sbed, options.sfasta); sbed.fill_dict()
+    unmasked_fasta = Fasta(options.unmasked_fasta)    
     assert options.mask in 'FT'
     
 
@@ -288,4 +290,4 @@ if __name__ == "__main__":
 
 
 
-    main(options.cns_file,options.qdups,options.sdups,options.pairs,options.pair_fmt,qbed,sbed,options.qpad,options.spad,options.blast_path,options.unmasked_fasta,options.mask,options.ncpu)
+    main(options.cns_file,options.qdups,options.sdups,options.pairs,options.pair_fmt,qbed,sbed,options.qpad,options.spad,options.blast_path,unmasked_fasta,options.mask,options.ncpu)
