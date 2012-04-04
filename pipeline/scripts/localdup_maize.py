@@ -248,7 +248,7 @@ def main(cns_file,qdups_path,sdups_path,pair_file,fmt,qbed,sbed,qpad,spad,blast_
 
     write_nolocaldups(qbed.path,nqlocaldups,"{0}.nolocaldups.bed.local".format(qbed.path.split(".")[0]))
     write_nolocaldups(sbed.path,nslocaldups,"{0}.nolocaldups.bed.local".format(sbed.path.split(".")[0]))
-    pairs_to_qa(npair_file,'pair',"{0}.nolocaldups.local".format(qbed.path.split(".")[0]),"{0}.nolocaldups.local".format(sbed.path.split(".")[0]),"{0}.raw.filtered.local".format(options.pairs.split(".")[0]))
+    pairs_to_qa(npair_file,'pair',"{0}.nolocaldups.bed.local".format(qbed.path.split(".")[0]),"{0}.nolocaldups.bed.local".format(sbed.path.split(".")[0]),"{0}.raw.filtered.local".format(options.pairs.split(".")[0]))
 
 if __name__ == "__main__":
     import optparse
