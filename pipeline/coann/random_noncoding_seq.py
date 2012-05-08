@@ -162,12 +162,12 @@ def get_seq(random_cns_list, fasta_file, new_fasta_name):
         new_fasta.write(w)
         new_fasta.write(seq_w)
 
-dict_size = gene_size_dict('/Users/gturco/Desktop/rice_sorg_size.tsv')
+#dict_size = gene_size_dict('/Users/gturco/Desktop/rice_sorg_size.tsv')
 #dict_size = gene_size_dict("test_file")
-x = random_noncoding(dict_size,Bed('/Users/gturco/data/paper3/rice_b_sorghum_v1.nolocaldups.with_new_cns_mask.bed'))
-print len(x)
+#x = random_noncoding(dict_size,Bed('/Users/gturco/data/paper3/rice_b_sorghum_v1.nolocaldups.with_new_cns_mask.bed'))
+#print len(x)
 #####print x
-get_seq(x,"/Users/gturco/data/paper3/rice_b.fasta","/Users/gturco/test.fasta")
+#get_seq(x,"/Users/gturco/data/paper3/rice_b.fasta","/Users/gturco/test.fasta")
 ##
 ##### seq for cns
 #handle = open("/Users/gturco/data/paper3/rice_b_sorghum_v1.cns.assigned_real.csv")
