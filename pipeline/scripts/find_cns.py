@@ -103,13 +103,15 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
     
     cnss = set([])
     for line in blast_str.split("\n"):
+        #print >>sys.stderr, line
         if "WARNING:" in line: continue
         if "ERROR" in line: continue
+        if line == '': continue
         line = line.split("\t")
         if float(line[-1]) < 29.5: continue #finds 15/15 match
         locs = map(int, line[6:10])
         locs.extend(map(float, line[10:]))
-
+   
         xx = locs[:2]
         yy = locs[2:4]
 
@@ -136,7 +138,7 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
         if qgene_space_poly.intersects(xls) or sgene_space_poly.intersects(yls):
             intronic_removed += 1
             continue
-
+        
         ##########################################################
 
         ###############################################################
@@ -151,7 +153,7 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
             if feats.contains(Point(0, start)) or feats.contains(Point(0, stop)):
                 intronic = True
                 break
-
+ 
         if intronic: continue
 
         ##########################################################
@@ -173,10 +175,13 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
             cnss[i] = tuple(cns)
         sgene[0] *= -1
         sgene[1] *= -1
-
+    
+    #print >>sys.stderr, cnss
     cnss = [(c[0], c[1], c[2], c[3],c[-2]) for c in remove_crossing_cnss(cnss, qgene, sgene)]
     if orient == -1:
         cnss = [(c[0], c[1], -c[2], -c[3],c[-1]) for c in cnss]
+    
+    print >>sys.stderr, cnss
     return cnss
 
 
@@ -375,7 +380,6 @@ def main(qbed, sbed, pairs_file, qpad, spad, pair_fmt, blast_path, mask='F', ncp
         cmds = [c for c in map(get_cmd, [l for l in pairs if
                 l],bl2seq_map,qfastas_map,sfastas_map,qpad_map,spad_map) if c]
         results = (r for r in pool.map(commands.getoutput, [c[0] for c in cmds]))
-
         for res, (cmd, qfeat, sfeat) in zip(results, cmds):
             if not res.strip(): continue
             print >>sys.stderr,  "%s %s" % (qfeat["accn"], sfeat['accn']),
