@@ -45,9 +45,9 @@ def main(cfg_path):
     cfg = simplejson.load(open(cfg_path))
     update_cfg(cfg)
 
-    run_mask(cfg)
+    #run_mask(cfg)
 
-    run_blasts(cfg)
+    #run_blasts(cfg)
 
     dispatch(cfg)
     if cfg["default"].get("reciprocal"):
@@ -196,6 +196,8 @@ def dispatch(cfg, flip=False):
     merged_genes = exclude_genes_in_high_repeat_areas(merged_genes, bfasta)
     if Klass == Flat:
         print >>out_fh, "\t".join(Klass.names)
+    
+    i = 1
     for i, new_gene in enumerate(merged_genes):
         new_gene['locs'] = [(new_gene['start'], new_gene['end'])]
         new_gene['score'] = new_gene['rgb'] = new_gene['thickend'] = new_gene['thickstart'] = "."
