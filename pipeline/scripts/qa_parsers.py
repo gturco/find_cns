@@ -100,4 +100,4 @@ def write_nolocaldups(bed_path,localdups_file,out_name):
     fh.close()
 
 #write_nolocaldups("../data/dick_m_tair_10/dick_m.bed","../data/dick_m_tair_10/dick_m.localdups","../data/dick_m_tair_10/dick_m.nolocaldups.bed")
-#pairs_to_qa("../data/tair_9_tair_9/tair_9_tair_9.pairs.txt.local","pair","../data/tair_9_tair_9/tair_9.bed","../data/tair_9_tair_9/tair_9.bed","../data/tair_9_tair_9/tair_9_tair_9.filtered.raw")
+#pairs_to_qa("../data/sorghum_n_setaria_n/sorghum_n_setaria_n.pairs.txt","pair","../data/sorghum_n_setaria_n/sorghum_n.nolocaldups.bed.local","../data/sorghum_n_setaria_n/setaria_n.nolocaldups.bed.local","../data/sorghum_n_setaria_n/sorghum_n_setaria_n.filtered.raw")

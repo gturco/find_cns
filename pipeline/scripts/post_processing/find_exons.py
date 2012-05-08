@@ -26,7 +26,7 @@ the big ones.
 
 def main(blast_files, out_dir,raw_cns):
     """empty docstring"""
-    cns_by_id = {cns.cns_id: cns for cns in CNS.parse_raw_line(cnsfile)}
+    cns_by_id = {cns.cns_id: cns for cns in CNS.parse_raw_line(raw_cns)}
 
     exons = collections.defaultdict(dict)
     for blast_file in blast_files:
@@ -86,7 +86,5 @@ if __name__ == "__main__":
     parser.add_option("-o", "--out_dir", dest="out_dir", help="")
     parser.add_option("--cns", dest="cns", help=" raw cns file cns.txt or cns.txt.local")
     (opts, blast_files) = parser.parse_args()
-    if not (opts.out_dir and opts.query and opts.subject):
-        sys.exit(parser.print_help())
 
     main(blast_files, opts.out_dir, opts.cns)
