@@ -256,7 +256,7 @@ def read_orthos_to_trees(forthos, qrawbed, srawbed):
         if line[0] == "#": continue
         raw = RawLine(line)
 	qbed = qrawbed.raw_to_bed(raw.pos_a)
-        sbed = srawbed.raw_to_bed(raw.pos_b)
+	sbed = srawbed.raw_to_bed(raw.pos_b)
         key = (qbed['seqid'], sbed['seqid'])
         if not key in trees: trees[key] = []
         qpos = (qbed['start'] + qbed['end']) / 2
