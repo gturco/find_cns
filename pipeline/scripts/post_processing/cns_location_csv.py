@@ -7,6 +7,13 @@ import MySQLdb
 import csv
 from collections import Counter
 
+
+def cns_link(qaccn,saccn, qdsid, sdsid, qpad,spad, base="http://synteny.cnr.berkeley.edu/CoGe/GEvo.pl?prog=blastn&autogo=1&show_cns=1&"):
+  
+    url = "dsgid1={0}&accn1={1}&dr1up={2}&dr1down={2}&\
+dsgid2={3};accn2={4};dr2up={5};dr2down={5};num_seqs=2;hsp_overlap_limit=0;hsp_size_limit=0".format(qdsid,qaccn,qpad,sdsid,saccn,spad)
+    return base + url
+
 def group_locations(cns_dict):
     grouped_locations = []
     for cns in cns_dict:
@@ -33,19 +40,20 @@ def cns_to_dic(cns,fmt):
 
 def write_to_file_grouped(cns_grouped_number,grouped_locations_dic,cns_path):
     write_file = open("{0}.location".format(cns_path),"wb")
-    header = "qaccn,saccn,number_of_cns,5_distant,5_proximal,5_UTR,intron,3_UTR,3_proximal,3_distal\n"
+    header = "qaccn,saccn,number_of_cns,5_distal,5_proximal,5_UTR,intron,3_UTR,3_proximal,3_distal,url\n"
     write_file.write(header)
  
     for cns in cns_grouped_number:
         qaccn,saccn = cns.split('__')
-        new_line = "{0},{1},{2},{3},{4},{5},{6},{7},{8},{9}\n".format(qaccn,saccn,cns_grouped_number[cns],
+        url = cns_link(qaccn,saccn, qdsid, sdsid,15000,15000)
+	new_line = "{0},{1},{2},{3},{4},{5},{6},{7},{8},{9},{10}\n".format(qaccn,saccn,cns_grouped_number[cns],
                 grouped_locations_dic["{0}_5-distal".format(cns)],
         grouped_locations_dic["{0}_5-proximal".format(cns)],
         grouped_locations_dic["{0}_5-UTR".format(cns)],
         grouped_locations_dic["{0}_intron".format(cns)],
         grouped_locations_dic["{0}_3-UTR".format(cns)],
         grouped_locations_dic["{0}_3-proximal".format(cns)],
-        grouped_locations_dic["{0}_3-distal".format(cns)])
+        grouped_locations_dic["{0}_3-distal".format(cns)],url)
         write_file.write(new_line)
     write_file.close()
 
