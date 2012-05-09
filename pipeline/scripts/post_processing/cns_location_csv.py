@@ -3,7 +3,6 @@ import numpy
 from shapely.geometry import Point, Polygon, LineString, MultiLineString
 from flatfeature import Bed
 import pickle
-import MySQLdb
 import csv
 from collections import Counter
 
@@ -38,7 +37,7 @@ def cns_to_dic(cns,fmt):
         cns_file = pickle.load(open(cns))
     return cns_file
 
-def write_to_file_grouped(cns_grouped_number,grouped_locations_dic,cns_path):
+def write_to_file_grouped(cns_grouped_number,grouped_locations_dic,cns_path,qdsid,sdsid):
     write_file = open("{0}.location".format(cns_path),"wb")
     header = "qaccn,saccn,number_of_cns,5_distal,5_proximal,5_UTR,intron,3_UTR,3_proximal,3_distal,url\n"
     write_file.write(header)
@@ -118,10 +117,10 @@ def main(cns_path, fmt, query_bed_path, subject_bed_path):
         cns["type"] = "3-distal"
   return cns_dic
 
-def group_cns(cns_dic,cns_path):
+def group_cns(cns_dic,cns_path,qid,sid):
     grouped_locations_dic = group_locations(cns_dic)
     cns_grouped_number = group_cns_number(cns_dic)
-    write_to_file_grouped(cns_grouped_number,grouped_locations_dic,cns_path)
+    write_to_file_grouped(cns_grouped_number,grouped_locations_dic,cns_path,qid,sid)
 
 #write_to_file(cns,fmt)
 
@@ -222,12 +221,14 @@ if __name__ == "__main__":
     parser.add_option("--sbed", dest="sbed", help="bed file of the subject")
     parser.add_option("--cns", dest="cns", help="path to the cns file created by find_cns.py")
     parser.add_option("--fmt", dest="fmt", help="fmt of file csv file or sql file")
+    parser.add_option("--qdsgid",dest="qdsgid",help="dataset group id form coge for query org")
+    parser.add_option("--sdsgid",dest="sdsgid",help="dataset group id from coge database for subject org")
 
     (options, _) = parser.parse_args()
 
     x= main(options.cns,options.fmt,options.qbed,options.sbed)
     write_one_to_file(x,"csv","{0}.location_indvi".format(options.cns))
-    group_cns(x,options.cns)
+    group_cns(x,options.cns,options.qdsgid,options.sdsgid)
 
   # x= main("/Users/gturco/code/freeling_lab/find_cns_gturco/pipeline/scripts/post_processing/find_cns_cns_test.pck","/Users/gturco/code/freeling_lab/find_cns_gturco/pipeline/scripts/post_processing/query_test.bed","/Users/gturco/code/freeling_lab/find_cns_gturco/pipeline/scripts/post_processing/subject_test.bed")
   ##### REMINDER CHANGE TABLE INSERTS INTO!! ##############################################
