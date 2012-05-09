@@ -137,7 +137,8 @@ def update_pairs(qaccn,saccn,qparent,sparent,pair_file):
     """replaces the old pair with the new head loaldup pairs"""
     #### new pairs file search and replace
     search_replace_pairs = "sed 's/{0}\t{1}/{2}\t{3}/' -i {4}".format(qparent,sparent,qaccn,saccn,pair_file)
-    commands.getstatusoutput(search_replace_pairs)
+    out = commands.getstatusoutput(search_replace_pairs)
+    assert out[0] == 0 
 
 def update_cnss_line(qfeat,sfeat,qparent,sparent,largest_cnss,ncns_file):
     """ removes any cnss with the old parent dup and adds new one """
@@ -160,7 +161,7 @@ def write_localdup_file(qparent,sparent,qfile,sfile,neworder):
     ##### if starts somewhere else then appends it to the end of the line
     ssearch_replace = "sed -i 's/^{0}.*/{1}/g' {2}".format(sparent,sreplace,sfile)
     commands.getstatusoutput(qsearch_replace)
-    commands.getstatusoutput(ssearch_replace)
+    assert commands.getstatusoutput(ssearch_replace)[0] == 0
 
 ###############################################################
 
