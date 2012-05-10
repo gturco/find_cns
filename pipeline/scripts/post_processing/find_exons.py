@@ -27,7 +27,7 @@ the big ones.
 def main(blast_files, out_dir,raw_cns):
     """empty docstring"""
     cns_by_id = {}  
-    for cns in CNS.parse_raw_line(raw_cns)}:
+    for cns in CNS.parse_raw_line(raw_cns):
 	cns_by_id[cns.cns_id] = cns
 
     exons = collections.defaultdict(dict)
