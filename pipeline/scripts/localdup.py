@@ -138,8 +138,11 @@ def write_new_dups(npair_file,ncns_file,nqlocaldups,nslocaldups,cnss_size,qparen
     """ reseach and replace cns file, localdups and pairs file"""
     cns_number,qfeat_start, sfeat_start,qaccn,saccn,largest_cnss = cnss_size[0]
     update_pairs(qfeat['accn'],sfeat['accn'],qparent,sparent,npair_file)
-    if abs(cns_number) > 0:
-        update_cnss_line(qfeat,sfeat,qparent,sparent,largest_cnss,ncns_file)
+    if abs(cns_number) > 0:        
+	update_cnss_line(qfeat,sfeat,qparent,sparent,largest_cnss,ncns_file)
+    else: 
+	rm_cns = '^{0},{1},{2},{3}.*'.format(qfeat['seqid'],qparent,sfeat['seqid'],sparent)
+    	removed = commands.getstatusoutput("sed '/{0}/ d' -i {1}".format(rm_cns,ncns_file))
     qdup = list(qdups[qparent])  if qparent in qdups.keys() else [qparent]
     sdup = list(sdups[sparent])  if sparent in sdups.keys() else [sparent]
     #print "sssss", qdup,qparent,sparent
@@ -270,6 +273,8 @@ def main(cns_file,qdups_path,sdups_path,pair_file,fmt,qbed,sbed,qpad,spad,blast_
         #print parents,best_reps[parents]
         ### one or list? cnss[0]?
         cns_number,qfeat_start, sfeat_start,qaccn,saccn,largest_cnss = best_reps[dparents]
+        qfeat= qbed.accn(qaccn)
+        sfeat = sbed.accn(saccn)
         write_new_dups(npair_file,ncns_file,nqlocaldups,nslocaldups,[best_reps[dparents]],qparent,sparent,qfeat,sfeat,qdups,sdups)
 
     write_nolocaldups(qbed.path,nqlocaldups,"{0}.nolocaldups.bed.local".format(qbed.path.split(".")[0]))
