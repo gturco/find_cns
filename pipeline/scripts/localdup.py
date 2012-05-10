@@ -30,9 +30,17 @@ def condense_rdups(parents,q):
         for isoforms in repeat_group.keys():
             repeat_group[isoforms].sort()
             #print >> sys.stderr,"key {1} isoooooo {0}".format(repeat_group[isoforms],isoforms)
-            repeats_cond[isoforms].append(repeat_group[isoforms][0])
-    print>> sys.stderr, repeats_cond
+            isoparents = (repeat_group[isoforms][0], repeat)
+	    repeats_cond[isoforms].append(isoparents)
+    #print>> sys.stderr, repeats_cond
     return repeats_cond
+
+def same_alpha(rdup,parents):
+	qparent = []
+	for parent in parents:
+		qparent.append((rdup == parent[0]))
+        if len(set(qparent)) == 1: return True
+ 	else: return  False
 
 def best_repeats(rdups):
     """finds best dup when dups are repeated"""
@@ -41,17 +49,20 @@ def best_repeats(rdups):
         #print rdup
         parents = rdups[rdup]
         #print parents
+        if not same_alpha(rdup,parents) : continue 
         q=(rdup == parents.keys()[0][0])
         cond_reps =condense_rdups(parents,q)
         isoform_tuple = []
         for isoform in cond_reps.keys():
-            cns_total = [cns_number for cns_number,qfeat_start,
-            sfeat_start,qaccn,saccn,largest_cnss in cond_reps[isoform]]
-            isoform_tuple.append((sum(cns_total),cond_reps[isoform]))
+	    iso=  cond_reps[isoform]
+            cns_total = [cns_number for (cns_number,qfeat_start,
+            sfeat_start,qaccn,saccn,largest_cnss), parent in iso]
+            isoform_tuple.append((sum(cns_total),iso))
         isoform_tuple.sort()
-        for p,i in zip(parents.keys(),isoform_tuple[0][1]):
-		print p,i	
-        	best_rep[p] = i
+	#print isoform_tuple
+        for i,p in isoform_tuple[0][1]:
+        	best_rep[p] = (i)
+    		#print "PPPPPPPPPP", p
     #print best_rep
     return best_rep
 
@@ -131,7 +142,7 @@ def write_new_dups(npair_file,ncns_file,nqlocaldups,nslocaldups,cnss_size,qparen
         update_cnss_line(qfeat,sfeat,qparent,sparent,largest_cnss,ncns_file)
     qdup = list(qdups[qparent])  if qparent in qdups.keys() else [qparent]
     sdup = list(sdups[sparent])  if sparent in sdups.keys() else [sparent]
-    print "sssss", sdup,sparent
+    #print "sssss", qdup,qparent,sparent
     write_localdup_file(qparent,sparent,nqlocaldups,nslocaldups,qaccn,saccn,qdup,sdup)
 
 def make_copy_of_file(file1):
@@ -159,9 +170,10 @@ def update_cnss_line(qfeat,sfeat,qparent,sparent,largest_cnss,ncns_file):
 
 def write_localdup_file(qparent,sparent,qfile,sfile,nqparent,nsparent,qdup,sdup):
     """ replaces the orginal parent local dup with the new order"""
+    #print nqparent, qdup
     qdup.remove(nqparent)
     qnew = [nqparent] + qdup
-    print sdup,nsparent
+    #print sdup,nsparent
     sdup.remove(nsparent) 
     snew = [nsparent] + sdup
 
@@ -252,12 +264,13 @@ def main(cns_file,qdups_path,sdups_path,pair_file,fmt,qbed,sbed,qpad,spad,blast_
             write_new_dups(npair_file,ncns_file,nqlocaldups,nslocaldups,cnss_size,qparent,sparent,qfeat,sfeat,qdups,sdups)
     
     best_reps = best_repeats(rdups_dic)
-    for parents in best_reps.keys():
-        qparent,sparent = parents
-        print parents,best_reps[parents]
+    for dparents in best_reps.keys():
+	#print dparents
+        qparent,sparent = dparents
+        #print parents,best_reps[parents]
         ### one or list? cnss[0]?
-        cns_number,qfeat_start, sfeat_start,qaccn,saccn,largest_cnss = best_reps[parents]
-        write_new_dups(npair_file,ncns_file,nqlocaldups,nslocaldups,[best_reps[parents]],qparent,sparent,qfeat,sfeat,qdups,sdups)
+        cns_number,qfeat_start, sfeat_start,qaccn,saccn,largest_cnss = best_reps[dparents]
+        write_new_dups(npair_file,ncns_file,nqlocaldups,nslocaldups,[best_reps[dparents]],qparent,sparent,qfeat,sfeat,qdups,sdups)
 
     write_nolocaldups(qbed.path,nqlocaldups,"{0}.nolocaldups.bed.local".format(qbed.path.split(".")[0]))
     write_nolocaldups(sbed.path,nslocaldups,"{0}.nolocaldups.bed.local".format(sbed.path.split(".")[0]))
