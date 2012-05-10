@@ -5,7 +5,7 @@ from flatfeature import Bed
 import pickle
 import csv
 from collections import Counter
-
+import datetime
 
 def cns_link(qaccn,saccn, qdsid, sdsid, qpad,spad, base="http://synteny.cnr.berkeley.edu/CoGe/GEvo.pl?prog=blastn&autogo=1&show_cns=1&"):
   
@@ -38,7 +38,9 @@ def cns_to_dic(cns,fmt):
     return cns_file
 
 def write_to_file_grouped(cns_grouped_number,grouped_locations_dic,cns_path,qdsid,sdsid):
-    write_file = open("{0}.location".format(cns_path),"wb")
+    tdate = str(datetime.date.today())
+    org1_org2 = cns_path.split("/")[1]
+    write_file = open("data/{1}/cnslist_{0}_{1}.csv".format(tdate,org1_org2),"wb")
     header = "qaccn,saccn,number_of_cns,5_distal,5_proximal,5_UTR,intron,3_UTR,3_proximal,3_distal,url\n"
     write_file.write(header)
  
