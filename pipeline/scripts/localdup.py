@@ -18,25 +18,29 @@ def condense_rdups(parents,q):
     a:(a,b),(a,b),(A,B),(A,b) condense to (a,b),(A,b) of best b"""
     repeats_cond = defaultdict(list)
     ### for each group get key with largest sum
+    #repeat_group = defaultdict(list)
     for repeat in parents.keys():
-        repeat_group = defaultdict(list)
-        for cnss in parents[repeat]:
+        repeat_group = defaultdict(list) 
+	for cnss in parents[repeat]:
+            #print >> sys.stderr, parents[repeat]
             cns_number,qfeat_start, sfeat_start,qaccn,saccn,largest_cnss = cnss
             #### sort cns by qaccn key
             isoform = qaccn if q else saccn
-            repeat_group[isoform].append(cnss)
-        for isoform in repeat_group.keys():
-            repeat_group[isoform].sort()
-            repeats_cond[isoform].append(repeat_group[isoform][0])
+	    repeat_group[isoform].append(cnss)
+        for isoforms in repeat_group.keys():
+            repeat_group[isoforms].sort()
+            #print >> sys.stderr,"key {1} isoooooo {0}".format(repeat_group[isoforms],isoforms)
+            repeats_cond[isoforms].append(repeat_group[isoforms][0])
+    print>> sys.stderr, repeats_cond
     return repeats_cond
 
 def best_repeats(rdups):
     """finds best dup when dups are repeated"""
-    best_rep = []
+    best_rep = defaultdict(list)
     for rdup in rdups.keys():
-        print rdup
+        #print rdup
         parents = rdups[rdup]
-        print parents
+        #print parents
         q=(rdup == parents.keys()[0][0])
         cond_reps =condense_rdups(parents,q)
         isoform_tuple = []
@@ -45,8 +49,10 @@ def best_repeats(rdups):
             sfeat_start,qaccn,saccn,largest_cnss in cond_reps[isoform]]
             isoform_tuple.append((sum(cns_total),cond_reps[isoform]))
         isoform_tuple.sort()
-        print isoform_tuple[0][1]
-        best_rep += isoform_tuple[0][1]
+        for p,i in zip(parents.keys(),isoform_tuple[0][1]):
+		print p,i	
+        	best_rep[p] = i
+    #print best_rep
     return best_rep
 
 
@@ -117,13 +123,16 @@ def get_all_dups(dup_dict,feat):
         dups = [feat]
     return dups
 ############### update files ####################
-def write_new_dups(npair_file,ncns_file,nqlocaldups,nslocaldups,cnss_size,qparent,sparent,qfeat,sfeat):
+def write_new_dups(npair_file,ncns_file,nqlocaldups,nslocaldups,cnss_size,qparent,sparent,qfeat,sfeat,qdups,sdups):
     """ reseach and replace cns file, localdups and pairs file"""
     cns_number,qfeat_start, sfeat_start,qaccn,saccn,largest_cnss = cnss_size[0]
     update_pairs(qfeat['accn'],sfeat['accn'],qparent,sparent,npair_file)
     if abs(cns_number) > 0:
         update_cnss_line(qfeat,sfeat,qparent,sparent,largest_cnss,ncns_file)
-    write_localdup_file(qparent,sparent,nqlocaldups,nslocaldups,cnss_size)
+    qdup = list(qdups[qparent])  if qparent in qdups.keys() else [qparent]
+    sdup = list(sdups[sparent])  if sparent in sdups.keys() else [sparent]
+    print "sssss", sdup,sparent
+    write_localdup_file(qparent,sparent,nqlocaldups,nslocaldups,qaccn,saccn,qdup,sdup)
 
 def make_copy_of_file(file1):
     """makes a copy of the file renaming it .local returning the new file
@@ -148,16 +157,19 @@ def update_cnss_line(qfeat,sfeat,qparent,sparent,largest_cnss,ncns_file):
     add_cns = commands.getstatusoutput("cat {0} | sed '$a {1}' -i {0}".format(ncns_file,cns_line))
     assert add_cns[0] == 0
 
-def write_localdup_file(qparent,sparent,qfile,sfile,neworder):
+def write_localdup_file(qparent,sparent,qfile,sfile,nqparent,nsparent,qdup,sdup):
     """ replaces the orginal parent local dup with the new order"""
-    qdups = [qdup for cns_number,q_start,s_start,qdup,sdup,cns in neworder]
-    sdups = [sdup for cns_number,q_start,s_start,qdup,sdup,cns in neworder]
-    qdup_set = list(OrderedSet(qdups))
-    sdup_set = list(OrderedSet(sdups))
+    qdup.remove(nqparent)
+    qnew = [nqparent] + qdup
+    print sdup,nsparent
+    sdup.remove(nsparent) 
+    snew = [nsparent] + sdup
+
     #### orderset: no repeats in order
-    qreplace = "\t".join(qdup_set)
-    sreplace = "\t".join(sdup_set)
+    qreplace = "\t".join(qnew)
+    sreplace = "\t".join(snew)
     qsearch_replace = "sed -i 's/^{0}.*/{1}/g' {2}".format(qparent,qreplace,qfile)
+    
     ##### if starts somewhere else then appends it to the end of the line
     ssearch_replace = "sed -i 's/^{0}.*/{1}/g' {2}".format(sparent,sreplace,sfile)
     commands.getstatusoutput(qsearch_replace)
@@ -237,13 +249,15 @@ def main(cns_file,qdups_path,sdups_path,pair_file,fmt,qbed,sbed,qpad,spad,blast_
             qfeat = qbed.accn(qaccn)
             sfeat = sbed.accn(saccn)
             print >>sys.stderr, "FINAL: {0},{1},{2}".format(qaccn,saccn,cns_number)
-            write_new_dups(npair_file,ncns_file,nqlocaldups,nslocaldups,cnss_size,qparent,sparent,qfeat,sfeat)
+            write_new_dups(npair_file,ncns_file,nqlocaldups,nslocaldups,cnss_size,qparent,sparent,qfeat,sfeat,qdups,sdups)
     
     best_reps = best_repeats(rdups_dic)
-    for cnss in best_reps:
+    for parents in best_reps.keys():
+        qparent,sparent = parents
+        print parents,best_reps[parents]
         ### one or list? cnss[0]?
-        cns_number,qfeat_start, sfeat_start,qaccn,saccn,largest_cnss = cnss
-        write_new_dups(npair_file,ncns_file,nqlocaldups,nslocaldups,cnss_size,qparent,sparent,qfeat,sfeat)
+        cns_number,qfeat_start, sfeat_start,qaccn,saccn,largest_cnss = best_reps[parents]
+        write_new_dups(npair_file,ncns_file,nqlocaldups,nslocaldups,[best_reps[parents]],qparent,sparent,qfeat,sfeat,qdups,sdups)
 
     write_nolocaldups(qbed.path,nqlocaldups,"{0}.nolocaldups.bed.local".format(qbed.path.split(".")[0]))
     write_nolocaldups(sbed.path,nslocaldups,"{0}.nolocaldups.bed.local".format(sbed.path.split(".")[0]))
