@@ -1,6 +1,6 @@
 """
 ('name', 'chr', other_org_name + '_orthologs',
-      other_org_name + '_orthologous_cns_count',
+      other_org_name + '_orthologous_cns',
       other_org_name +
       '_NON_orthologous_cns_count', 'other_' +
       other_org_name + 'pairs', 'dups', 'strand',
@@ -17,7 +17,7 @@ from flatfeature import Bed
 import os.path as op
 sys.path.insert(0, op.dirname(__file__))
 from common import parse_cns_datasheet, get_sheet_from_date, parse_orthology
-
+from cns_location_csv import cns_link
 
 def merge_flat(new_name, aflat, bflat):
     """
@@ -135,8 +135,8 @@ def write_genelist(q_or_s, outfile, flat, pairs, orthos, mcnss, link_fmt, this_o
     # used in the link_fmt
     qorg, sorg = this_org, other_org
 
-    fmt = "%(accn)s\t%(seqid)s\t%(start)i\t%(end)i\t%(ortholog)s\t%(ortho_cns_count)s\t"
-    fmt +="%(ortho_NON_cns_count)s\t%(other_pairs)s\t%(dup_info)s\t%(local_dup_info)s\t%(strand)s\t"
+    fmt = "%(accn)s\t%(seqid)s\t%(start)i\t%(end)i\t%(ortholog)s\t%(ortho_cns)s\t"
+    fmt +="%(regional_dup_info)s\t%(local_dup_info)s\t%(strand)s\t"
     fmt += "%(new_gene_info)s\t%(link)s"
     header = fmt.replace('%(', '').replace(')s','').replace(')i','')
 
@@ -157,15 +157,13 @@ def write_genelist(q_or_s, outfile, flat, pairs, orthos, mcnss, link_fmt, this_o
 
         ortholog, other_pairs = split_pairs(feat, [other_flat.d[t] for t in these_pairs], orthos, q_or_s=='s')
         ortho_cns, non_ortho_cns = split_cns(cnss, orthos, q_or_s=='s')
-        dup_info = dups.get(feat['accn'], '')
+        regional_dup_info = dups.get(feat['accn'], '')
         local_dup_info = local_dups.get(feat['accn'], '')
 
         if ortholog:
             ortho = ortholog[0]
-            link = link_fmt % dict(x1=feat['start'], chr1=feat['seqid'], qorg=qorg, sorg=sorg,
-                                   x2=ortho['start'], chr2=ortho['seqid'],
-                                    qseqid=feat['seqid'], qstart=feat['start'] - 10000, qstop=feat['end'] + 10000,
-                                    sseqid=ortho['seqid'], sstart=ortho['start'] - 10000, sstop=ortho['end'] + 10000
+            link = link_fmt % dict(qorg=qorg, sorg=sorg,
+                                   accn1=ortho['accn'], accn2=feat['accn']
                                   )
         else:
             link = ''
@@ -186,7 +184,7 @@ def write_genelist(q_or_s, outfile, flat, pairs, orthos, mcnss, link_fmt, this_o
         other_pairs = ",".join([o["accn"] for o in other_pairs])
         fmt_dict = locals()
         fmt_dict.update(Bed.row_to_dict(feat))
-        fmt_dict.update({'ortho_cns_count': len(ortho_cns) if ortholog else "",
+        fmt_dict.update({'ortho_cns': len(ortho_cns) if ortholog else "",
                          'ortho_NON_cns_count': len(non_ortho_cns) if
                          other_pairs else ""})
         print >>out, fmt % fmt_dict
@@ -262,19 +260,11 @@ if __name__ == "__main__":
     
     link = "http://coge.iplantcollaborative.org/CoGe/GEvo.pl?prog=blastn&dsid1=" + \
                   opts.qdsid + "&dsid2=" + opts.sdsid + \
-                  "&x1=%(x1)s&x2=%(x2)s&chr1=%(chr1)s&chr2=%(chr2)s&num_seqs=2&autogo=1" 
+                  "&accn1=%(accn1)s&accn2=%(accn2)s&num_seqs=2&autogo=1" 
     
-    """link = "http://syntelog.com/gobe-demo/rr/?locs=%(qorg)s..%(qseqid)s..%(qstart)s..%(qstop)i" + \
-                                                 "&locs=%(sorg)s..%(sseqid)s..%(sstart)i..%(sstop)i"
-    """
     write_genelist('q', qout, qflat, pairs, orthos, mcns, link, opts.qorg,opts.sorg, sflat, qdups, qlocaldups)
 
     sout = op.join(out_dir, opts.sorg +
             ".genelist-" + tdate + ".csv")
-    """
-    link = "http://toxic.berkeley.edu/CoGe/GEvo.pl?prog=blastn&dsid1=" + \
-          opts.sdsid + "&dsid2=" + opts.qdsid + \
-          "&x1=%(x1)s&x2=%(x2)s&chr1=%(chr1)s&chr2=%(chr2)s&num_seqs=2&autogo=1" 
-    """
     if opts.qflat_all != opts.sflat_all:
         write_genelist('s', sout, sflat, pairs, orthos, mcns, link, opts.sorg, opts.qorg, qflat, sdups, slocaldups)
