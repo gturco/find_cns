@@ -40,7 +40,7 @@ def cns_to_dic(cns,fmt):
 def write_to_file_grouped(cns_grouped_number,grouped_locations_dic,cns_path,qdsid,sdsid):
     tdate = str(datetime.date.today())
     org1_org2 = cns_path.split("/")[1]
-    write_file = open("data/{1}/cnslist_{0}_{1}.csv".format(tdate,org1_org2),"wb")
+    write_file = open("data/{1}/{1}.cnslist-{0}.csv".format(tdate,org1_org2),"wb")
     header = "qaccn,saccn,number_of_cns,5_distal,5_proximal,5_UTR,intron,3_UTR,3_proximal,3_distal,url\n"
     write_file.write(header)
  
