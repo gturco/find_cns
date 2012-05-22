@@ -45,9 +45,9 @@ def main(cfg_path):
     cfg = simplejson.load(open(cfg_path))
     update_cfg(cfg)
 
-    #run_mask(cfg)
+    run_mask(cfg)
 
-    #run_blasts(cfg)
+    run_blasts(cfg)
 
     dispatch(cfg)
     if cfg["default"].get("reciprocal"):
