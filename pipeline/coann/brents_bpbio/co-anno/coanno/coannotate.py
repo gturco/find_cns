@@ -45,9 +45,9 @@ def main(cfg_path):
     cfg = simplejson.load(open(cfg_path))
     update_cfg(cfg)
 
-    run_mask(cfg)
+    #run_mask(cfg)
 
-    run_blasts(cfg)
+    #run_blasts(cfg)
 
     dispatch(cfg)
     if cfg["default"].get("reciprocal"):
@@ -76,7 +76,7 @@ def merge_overlapping(new_genes, min_overlap, min_pct_coverage, match_file):
         used_genes = set([])
         seen = {}
         while i < len(genes):
-
+	    #print >> sys.stderr, j,i
             # it was probably seen on the other strand.
             if i in used_genes: i += 1; j = i + 1; continue
             g = genes[i].copy()
@@ -87,7 +87,8 @@ def merge_overlapping(new_genes, min_overlap, min_pct_coverage, match_file):
 
             #  PARAMETER: require 30bp overlap.
             while j < len(genes) and g['end'] > genes[j]['start'] + min_overlap:
-                # can only merge genes with genes, and cds with cds.
+                #print >> sys.stderr, 'AWWWWWWWWWWWWWWWWWW {0},{1}'.format(j,len(genes))
+		# can only merge genes with genes, and cds with cds.
                 if j in used_genes or genes[j]['type'] != g['type']: 
                     j += 1
                     continue
@@ -109,14 +110,17 @@ def merge_overlapping(new_genes, min_overlap, min_pct_coverage, match_file):
           
             g['end'] = new_stop
             key = g['start'], g['end']
-            if key in seen: continue
+            if key in seen:
+		i = last_gene or j
+		j = i + 1
+		continue
             seen[key] = None
             fix_name(g)
             assert len(g['accn']) <= 80, (len(g['accn']), g)
 
             print >>match_fh, "%s\t%s" % (g['accn'], matches)
 
-
+	    #print >> sys.stderr, 'i'
             yield g
             used_genes.update([i])
             i = last_gene or j
@@ -196,8 +200,10 @@ def dispatch(cfg, flip=False):
     merged_genes = exclude_genes_in_high_repeat_areas(merged_genes, bfasta)
     if Klass == Flat:
         print >>out_fh, "\t".join(Klass.names)
+    
     for i, new_gene in enumerate(merged_genes):
-        new_gene['locs'] = [(new_gene['start'], new_gene['end'])]
+        #print >>sys.stderr, "GENNNNNN {0}".format(i)
+	new_gene['locs'] = [(new_gene['start'], new_gene['end'])]
         new_gene['score'] = new_gene['rgb'] = new_gene['thickend'] = new_gene['thickstart'] = "."
         print >>out_fh, Klass.row_string(new_gene)
     out_fh.close()
