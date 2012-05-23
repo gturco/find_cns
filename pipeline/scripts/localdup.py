@@ -204,10 +204,10 @@ def main(cns_file,qdups_path,sdups_path,pair_file,fmt,qbed,sbed,qpad,spad,blast_
     sfastas = get_masked_fastas(sbed) if qbed.filename != sbed.filename else qfastas
     
     ################# file paths #####################
-    qnolocaldups_path =  qbed.path.split(".")[0] + ".nolocaldups.bed"
-    snolocaldups_path = sbed.path.split(".")[0] + ".nolocaldups.bed"
-    qlocaldups_path = qbed.path.split(".")[0] + ".localdups"
-    slocaldups_path = sbed.path.split(".")[0] + ".localdups"
+    qnolocaldups_path =  qbed.path.split(".")[0] + ".all.nolocaldups.bed"
+    snolocaldups_path = sbed.path.split(".")[0] + ".all..nolocaldups.bed"
+    qlocaldups_path = qbed.path.split(".")[0] + ".all.localdups"
+    slocaldups_path = sbed.path.split(".")[0] + ".all.localdups"
     npair_file,nqlocaldups,nslocaldups, ncns_file = map(make_copy_of_file,[pair_file,qlocaldups_path,slocaldups_path,cns_file])
     ##########################################
     
