@@ -37,6 +37,7 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad, unmaske
     for line in blast_str.split("\n"):
         if "WARNING:" in line: continue
         if "ERROR" in line: continue
+        if line == '': continue
         line = line.split("\t")
         if float(line[-1]) < 29.5: continue #finds 15/15 match
        # if float(line[-1]) < 33.4: continue #finds 17/17 match
