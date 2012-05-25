@@ -9,8 +9,8 @@ from collections import defaultdict
 
 from flatfeature import Bed
 from pyfasta import Fasta
-from find_cns_maize import parse_blas
-form localdups import write_new_dups,make_copy_of_file,best_repeats,skip_pair,get_large_dups
+from find_cns_maize import parse_blast
+from localdup import write_new_dups,make_copy_of_file,best_repeats,skip_pair,get_large_dups
 from find_cns import get_masked_fastas, get_cmd
 from qa_parsers import pairs_to_qa,ParsePairs,write_nolocaldups
 from orderedset import OrderedSet
@@ -135,7 +135,7 @@ def main(cns_file,qdups_path,sdups_path,pair_file,fmt,qbed,sbed,qpad,spad,blast_
             write_new_dups(npair_file,ncns_file,nqlocaldups,nslocaldups,cnss_size,qparent,sparent,qfeat,sfeat,qdups,sdups)
     
     best_reps = best_repeats(rdups_dic)
-    for dparents in best_repeats.keys():
+    for dparents in best_reps.keys():
         qparent,sparent = dparents
         ### one or list? cnss[0]?
         cns_number,qfeat_start, sfeat_start,qaccn,saccn,largest_cnss = best_reps[dparents]
