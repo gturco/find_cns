@@ -14,8 +14,8 @@ def get_fasta(qfasta,sfasta,cns):
     qchr = qfasta[cns['qchr']]
     schr = sfasta[cns['schr']]
     qstart,qend,sstart,send = map(int,[cns['qstart'],cns['qstop'],cns['sstart'],cns['sstop']])
-    qseq = qchr[qstart,qend]
-    sseq = schr[sstart,send]
+    qseq = qchr[qstart:qend]
+    sseq = schr[sstart:send]
     if cns['qstrand'] == '-':
         qseq = str(Seq(seq).reverse_complement())
     if cns['strand'] == '-':
