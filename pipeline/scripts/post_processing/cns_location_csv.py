@@ -11,8 +11,8 @@ from Bio.SeqUtils import Seq
 
 def get_fasta(qfasta,sfasta,cns):
     "return the cns seqence for query and subject"
-    qchr = qfasta[cns['qseqid']]
-    schr = sfasta[cns['sseqid']]
+    qchr = qfasta[cns['qchr']]
+    schr = sfasta[cns['schr']]
     qstart,qend,sstart,send = map(int,[cns['qstart'],cns['qstop'],cns['sstart'],cns['sstop']])
     qseq = qchr[qstart,qend]
     sseq = schr[sstart,send]
@@ -50,9 +50,7 @@ def cns_to_dic(cns,fmt):
     return cns_file
 
 def write_to_file_grouped(cns_grouped_number,grouped_locations_dic,cns_path,qdsid,sdsid):
-    tdate = str(datetime.date.today())
-    org1_org2 = cns_path.split("/")[1]
-    write_file = open("data/{1}/{1}.cnslist-{0}.csv".format(tdate,org1_org2),"wb")
+    write_file = open("{0}.location".format(cns_path),"wb")
     header = "qaccn,saccn,number_of_cns,5_distal,5_proximal,5_UTR,intron,3_UTR,3_proximal,3_distal,url\n"
     write_file.write(header)
  
@@ -70,21 +68,22 @@ def write_to_file_grouped(cns_grouped_number,grouped_locations_dic,cns_path,qdsi
         write_file.write(new_line)
     write_file.close()
 
-def write_one_to_file(qfasta,sfasta,cns_dict,fmt,out_fh):
+def write_one_to_file(qfasta,sfasta,cns_dict,cns_file):
     """ imports into sql if fmt is pck otherwise writes file cns.location"""
-    write_file = open(out_fh,"wb")
-    if fmt == "csv":
-        for cns in cns_dict:
-            #string_values = map(str,cns.values())
-            #all_values = "\t".join(string_values)
-            qseq,sseq = get_fasta(qfasta,sfasta,cns)
-            new_line = "{0},{1},{2}\n".format(cns["#cns_id"],cns["type"],qseq,sseq)
-            write_file.write(new_line)
-        write_file.close()
-    pos_fasta = read_csv(out_fh,index_col=0)
-    cnsf = read_csv(cns_file,index_col=0)
+    pos_fasta_fh = open("{0}.location_indvi".format(cns_file),"wb")
+    tdate = str(datetime.date.today())
+    org1_org2 = options.cns.split("/")[1]
+    cnslist_fh = open("data/{1}/{1}.cnslist-{0}.csv".format(tdate,org1_org2),"wb")
+    for cns in cns_dict:
+        #string_values = map(str,cns.values())
+        #all_values = "\t".join(string_values)
+        qseq,sseq = get_fasta(qfasta,sfasta,cns)
+        new_line = "{0},{1},{2}\n".format(cns["#cns_id"],cns["type"],qseq,sseq)
+        pos_fasta_fh.write(new_line)
+    pos_fasta_fh.close()
+    pos_fasta = read_csv("{0}.location_indvi".format(cns_file),index_col=0)
+    cns_fh = read_csv(cns_file,index_col=0)
     cnslist = cns.join(pos_fasta)
-    cnslist_fh ==
     cnslist.to_csv(cnslist_fh,sep=',')
 
 
@@ -184,11 +183,11 @@ if __name__ == "__main__":
 
 
     (options, _) = parser.parse_args()
-
+    
     x= main(options.cns,options.fmt,options.qbed,options.sbed)
     qfasta = Fasta(options.qfasta_path)
     sfasta = Fasta(options.sfasta_path)
-    write_one_to_file(qfasta, sfasta, x,"csv","{0}.location_indvi".format(options.cns))
+    write_one_to_file(qfasta, sfasta, x, options.cns)
     group_cns(x,options.cns,options.qdsgid,options.sdsgid)
 
   # x= main("/Users/gturco/code/freeling_lab/find_cns_gturco/pipeline/scripts/post_processing/find_cns_cns_test.pck","/Users/gturco/code/freeling_lab/find_cns_gturco/pipeline/scripts/post_processing/query_test.bed","/Users/gturco/code/freeling_lab/find_cns_gturco/pipeline/scripts/post_processing/subject_test.bed")
