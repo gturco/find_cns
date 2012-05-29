@@ -2,10 +2,25 @@ import sys
 import numpy
 from shapely.geometry import Point, Polygon, LineString, MultiLineString
 from flatfeature import Bed
-import pickle
 import csv
 from collections import Counter
 import datetime
+from pandas import read_csv
+from pyfasta import Fasta
+from Bio.SeqUtils import Seq
+
+def get_fasta(qfasta,sfasta,cns):
+    "return the cns seqence for query and subject"
+    qchr = qfasta[cns['qseqid']]
+    schr = sfasta[cns['sseqid']]
+    qstart,qend,sstart,send = map(int,[cns['qstart'],cns['qstop'],cns['sstart'],cns['sstop']])
+    qseq = qchr[qstart,qend]
+    sseq = schr[sstart,send]
+    if cns['qstrand'] == '-':
+        qseq = str(Seq(seq).reverse_complement())
+    if cns['strand'] == '-':
+        sseq = str(Seq(seq).reverse_complement())
+    return qseq, sseq
 
 def cns_link(qaccn,saccn, qdsid, sdsid, qpad,spad, base="http://synteny.cnr.berkeley.edu/CoGe/GEvo.pl?prog=blastn&autogo=1&show_cns=1&"):
   
@@ -31,10 +46,7 @@ def group_cns_number(cns_dict):
 
 def cns_to_dic(cns,fmt):
     """ takes cns file in sql or csv format and creates a pck"""
-    if fmt == "csv":
-        cns_file = list(csv.DictReader(open(cns)))
-    elif fmt == "pck":
-        cns_file = pickle.load(open(cns))
+    cns_file = list(csv.DictReader(open(cns)))
     return cns_file
 
 def write_to_file_grouped(cns_grouped_number,grouped_locations_dic,cns_path,qdsid,sdsid):
@@ -58,19 +70,23 @@ def write_to_file_grouped(cns_grouped_number,grouped_locations_dic,cns_path,qdsi
         write_file.write(new_line)
     write_file.close()
 
-def write_one_to_file(cns_dict,fmt,out_fh):
+def write_one_to_file(qfasta,sfasta,cns_dict,fmt,out_fh):
     """ imports into sql if fmt is pck otherwise writes file cns.location"""
     write_file = open(out_fh,"wb")
     if fmt == "csv":
         for cns in cns_dict:
             #string_values = map(str,cns.values())
             #all_values = "\t".join(string_values)
-            new_line = "{0}\t{1}\n".format(cns["#cns_id"],cns["type"])
+            qseq,sseq = get_fasta(qfasta,sfasta,cns)
+            new_line = "{0},{1},{2}\n".format(cns["#cns_id"],cns["type"],qseq,sseq)
             write_file.write(new_line)
         write_file.close()
-    elif fmt == "pck":
-        import_into_mysql(cns)
-        #### add load into table stuff here
+    pos_fasta = read_csv(out_fh,index_col=0)
+    cnsf = read_csv(cns_file,index_col=0)
+    cnslist = cns.join(pos_fasta)
+    cnslist_fh ==
+    cnslist.to_csv(cnslist_fh,sep=',')
+
 
 def main(cns_path, fmt, query_bed_path, subject_bed_path):
   cns_dic = cns_to_dic(cns_path,fmt)
@@ -125,13 +141,6 @@ def group_cns(cns_dic,cns_path,qid,sid):
     write_to_file_grouped(cns_grouped_number,grouped_locations_dic,cns_path,qid,sid)
 
 #write_to_file(cns,fmt)
-
-def import_into_mysql(cns):
-  db = MySQLdb.connect(host="127.0.0.1", user="root", db = "paper3")
-  cursor = db.cursor()
-  stmt = "INSERT INTO cns_postion_info (cns_id, qaccn,qseqid,qcns_start,qcns_end,qstrand, saccn, sseqid, scns_start, scns_end,sstrand, urls, postion) values('{0}','{1}',{2},{3},{4},'{5}','{6}','{7}',{8},{9},'{10}','{11}','{12}')".format(cns['cns_id'], cns['qaccn'], cns["qseqid"],cns["qcns_start"],cns["qcns_end"],cns["qstrand"], cns["saccn"], cns["sseqid"], cns["scns_start"], cns["scns_end"], cns["sstrand"], cns["urls"], cns["type"])     
-  print stmt
-  cursor.execute(stmt)
     
 def cns_type(cns, qgene_space_poly, qgene_poly, sgene_poly, scns, qcns,qgene_space_start,qfeat):
   if qgene_space_poly.intersects(qcns):
@@ -153,61 +162,6 @@ def create_utr_list(utr_dict,feat, cns, letter):
   if cns['type'] == "UTR":
     utr_dict[feat['accn']].append((cns['{0}start'.format(letter)]))
     utr_dict[feat['accn']].append((cns['{0}end'.format(letter)]))
-
-def utr_present(cns_pck,query_bed_path, UTR):
-  "checks to see if qaccn has utr region"
-  db = MySQLdb.connect(host="127.0.0.1", user="root", db = "rice_gene_table")
-  cursor = db.cursor()
-  cns_handle = open(cns_pck)
-  cns_pickle = pickle.load(cns_handle)
-  query_bed = Bed(query_bed_path)
-  for cns in cns_pickle:
-    qfeat = query_bed.accn(cns['qaccn'])
-    if qfeat['strand'] == "+":
-      end = qfeat['end']
-      start = qfeat["start"]
-    else:
-      end = qfeat['start']
-      start = qfeat["end"]
-    if UTR == 3:
-      if end == min(qfeat['locs'])[0] or end == max(qfeat['locs'])[1]:
-        stmt = "update MUSA_GENE_LIST_copy set MUSA_GENE_LIST_copy.3_UTR = 'ND' where MUSA_GENE_LIST_copy.Rice_MSU6_genes = '{0}'".format(cns['qaccn'])
-        print stmt
-        cursor.execute(stmt)
-    elif UTR == 5:
-      if start == min(qfeat['locs'])[0] or start == max(qfeat['locs'])[1]:
-        stmt = "update MUSA_GENE_LIST_copy set MUSA_GENE_LIST_copy.5_UTR = 'ND' where MUSA_GENE_LIST_copy.Rice_MSU6_genes = '{0}'".format(cns['qaccn'])
-        print stmt
-        cursor.execute(stmt)
-
-def load_in_table(table_name):
-    "preprocessing create table cns_postion_info_grouped  as (select qaccn, \
-    saccn, count(postion) as postion_number , postion from cns_postion_info \
-    group by qaccn, saccn, postion) index qaccn, saccn"
-    db = MySQLdb.connect(host="127.0.0.1", user="root", db = "paper3")
-    cursor = db.cursor()
-    colm_dict = {"3-distal":"3_distal",
-            "3-proximal":"3_proximal",
-            "3-UTR":"3_UTR",
-            "5-distal":"5_distal",
-            "5-proximal":"5_proximal",
-            "5-UTR":"5_UTR",
-            "intron": "intron"}
-    keys =['5-distal','5-proximal','5-UTR','intron','3-UTR','3-proximal','3-distal']
-    for key in keys:
-        value = colm_dict[key]
-        add_col = "ALTER TABLE {0} ADD COLUMN {1} int".format(table_name,value)
-        cursor.execute(add_col)
-        update = "UPDATE {0}, cns_postion_info_grouped SET {0}.{1} =cns_postion_info_grouped.postion_number WHERE {0}.qaccn =cns_postion_info_grouped.qaccn AND cns_postion_info_grouped.saccn = {0}.saccn and cns_postion_info_grouped.postion = '{2}'".format(table_name,value,key)
-        #print >>sys.stderr,  update
-        cursor.execute(update)
-        update_null = "UPDATE {0} SET {0}.{1} = 0 where {0}.{1} is null".format(table_name, value)
-        cursor.execute(update_null)
-    cursor.close()
-    db.commit()
-    db.close()
-
-
   
 "postional 5' 3 'distance from utr - cns...."
 "5' or 3' if < then gene_poly = 5 prime.... if grter then gene space poly then 3 prinme.."
@@ -225,11 +179,16 @@ if __name__ == "__main__":
     parser.add_option("--fmt", dest="fmt", help="fmt of file csv file or sql file")
     parser.add_option("--qdsgid",dest="qdsgid",help="dataset group id form coge for query org")
     parser.add_option("--sdsgid",dest="sdsgid",help="dataset group id from coge database for subject org")
+    parser.add_option("--qfasta",dest="qfasta_path",help="fasta file for query cns ")
+    parser.add_option("--sfasta",dest="sfasta_path",help="fasta file for subject cns")
+
 
     (options, _) = parser.parse_args()
 
     x= main(options.cns,options.fmt,options.qbed,options.sbed)
-    write_one_to_file(x,"csv","{0}.location_indvi".format(options.cns))
+    qfasta = Fasta(options.qfasta_path)
+    sfasta = Fasta(options.sfasta_path)
+    write_one_to_file(qfasta, sfasta, x,"csv","{0}.location_indvi".format(options.cns))
     group_cns(x,options.cns,options.qdsgid,options.sdsgid)
 
   # x= main("/Users/gturco/code/freeling_lab/find_cns_gturco/pipeline/scripts/post_processing/find_cns_cns_test.pck","/Users/gturco/code/freeling_lab/find_cns_gturco/pipeline/scripts/post_processing/query_test.bed","/Users/gturco/code/freeling_lab/find_cns_gturco/pipeline/scripts/post_processing/subject_test.bed")
