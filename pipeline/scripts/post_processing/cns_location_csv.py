@@ -17,9 +17,9 @@ def get_fasta(qfasta,sfasta,cns):
     qseq = qchr[qstart:qend]
     sseq = schr[sstart:send]
     if cns['qstrand'] == '-':
-        qseq = str(Seq(seq).reverse_complement())
-    if cns['strand'] == '-':
-        sseq = str(Seq(seq).reverse_complement())
+        qseq = str(Seq(qseq).reverse_complement())
+    if cns['sstrand'] == '-':
+        sseq = str(Seq(sseq).reverse_complement())
     return qseq, sseq
 
 def cns_link(qaccn,saccn, qdsid, sdsid, qpad,spad, base="http://synteny.cnr.berkeley.edu/CoGe/GEvo.pl?prog=blastn&autogo=1&show_cns=1&"):
@@ -74,16 +74,20 @@ def write_one_to_file(qfasta,sfasta,cns_dict,cns_file):
     tdate = str(datetime.date.today())
     org1_org2 = options.cns.split("/")[1]
     cnslist_fh = open("data/{1}/{1}.cnslist-{0}.csv".format(tdate,org1_org2),"wb")
+    header = "#cns_id,postion,qfasta,sfasta\n"
+    pos_fasta_fh.write(header)
     for cns in cns_dict:
         #string_values = map(str,cns.values())
         #all_values = "\t".join(string_values)
         qseq,sseq = get_fasta(qfasta,sfasta,cns)
-        new_line = "{0},{1},{2}\n".format(cns["#cns_id"],cns["type"],qseq,sseq)
+        new_line = "{0},{1},{2},{3}\n".format(cns["#cns_id"],cns["type"],qseq,sseq)
         pos_fasta_fh.write(new_line)
     pos_fasta_fh.close()
     pos_fasta = read_csv("{0}.location_indvi".format(cns_file),index_col=0)
     cns_fh = read_csv(cns_file,index_col=0)
-    cnslist = cns.join(pos_fasta)
+    cns_nolinks = cns_fh[cns_fh.columns[:-1]]
+    all_nolinks = cns_nolinks.join(pos_fasta)
+    cnslist = all_nolinks.join(cns_fh['link'])
     cnslist.to_csv(cnslist_fh,sep=',')
 
 
