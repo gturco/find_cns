@@ -260,7 +260,7 @@ if __name__ == "__main__":
     
     link = "http://coge.iplantcollaborative.org/CoGe/GEvo.pl?prog=blastn&dsid1=" + \
                   opts.qdsid + "&dsid2=" + opts.sdsid + \
-                  "&accn1=%(accn1)s&accn2=%(accn2)s&num_seqs=2&autogo=1" 
+                  "&accn1=%(accn1)s&accn2=%(accn2)s&num_seqs=2&autogo=1&show_cns=1" 
     
     write_genelist('q', qout, qflat, pairs, orthos, mcns, link, opts.qorg,opts.sorg, sflat, qdups, qlocaldups)
 
