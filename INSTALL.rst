@@ -46,11 +46,13 @@ Python Installation
 
   pip install git+https://github.com/brentp/flatfeature.git
 
-- `quota-align <https://github.com/tanghaibao/quota-alignment>`_
-  (adjust path in quota.sh if you do not move file to cns_pipeline/bin/)::
-
+- `quota-align <https://github.com/tanghaibao/quota-alignment>`_::
+  
   git clone https://github.com/tanghaibao/quota-alignment.git 
-  mv quota-alignment  /cns_pipeline/bin/
+  mv quota-alignment  cns_pipeline/bin/
+  (change path in quota.sh if not moved to cns_pipeline/bin)
+
+
 
 - `gffparser <https://github.com/chapmanb/bcbb/tree/master/gff>`_::
 
