@@ -21,10 +21,14 @@ Python Installation
 
   pip install numpy
 
--processing:: 
+-processing::
   pip install processing
--shapely: ``pip install shapely``
-  + pyfasta: ``pip install pyfasta``
+
+-shapely::
+
+  pip install shapely
+
+-pyfasta: ``pip install pyfasta``
   + scipy: ``pip install scipy``
   + Cython: ``pip install Cython``
   + flatfeature: ``pip install git+https://github.com/brentp/flatfeature.git``
