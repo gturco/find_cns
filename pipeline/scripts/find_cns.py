@@ -181,7 +181,7 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad):
     if orient == -1:
         cnss = [(c[0], c[1], -c[2], -c[3],c[-1]) for c in cnss]
     
-    print >>sys.stderr, cnss
+    #print >>sys.stderr, cnss
     return cnss
 
 
@@ -348,7 +348,7 @@ def main(qbed, sbed, pairs_file, qpad, spad, pair_fmt, blast_path, mask='F', ncp
     """main runner for finding cnss"""
     pool = Pool(ncpu)
     bl2seq = "%s " % blast_path + \
-           "-p blastn -D 1 -E 2 -q -2 -r 1 -G 5 -W 7 -F %s " % mask + \
+           " -p blastn -D 1 -E 2 -q -2 -r 1 -G 5 -W 7 -F %s " % mask + \
            " -e %(e_value).2f -i %(qfasta)s -j %(sfasta)s \
               -I %(qstart)d,%(qstop)d -J %(sstart)d,%(sstop)d | grep -v '#' \
             | grep -v 'WARNING' | grep -v 'ERROR' "
