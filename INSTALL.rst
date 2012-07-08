@@ -38,19 +38,19 @@ Python Installation
 
   pip install scipy
 
-- `Cython <http://www.cython.org/#download>`_:: 
-  
+- `Cython <http://www.cython.org/#download>`_::
+
   pip install Cython
 
-- `flatfeature <https://github.com/brentp/flatfeature.git>`_:: 
-  
+- `flatfeature <https://github.com/brentp/flatfeature.git>`_::
+
   pip install git+https://github.com/brentp/flatfeature.git
 
-- `quota-align <https://github.com/tanghaibao/quota-alignment>`_::
+- `quota-align <https://github.com/tanghaibao/quota-alignment>`_
+  (adjust path in quota.sh if you do not move file to cns_pipeline/bin/)::
 
   git clone https://github.com/tanghaibao/quota-alignment.git 
-  mv quota-alignment  /cns_pipeline/bin/  
-(adjust path in quota.sh if you do not move file to cns_pipeline/bin/)
+  mv quota-alignment  /cns_pipeline/bin/
 
 - `gffparser <https://github.com/chapmanb/bcbb/tree/master/gff>`_::
 
@@ -59,15 +59,15 @@ Python Installation
     python setup.py install
 
 - `bpbio <http://code.google.com/p/bpbio/>`_::
-  
-  cd pipeline/coann/brents_bpbio/biostuff/ 
+
+  cd pipeline/coann/brents_bpbio/biostuff/
   python setup.py install
-  cd pipeline/coann/brents_bpbio/blasttools/blast_misc/ 
+  cd pipeline/coann/brents_bpbio/blasttools/blast_misc/
   python setup.py install
-  cd pipeline/coann/brents_bpbio/biostuff/co-anno/ 
+  cd pipeline/coann/brents_bpbio/biostuff/co-anno/
   python setup.py install
 
--
+-test
 
 
 C Installation
