@@ -17,10 +17,13 @@ Requirements
 
 Python Installation
 ============
-  + numpy::
-    pip install numpy
-  + processing:: pip install processing
-  + shapely: ``pip install shapely``
+-numpy::
+
+  pip install numpy
+
+-processing:: 
+  pip install processing
+-shapely: ``pip install shapely``
   + pyfasta: ``pip install pyfasta``
   + scipy: ``pip install scipy``
   + Cython: ``pip install Cython``
