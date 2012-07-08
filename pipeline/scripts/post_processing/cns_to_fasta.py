@@ -1,6 +1,13 @@
 import sys
 from pyfasta import Fasta
 from cns_utils import CNS
+from flatfeature import Bed
+
+
+def is_intron(cns,bed):
+    feats = bed.get_features_in_region(str(cns.qseqid), cns.qstart, cns.qstop)
+    if len(feats) > 0: return True
+    else: return False
 
 def main(cnsfile, qfasta_file, sfasta_file, qorg, sorg, min_len):
     """empty docstring"""
@@ -17,6 +24,7 @@ def main(cnsfile, qfasta_file, sfasta_file, qorg, sorg, min_len):
 
     seen = {}
     for cns in CNS.parse_raw_line(cnsfile):
+        #if is_intron(cns,qbed): continue
         qseq = qfasta[str(cns.qseqid)]
         sseq = sfasta[str(cns.sseqid)]
 
@@ -56,10 +64,13 @@ if __name__ == "__main__":
     parser.add_option("--sorg", dest="sorg", help="subject organism name")
     parser.add_option("--qorg", dest="qorg", help="query organism name")
     parser.add_option("--min_len", dest="min_len", help="skip cnss with len < than this", default=0)
-
+    #parser.add_option('--qbed',dest='qbed',help="query bed location")
+    
     (options, _) = parser.parse_args()
     if not (options.cnsfile and options.qfasta and options.sfasta):
         sys.exit(parser.print_help())
+
+    #qbed = Bed(options.qbed)
 
     sys.path.insert(0, os.path.dirname(__file__))
     main(options.cnsfile, options.qfasta, options.sfasta, options.qorg, options.sorg, int(options.min_len))
