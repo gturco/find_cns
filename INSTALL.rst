@@ -22,24 +22,48 @@ Python Installation
   pip install numpy
 
 -processing::
+
   pip install processing
 
 -shapely::
 
   pip install shapely
 
--pyfasta: ``pip install pyfasta``
-  + scipy: ``pip install scipy``
-  + Cython: ``pip install Cython``
-  + flatfeature: ``pip install git+https://github.com/brentp/flatfeature.git``
-  + quota-align: ``git clone https://github.com/tanghaibao/quota-alignment.git`` (mv to /cns_pipeline/bin/)  (checkout with git and adjust path in quota.sh)
-  + gffparser::
+-pyfasta::
+
+  pip install pyfasta
+
+-scipy::
+
+  pip install scipy
+
+-Cython:: 
+  
+  pip install Cython
+
+-flatfeature:: 
+  
+  pip install git+https://github.com/brentp/flatfeature.git
+
+-quota-align:: 
+
+  git clone https://github.com/tanghaibao/quota-alignment.git 
+  mv quota-alignment  /cns_pipeline/bin/  (checkout with git and adjust path in quota.sh)
+
+-gffparser::
+
     git clone https://github.com/chapmanb/bcbb.git
     cd gff
     python setup.py install
-  + ``cd pipeline/coann/brents_bpbio/biostuff/ \n python setup.py install``
-  + ``cd pipeline/coann/brents_bpbio/blasttools/blast_misc/ \n python setup.py install``
-  + ``cd pipeline/coann/brents_bpbio/biostuff/co-anno/ \n python setup.py install``
+
+-bpbio::
+  
+  cd pipeline/coann/brents_bpbio/biostuff/ 
+  python setup.py install
+  cd pipeline/coann/brents_bpbio/blasttools/blast_misc/ 
+  python setup.py install
+  cd pipeline/coann/brents_bpbio/biostuff/co-anno/ 
+  python setup.py install
 
 
 
