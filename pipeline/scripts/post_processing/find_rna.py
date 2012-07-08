@@ -26,7 +26,7 @@ def join_feat(key,seq_feat):
     return main_feat
 
 
-def conden_transcript(seq_features):
+def conden_transcripts(seq_features):
     ids = set([])
     new_seq_feat = []
     seq_feat = defaultdict(list)
@@ -58,7 +58,7 @@ def main(gff_file, outdir, th_fasta):
             if has_cds: continue
             #non_cds_feats.append(feat) 
             print >>out_fasta, ">%s" % ids[0]
-            print >>out_fasta, fasta[feat.seqid.lower()][feat.start - 1: feat.end]
+            print >>out_fasta, fasta[seqid.id.lower()][int(feat.location.start) : int(feat.location.end)]
 
 
 def read_descriptions(desc_file):
