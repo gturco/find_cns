@@ -72,7 +72,7 @@ def write_one_to_file(qfasta,sfasta,cns_dict,cns_file):
     """ imports into sql if fmt is pck otherwise writes file cns.location"""
     pos_fasta_fh = open("{0}.location_indvi".format(cns_file),"wb")
     tdate = str(datetime.date.today())
-    org1_org2 = options.cns.split("/")[1]
+    org1_org2 = cns_file.split("/")[1]
     cnslist_fh = open("data/{1}/{1}.cnslist-{0}.csv".format(tdate,org1_org2),"wb")
     header = "#cns_id,postion,qfasta,sfasta\n"
     pos_fasta_fh.write(header)
