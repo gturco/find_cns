@@ -18,39 +18,40 @@ Requirements
 
 Python Installation
 ============
+
 - `numpy <http://www.scipy.org/Download/>`_::
 
-  pip install numpy
+    pip install numpy
 
 - `processing <http://pypi.python.org/pypi/processing/>`_::
 
-  pip install processing
+    pip install processing
 
 - `shapely <http://toblerity.github.com/shapely/manual.html>`_::
 
-  pip install shapely
+    pip install shapely
 
 - `pyfasta <http://pypi.python.org/pypi/pyfasta/>`_::
 
-  pip install pyfasta
+    pip install pyfasta
 
 - `scipy <http://www.scipy.org/Installing_SciPy/>`_::
 
-  pip install scipy
+    pip install scipy
 
 - `Cython <http://www.cython.org/#download>`_::
 
-  pip install Cython
+    pip install Cython
 
 - `flatfeature <https://github.com/brentp/flatfeature.git>`_::
 
-  pip install git+https://github.com/brentp/flatfeature.git
+    pip install git+https://github.com/brentp/flatfeature.git
 
 - `quota-align <https://github.com/tanghaibao/quota-alignment>`_::
   
-  git clone https://github.com/tanghaibao/quota-alignment.git 
-  mv quota-alignment  cns_pipeline/bin/
-  (change path in quota.sh if not moved to cns_pipeline/bin)
+    git clone https://github.com/tanghaibao/quota-alignment.git 
+    mv quota-alignment  cns_pipeline/bin/
+    (change path in quota.sh if not moved to cns_pipeline/bin)
 
 
 
@@ -62,12 +63,12 @@ Python Installation
 
 - `bpbio <http://code.google.com/p/bpbio/>`_::
 
-  cd pipeline/coann/brents_bpbio/biostuff/
-  python setup.py install
-  cd pipeline/coann/brents_bpbio/blasttools/blast_misc/
-  python setup.py install
-  cd pipeline/coann/brents_bpbio/biostuff/co-anno/
-  python setup.py install
+    cd pipeline/coann/brents_bpbio/biostuff/
+    python setup.py install
+    cd pipeline/coann/brents_bpbio/blasttools/blast_misc/
+    python setup.py install
+    cd pipeline/coann/brents_bpbio/biostuff/co-anno/
+    python setup.py install
 
 - test
 
