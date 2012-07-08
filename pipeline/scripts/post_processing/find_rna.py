@@ -3,12 +3,10 @@ import os.path as op
 sys.path.insert(0, op.dirname(__file__))
 sys.path.append("../")
 from cns_utils import BlastLine, parse_at_description
-import collections
 from pyfasta import Fasta
 import operator
-import gt
-gt.warning_disable()
-
+from collections import defaultdict
+from BCBio.GFF import GFFParser
 
 help = """\
 All CNSs were blasted to Arabidopsis RNAs (TRNA, SNORNA, RIRNA, MIRNA). [Any arabidopsis accn from 
@@ -16,23 +14,47 @@ ftp://ftp.arabidopsis.org/home/tair/Genes/TAIR9_genome_release/TAIR9_gff3/TAIR9_
 that doesn't have a CDS.].
 """
 
+
+def join_feat(key,seq_feat):
+    feats = seq_feat[key]
+    if len(feats) == 1: return feats[0]
+    i,main_feat = [(i,feat) for i,feat in enumerate(feats) if feat.id == key][0]
+    for fi,f in enumerate(feats):
+        if i == fi: continue
+        for subfeat in f.sub_features:
+            main_feat.sub_features.append(subfeat)
+    return main_feat
+
+
+def conden_transcript(seq_features):
+    ids = set([])
+    new_seq_feat = []
+    seq_feat = defaultdict(list)
+    for feat in seq_features:
+        feat_id = feat.id.split('.')[0]
+        seq_feat[feat_id].append(feat)
+    for key in seq_feat.keys():
+        new_feat = join_feat(key,seq_feat)
+        new_seq_feat.append(new_feat)
+    return new_seq_feat
+
+
 def main(gff_file, outdir, th_fasta):
     """empty docstring"""
-    fi = gt.FeatureIndexMemory()
-    fi.add_gff3file(gff_file)
+    parser = GFFParser()
+    seqids = parser.parse(gff_file,None)
 
-    #non_cds_feats = {}
     fasta = Fasta(th_fasta, flatten_inplace=True)
     out_fasta = open(outdir + "/at_no_cds.fasta", "w")
-    for seqid in fi.get_seqids():
-        for feat in fi.get_features_for_seqid(seqid):
+    for seqid in seqids:
+        seq_features = conden_transcripts(seqid.features)
+        for feat in seq_features:
             has_cds = False
             ids = []
-            for subf in feat:
-                if "ID" in feat.attribs: ids.append(feat.attribs["ID"])
+            ids.append(feat.id)
+            for subf in feat.sub_features:
                 if subf.type == 'CDS': 
                     has_cds = True
-                    break
             if has_cds: continue
             #non_cds_feats.append(feat) 
             print >>out_fasta, ">%s" % ids[0]
