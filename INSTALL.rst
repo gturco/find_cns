@@ -12,51 +12,53 @@ Requirements
   + libgeos_c
   + gfortran
   + git
+  + `GEOS <http://trac.osgeo.org/geos/>`_
 
 .. image:: http://upload.wikimedia.org/wikipedia/commons/0/08/Pipeline_git.png
 
 Python Installation
 ============
--numpy::
+- `numpy <http://www.scipy.org/Download/>`_::
 
   pip install numpy
 
--processing::
+- `processing <http://pypi.python.org/pypi/processing/>`_::
 
   pip install processing
 
--shapely::
+- `shapely <http://toblerity.github.com/shapely/manual.html>`_::
 
   pip install shapely
 
--pyfasta::
+- `pyfasta <http://pypi.python.org/pypi/pyfasta/>`_::
 
   pip install pyfasta
 
--scipy::
+- `scipy <http://www.scipy.org/Installing_SciPy/>`_::
 
   pip install scipy
 
--Cython:: 
+- `Cython <http://www.cython.org/#download>`_:: 
   
   pip install Cython
 
--flatfeature:: 
+- `flatfeature <https://github.com/brentp/flatfeature.git>`_:: 
   
   pip install git+https://github.com/brentp/flatfeature.git
 
--quota-align:: 
+- `quota-align <https://github.com/tanghaibao/quota-alignment>`_::
 
   git clone https://github.com/tanghaibao/quota-alignment.git 
-  mv quota-alignment  /cns_pipeline/bin/  (checkout with git and adjust path in quota.sh)
+  mv quota-alignment  /cns_pipeline/bin/  
+(adjust path in quota.sh if you do not move file to cns_pipeline/bin/)
 
--gffparser::
+- `gffparser <https://github.com/chapmanb/bcbb/tree/master/gff>`_::
 
     git clone https://github.com/chapmanb/bcbb.git
     cd gff
     python setup.py install
 
--bpbio::
+- `bpbio <http://code.google.com/p/bpbio/>`_::
   
   cd pipeline/coann/brents_bpbio/biostuff/ 
   python setup.py install
