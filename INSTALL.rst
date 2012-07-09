@@ -27,7 +27,7 @@ Requirements
 The fllowing are absolutely requires otherwise installation WILL fail
 
   + Python version >= 2.7 (you can use `pythonbrew <https://github.com/utahta/pythonbrew/>`_ to install python)
-  + `git <https://help.github.com/articles/set-up-git>_`
+  + `git <https://help.github.com/articles/set-up-git>`_
   + gfortran (type gfortran to check if on machine or install with `homebrew <https://github.com/mxcl/homebrew/wiki/Installation>`_ or `xcode <https://developer.apple.com/xcode/>`_)
   + `GEOS <http://trac.osgeo.org/geos/>`_
 
@@ -113,5 +113,5 @@ To use the CNS pipeline the following python packages and c packages are require
     tar -xvzf <somepath>/lastz-distribute-X.XX.XX.tar.gz
     cd <somepath>/lastz-distrib-X.XX.XX/src
     make
-    LASTZ_INSTALL=/usr/local/bin/ make install  #(adjust path in quota.sh if different)
+    LASTZ_INSTALL=/usr/local/bin/ make install
 

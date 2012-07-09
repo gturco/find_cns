@@ -1,5 +1,5 @@
 #!/bin/sh
-BLAST_DIR=/home/gturco/src/blast-2.2.25/bin/
+BLAST_DIR=../cns_pipline/blast/bin/
 #on new synteny, run these. and put .bed and .fasta files in data/ directory.
 #  perl export_to_bed.pl -fasta_name rice_v6.fasta -dsg 8163 -name_re "^Os\d\dg\d{5}$" > rice_v6.bed
 # perl export_to_bed.pl -fasta_name sorghum_v1.4.fasta -dsg 95 > sorghum_v1.4.bed
@@ -19,6 +19,8 @@ sDSGID=9109
 # dont edit below here
 #############################################
 DIR=data/${ORGA}_${ORGB}/
+
+source cns_pipeline/bin/activate
 
 echo checking for unannotated proteins......
 sh coann/co-anno.sh ${ORGA} ${ORGB} $QUOTA $BLAST_DIR
