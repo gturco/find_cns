@@ -3,7 +3,7 @@ import subprocess
 
 def create_env(dir_name):
     """creates virtenv with pip and python 2.7"""
-    create_env = subprocess.call(['virtualenv','--distribute', dir_name,'--python=Python2.7'])
+    create_env = subprocess.call(['python','virtualenv.py','--distribute', dir_name,'--python=Python2.7'])
     #assert: create_env == 0
 
 def pip_install(dir_name):

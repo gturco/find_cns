@@ -8,33 +8,35 @@ CNS Pipeline
 Installation Guide
 =================
 
-The easyest way to install the pipeline is to:
+The easiest way to install the pipeline is to:
   
-  1) Download the requirement files below
-  2) run Installation ::
+  1) git clone this package ::
 
-         python bootstrap.py
+       git clone : git://github.com/gturco/find_cns.git
+
+  2) Download the requirements below
+  3) run Installation ::
+
+         ARCHFLAGS='-arch i386 -arch x86_64' python bootstrap.py
   
-  + If step 2 fails then try installing the failed package using one of the steps below and re-doing step 2
+  + If step 3 fails then try installing the failed package using one of the steps below and re-doing step 3
 
 
 Requirements
 ===========
 The fllowing are absolutely requires otherwise installation WILL fail
 
-  + Python version >= 2.7 `pythonbrew <https://github.com/utahta/pythonbrew/>`_
-  + `pip <http://www.pip-installer.org/en/latest/installing.html>`_::
-
-      curl https://raw.github.com/pypa/pip/master/contrib/get-pip.py | python
-
-  + `virtualenv <http://pypi.python.org/pypi/virtualenv/>`_::
-
-      pip install virtualenv
-
+  + Python version >= 2.7 (you can use `pythonbrew <https://github.com/utahta/pythonbrew/>`_ to install python)
   + `git <https://help.github.com/articles/set-up-git>_`
-  + libgeos_c
   + gfortran (type gfortran to check if on machine or install with `homebrew <https://github.com/mxcl/homebrew/wiki/Installation>`_ or `xcode <https://developer.apple.com/xcode/>`_)
   + `GEOS <http://trac.osgeo.org/geos/>`_
+
+  IF not using bootstrap.py:
+
+  + `activate virtualenv <http://pypi.python.org/pypi/virtualenv/>`_::
+
+      python virtualenv.py --distribute cns_pipeline --python=Python2.7
+      source cns_pipeline/bin/activate
 
 
 Installation
