@@ -7,10 +7,14 @@ CNS Pipeline
 
 Installation Guide
 =================
+
 The easyest way to install the pipeline is to:
+  
   1) Download the requirement files below
   2) run Installation ::
-      python bootstrap.py
+
+         python bootstrap.py
+  
   + If step 2 fails then try installing the failed package using one of the steps below and re-doing step 2
 
 
@@ -93,19 +97,19 @@ To use the CNS pipeline the following python packages and c packages are require
 
 **C packages**
 
- + `(NON-blast+) blast <ftp://ftp.ncbi.nlm.nih.gov/blast/executables/release/LATEST/>`_
+- `(NON-blast+) blast <ftp://ftp.ncbi.nlm.nih.gov/blast/executables/release/LATEST/>`_
    download latest blast from  ftp://ftp.ncbi.nlm.nih.gov/blast/executables/release/LATEST/::
-      
-      wget ftp://ftp.ncbi.nlm.nih.gov/blast/executables/release/2.2.5/blast-2.2.5-ia32-linux.tar.gz
-      tar -xvzf <somepath>/blast-X.X.X-XXXX.tar.gz
-      mv <somepath>/blast-XX.X.X/ cns_pipeline/bin/ #(change path in run.sh file if diff)
 
- + `lastz <http://www.bx.psu.edu/~rsharris/lastz/newer/>`_
+    wget ftp://ftp.ncbi.nlm.nih.gov/blast/executables/release/2.2.5/blast-2.2.5-ia32-linux.tar.gz
+    tar -xvzf <somepath>/blast-X.X.X-XXXX.tar.gz
+    mv <somepath>/blast-XX.X.X/ cns_pipeline/bin/ #(change path in run.sh file if diff)
+
+- `lastz <http://www.bx.psu.edu/~rsharris/lastz/newer/>`_
    (`install instructions <http://www.bx.psu.edu/miller_lab/dist/README.lastz-1.02.00/README.lastz-1.02.00a.html#install>`_ ) and adjust path in quota.sh)::
 
-          wget http://www.bx.psu.edu/~rsharris/lastz/newer/lastz-1.03.02.tar.gz
-          tar -xvzf <somepath>/lastz-distribute-X.XX.XX.tar.gz
-          cd <somepath>/lastz-distrib-X.XX.XX/src
-          make
-          LASTZ_INSTALL=/usr/local/bin/ make install  #(adjust path in quota.sh if different)
+    wget http://www.bx.psu.edu/~rsharris/lastz/newer/lastz-1.03.02.tar.gz
+    tar -xvzf <somepath>/lastz-distribute-X.XX.XX.tar.gz
+    cd <somepath>/lastz-distrib-X.XX.XX/src
+    make
+    LASTZ_INSTALL=/usr/local/bin/ make install  #(adjust path in quota.sh if different)
 
