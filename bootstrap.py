@@ -3,7 +3,7 @@ import subprocess
 
 def create_env(dir_name):
     """creates virtenv with pip and python 2.7"""
-    create_env = subprocess.call(['python','virtualenv.py','--distribute', dir_name,'--python=Python2.7'])
+    create_env = subprocess.call(['virtualenv','--distribute', dir_name,'--python=python2.7'])
     #assert: create_env == 0
 
 def pip_install(dir_name):
@@ -20,9 +20,9 @@ def pip_install(dir_name):
 
 def git_install(dir_name):
     """downloads git scripts to virenv bin"""
-    flatfeature = subprocess.call(['pip', 'install', '-E', dir_name, 'git+https://github.com/brentp/flatfeature.git'])
-    if flatfeature != 0:
-        print "download git to contiune"
+    #flatfeature = subprocess.call(['pip', 'install', '-E', dir_name, 'git+https://github.com/brentp/flatfeature.git'])
+    #if flatfeature != 0:
+    #    print "download git to contiune"
     quota = subprocess.Popen(['git', 'clone','https://github.com/tanghaibao/quota-alignment.git'],cwd=r'{0}/bin/'.format(dir_name)).wait()
     bcbb = subprocess.Popen(['git', 'clone', 'https://github.com/chapmanb/bcbb.git'],cwd=r'{0}/bin/'.format(dir_name)).wait()
 
