@@ -24,14 +24,13 @@ The easiest way to install the pipeline is to:
 
 Requirements
 ===========
-
-  + The following are absolutely required otherwise installation WILL FAIL. Addtional help found `here <http://www.thisisthegreenroom.com/2011/installing-python-numpy-scipy-matplotlib-and-ipython-on-lion/>`_
+The following are absolutely required otherwise installation WILL FAIL. Addtional help found `here <http://www.thisisthegreenroom.com/2011/installing-python-numpy-scipy-matplotlib-and-ipython-on-lion/>`_
 
   + `homebrew <http://mxcl.github.com/homebrew/>`_ (This is OPTIONAL and for MAC users only but will make downloading ALOT easier)::
                   
-                 /usr/bin/ruby -e "$(/usr/bin/curl -fsSL https://raw.github.com/mxcl/homebrew/master/Library/Contributions/install_homebrew.rb)"
-      (thats it! Now add homebrew to your system path:
-      open your .bash_profile in your user(~) directory add export
+      /usr/bin/ruby -e "$(/usr/bin/curl -fsSL https://raw.github.com/mxcl/homebrew/master/Library/Contributions/install_homebrew.rb)"
+    
+  (thats it! Now add homebrew to your system path: open your .bash_profile in your user(~) directory add export
       PATH=/usr/local/bin:$PATH)
 
 
