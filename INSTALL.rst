@@ -9,12 +9,12 @@ Installation Guide
 =================
 
 The easiest way to install the pipeline is to:
-  
-  1) git clone this package ::
+   
+  1) Go to the requirements section and make sure the following are installed
+  2) git clone this package ::
 
        git clone : git://github.com/gturco/find_cns.git
 
-  2) Go to the requirements section and make sure the following are installed
   3) run Installation ::
 
          ARCHFLAGS='-arch i386 -arch x86_64' python bootstrap.py
@@ -28,30 +28,30 @@ The following are absolutely required otherwise installation WILL FAIL (if you a
   + `homebrew <http://mxcl.github.com/homebrew/>`_ (This is OPTIONAL and for MAC users only but will make downloading ALOT easier)::
                   
                  /usr/bin/ruby -e "$(/usr/bin/curl -fsSL https://raw.github.com/mxcl/homebrew/master/Library/Contributions/install_homebrew.rb)"
-                 (thats it! Now add homebrew to your system path:
-                 open your .bash_profile in your user(~) directory add export PATH=/usr/local/bin:$PATH)
+      (thats it! Now add homebrew to your system path:
+      open your .bash_profile in your user(~) directory add export
+      PATH=/usr/local/bin:$PATH)
 
 
   + Python version >= 2.7 (you can use `pythonbrew <https://github.com/utahta/pythonbrew/>`_ to install python)
   
   
-  + `git <http://git-scm.com/downloads>`_ (click the `line <http://git-scm.com/downloads>`_ and follow instructions for your system )
+  + `git <http://git-scm.com/downloads>`_ (click the `link <http://git-scm.com/downloads>`_ and follow instructions for your system )
   
   
   + gfortran (type gfortran to check if on machine or install with `homebrew <https://github.com/mxcl/homebrew/wiki/Installation>`_ or `xcode <https://developer.apple.com/xcode/>`_)::
             
         on mac:
            brew install gfortran
-                
         on unix:
            sudo apt-get install gfortran
 
   + `GEOS <http://trac.osgeo.org/geos/>`_::
 
         on mac:
-           ### fix brew install libgeos-dev
+           brew install geos
         on unix:
-              sudo apt-get install libgeos-dev
+           sudo apt-get install libgeos-dev
 
 
   + PIP::
@@ -62,26 +62,20 @@ The following are absolutely required otherwise installation WILL FAIL (if you a
   + `virtualenv <http://pypi.python.org/pypi/virtualenv/>`_::
 
       pip install virtualenv
-     
-     
-     
-     
-      --distribute cns_pipeline --python=Python2.7
-      source cns_pipeline/bin/activate
 
-
+      
 Installation
 ============
 To use the CNS pipeline the following python packages and c packages are required
 
 **Python packages**
 
-- First activate your virtualenv so everything is downloaded in here:
-  create folder if not already created::
+- First activate your virtualenv so everything is downloaded in here::
       
-      virtualenv --distribute cns_pipeline --python=python2.7
+    virtualenv --distribute cns_pipeline --python=python2.7
+    (creates folder if not already created)
   
-  Then activate and install in here::
+  Then activate::
 
      source cns_pipeline/bin/activate
      (to deactivate just type: deactivate)
@@ -139,6 +133,10 @@ To use the CNS pipeline the following python packages and c packages are require
 
 
 **C packages**
+
+-if on mac::
+
+    brew install wget
 
 - `(NON-blast+) blast <ftp://ftp.ncbi.nlm.nih.gov/blast/executables/release/LATEST/>`_
    download latest blast from  ftp://ftp.ncbi.nlm.nih.gov/blast/executables/release/LATEST/::
