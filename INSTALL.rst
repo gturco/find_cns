@@ -39,8 +39,8 @@ The following are absolutely required otherwise installation WILL FAIL. Addtiona
                     (edit .bash_profile)
                     export PATH=/usr/local/share/python:$PATH
                 on unix:
-                  apt-get update; apt-get install python2.7
-  
+                  sudo apt-get update; sudo apt-get install python2.7 python2.7-dev python-setuptools
+
   + `git <http://git-scm.com/downloads>`_ (click the `link <http://git-scm.com/downloads>`_ and follow instructions for your system )
   
   
@@ -59,9 +59,9 @@ The following are absolutely required otherwise installation WILL FAIL. Addtiona
            sudo apt-get install libgeos-dev
 
 
-  + PIP::
+  + PIP ::
       
-      easy_install pip
+     sudo easy_install pip
 
 
   + `virtualenv <http://pypi.python.org/pypi/virtualenv/>`_::
