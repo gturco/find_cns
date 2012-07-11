@@ -14,7 +14,7 @@ The easiest way to install the pipeline is to:
 
        git clone : git://github.com/gturco/find_cns.git
 
-  2) Download the requirements below
+  2) Go to the requirements section and make sure the following are installed
   3) run Installation ::
 
          ARCHFLAGS='-arch i386 -arch x86_64' python bootstrap.py
@@ -24,18 +24,49 @@ The easiest way to install the pipeline is to:
 
 Requirements
 ===========
-The fllowing are absolutely requires otherwise installation WILL fail
+The following are absolutely required otherwise installation WILL FAIL (if you are having trouble downloading these on mac `this site <http://www.thisisthegreenroom.com/2011/installing-python-numpy-scipy-matplotlib-and-ipython-on-lion/>`_ is useful!)
+  + `homebrew <http://mxcl.github.com/homebrew/>`_ (This is OPTIONAL and for MAC users only but will make downloading ALOT easier)::
+                  
+                 /usr/bin/ruby -e "$(/usr/bin/curl -fsSL https://raw.github.com/mxcl/homebrew/master/Library/Contributions/install_homebrew.rb)"
+                 (thats it! Now add homebrew to your system path:
+                 open your .bash_profile in your user(~) directory add export PATH=/usr/local/bin:$PATH)
+
 
   + Python version >= 2.7 (you can use `pythonbrew <https://github.com/utahta/pythonbrew/>`_ to install python)
-  + `git <https://help.github.com/articles/set-up-git>`_
-  + gfortran (type gfortran to check if on machine or install with `homebrew <https://github.com/mxcl/homebrew/wiki/Installation>`_ or `xcode <https://developer.apple.com/xcode/>`_)
-  + `GEOS <http://trac.osgeo.org/geos/>`_
+  
+  
+  + `git <http://git-scm.com/downloads>`_ (click the `line <http://git-scm.com/downloads>`_ and follow instructions for your system )
+  
+  
+  + gfortran (type gfortran to check if on machine or install with `homebrew <https://github.com/mxcl/homebrew/wiki/Installation>`_ or `xcode <https://developer.apple.com/xcode/>`_)::
+            
+        on mac:
+           brew install gfortran
+                
+        on unix:
+           sudo apt-get install gfortran
 
-  IF not using bootstrap.py:
+  + `GEOS <http://trac.osgeo.org/geos/>`_::
 
-  + `activate virtualenv <http://pypi.python.org/pypi/virtualenv/>`_::
+        on mac:
+           ### fix brew install libgeos-dev
+        on unix:
+              sudo apt-get install libgeos-dev
 
-      python virtualenv.py --distribute cns_pipeline --python=Python2.7
+
+  + PIP::
+      
+      easy_install pip
+
+
+  + `virtualenv <http://pypi.python.org/pypi/virtualenv/>`_::
+
+      pip install virtualenv
+     
+     
+     
+     
+      --distribute cns_pipeline --python=Python2.7
       source cns_pipeline/bin/activate
 
 
@@ -44,6 +75,16 @@ Installation
 To use the CNS pipeline the following python packages and c packages are required
 
 **Python packages**
+
+- First activate your virtualenv so everything is downloaded in here:
+  create folder if not already created::
+      
+      virtualenv --distribute cns_pipeline --python=python2.7
+  
+  Then activate and install in here::
+
+     source cns_pipeline/bin/activate
+     (to deactivate just type: deactivate)
 
 - `numpy <http://www.scipy.org/Download/>`_::
 
