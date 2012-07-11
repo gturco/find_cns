@@ -347,6 +347,14 @@ def get_masked_fastas(bed):
 def main(qbed, sbed, pairs_file, qpad, spad, pair_fmt, blast_path, mask='F', ncpu=8):
     """main runner for finding cnss"""
     pool = Pool(ncpu)
+#    legacy_bl2seq =   "%s " % blast_path + \
+#           " bl2seq -p blastn -D 1 -E 2 -q -2 -r 1 -G 5 -W 7 -F %s " % mask + \
+#           " -e %(e_value).2f -i %(qfasta)s -j %(sfasta)s \
+#              -I %(qstart)d,%(qstop)d -J %(sstart)d,%(sstop)d | grep -v '#' \
+#            | grep -v 'WARNING' | grep -v 'ERROR' "
+#
+#    bl2seq = legacy_bl2seq
+#   
     bl2seq = "%s " % blast_path + \
            " -p blastn -D 1 -E 2 -q -2 -r 1 -G 5 -W 7 -F %s " % mask + \
            " -e %(e_value).2f -i %(qfasta)s -j %(sfasta)s \
@@ -376,9 +384,9 @@ def main(qbed, sbed, pairs_file, qpad, spad, pair_fmt, blast_path, mask='F', ncp
         qfastas_map = [qfastas] * len(pairs)
         bl2seq_map =  [bl2seq] * len(pairs)
         #################################
-
         cmds = [c for c in map(get_cmd, [l for l in pairs if
                 l],bl2seq_map,qfastas_map,sfastas_map,qpad_map,spad_map) if c]
+        #print >>sys.stderr ,cmds
         results = (r for r in pool.map(commands.getoutput, [c[0] for c in cmds]))
         for res, (cmd, qfeat, sfeat) in zip(results, cmds):
             if not res.strip(): continue
