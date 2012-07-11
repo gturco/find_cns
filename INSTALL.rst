@@ -24,7 +24,9 @@ The easiest way to install the pipeline is to:
 
 Requirements
 ===========
-The following are absolutely required otherwise installation WILL FAIL (if you are having trouble downloading these on mac `this site <http://www.thisisthegreenroom.com/2011/installing-python-numpy-scipy-matplotlib-and-ipython-on-lion/>`_ is useful!)
+-The following are absolutely required otherwise installation WILL FAIL 
+-Addtional help found `here <http://www.thisisthegreenroom.com/2011/installing-python-numpy-scipy-matplotlib-and-ipython-on-lion/>`_
+
   + `homebrew <http://mxcl.github.com/homebrew/>`_ (This is OPTIONAL and for MAC users only but will make downloading ALOT easier)::
                   
                  /usr/bin/ruby -e "$(/usr/bin/curl -fsSL https://raw.github.com/mxcl/homebrew/master/Library/Contributions/install_homebrew.rb)"
@@ -33,8 +35,14 @@ The following are absolutely required otherwise installation WILL FAIL (if you a
       PATH=/usr/local/bin:$PATH)
 
 
-  + Python version >= 2.7 (you can use `pythonbrew <https://github.com/utahta/pythonbrew/>`_ to install python)
-  
+  + Python version >= 2.7 (you can use `pythonbrew <https://github.com/utahta/pythonbrew/>`_ to install python)::
+      
+                on mac:
+                    brew install python --framework --universal
+                    (edit .bash_profile)
+                    export PATH=/usr/local/share/python:$PATH
+                on unix:
+                  apt-get update; apt-get install python2.7
   
   + `git <http://git-scm.com/downloads>`_ (click the `link <http://git-scm.com/downloads>`_ and follow instructions for your system )
   
