@@ -43,27 +43,20 @@ The following are absolutely required otherwise installation WILL FAIL. Addtiona
 
   + `git <http://git-scm.com/downloads>`_ (click the `link <http://git-scm.com/downloads>`_ and follow instructions for your system )
   
-  
-  + gfortran (type gfortran to check if on machine or install with `homebrew <https://github.com/mxcl/homebrew/wiki/Installation>`_ or `xcode <https://developer.apple.com/xcode/>`_)::
-            
-        on mac:
-           brew install gfortran
-        on unix:
-           sudo apt-get install gfortran
+  + Scipy PreReq::
 
+      on mac:
+          brew install libblas gfortran
+      on unix:
+           sudo apt-get install build-essential liblas-dev liblapack-dev gfortran
+  
+  
   + `GEOS <http://trac.osgeo.org/geos/>`_::
 
         on mac:
            brew install geos
         on unix:
            sudo apt-get install libgeos-dev
-
-  + BLAS::
-     
-        on mac:
-           brew install liblas
-        on unix:
-           sudo apt-get install libblas-dev
 
   + PIP ::
       
