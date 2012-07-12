@@ -15,31 +15,8 @@ Created in the `Freeling Lab <http://microscopy.berkeley.edu/~freeling/>`_ at UC
 
 Installation
 ============
- + Python version >= 2.7
 
- + `blast <ftp://ftp.ncbi.nlm.nih.gov/blast/executables/LATEST/>`_
-   (download latest at ftp://ftp.ncbi.nlm.nih.gov/blast/executables/LATEST/  and run)
-
- + `lastz <http://www.bx.psu.edu/~rsharris/lastz/newer/>`_
-   (download latest .tar.gz; configure; make; make install) and adjust path in quota.sh)
-
- + `quota-align <http://github.com/tanghaibao/quota-alignment>`_
-   (checkout with git and adjust path in quota.sh)
-
- + `flatfeature <http://github.com/brentp/flatfeature/>`_
-   (check with git and run ``sudo python setup.py install``)
-
- + `pyfasta <https://github.com/brentp/pyfasta>`_ (``sudo easy_install -UZ pyfasta`` you will have latest from pypi).
-
- + `shapely <http://pypi.python.org/pypi/Shapely#downloads>`_ (``sudo apt-get install libgeos-dev``, ``sudo easy_install -UZ 'shapely==1.0.0'``)
-
- + `numpy <http://github.com/numpy/numpy/>`_ checkout and run ``sudo python setup.py install``
-
- + `processing <http://pypi.python.org/pypi/processing#downloads>`_ (``sudo easy_install -UZ processing``)
-
- + `bpbio <http://pypi.python.org/pypi/processing#downloads>`_ (``svn checkout http://bpbio.googlecode.com/svn/trunk/ bpbio-read-only``)
-   (run biostuff,coanno and bblast ``sudo python setup.py install``)
-
+Read `INSTALL file <https://github.com/gturco/find_cns/blob/master/INSTALL.rst>`_ for instructions
 
 Run
 ===
