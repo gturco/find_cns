@@ -58,6 +58,12 @@ The following are absolutely required otherwise installation WILL FAIL. Addtiona
         on unix:
            sudo apt-get install libgeos-dev
 
+  + BLAS::
+     
+        on mac:
+           brew install liblas
+        on unix:
+           sudo apt-get install libblas-dev
 
   + PIP ::
       
