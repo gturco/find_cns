@@ -205,7 +205,7 @@ def main(cns_file,qdups_path,sdups_path,pair_file,fmt,qbed,sbed,qpad,spad,blast_
     
     ################# file paths #####################
     qnolocaldups_path =  qbed.path.split(".")[0] + ".all.nolocaldups.bed"
-    snolocaldups_path = sbed.path.split(".")[0] + ".all..nolocaldups.bed"
+    snolocaldups_path = sbed.path.split(".")[0] + ".all.nolocaldups.bed"
     qlocaldups_path = qbed.path.split(".")[0] + ".all.localdups"
     slocaldups_path = sbed.path.split(".")[0] + ".all.localdups"
     npair_file,nqlocaldups,nslocaldups, ncns_file = map(make_copy_of_file,[pair_file,qlocaldups_path,slocaldups_path,cns_file])
@@ -277,9 +277,9 @@ def main(cns_file,qdups_path,sdups_path,pair_file,fmt,qbed,sbed,qpad,spad,blast_
         sfeat = sbed.accn(saccn)
         write_new_dups(npair_file,ncns_file,nqlocaldups,nslocaldups,[best_reps[dparents]],qparent,sparent,qfeat,sfeat,qdups,sdups)
 
-    write_nolocaldups(qbed.path,nqlocaldups,"{0}.nolocaldups.bed.local".format(qbed.path.split(".")[0]))
-    write_nolocaldups(sbed.path,nslocaldups,"{0}.nolocaldups.bed.local".format(sbed.path.split(".")[0]))
-    pairs_to_qa(npair_file,'pair',"{0}.nolocaldups.bed.local".format(qbed.path.split(".")[0]),"{0}.nolocaldups.bed.local".format(sbed.path.split(".")[0]),"{0}.raw.filtered.local".format(options.pairs.split(".")[0]))
+    write_nolocaldups(qbed.path,nqlocaldups,"{0}.all.nolocaldups.bed.local".format(qbed.path.split(".")[0]))
+    write_nolocaldups(sbed.path,nslocaldups,"{0}.all.nolocaldups.bed.local".format(sbed.path.split(".")[0]))
+    pairs_to_qa(npair_file,'pair',"{0}.all.nolocaldups.bed.local".format(qbed.path.split(".")[0]),"{0}.all.nolocaldups.bed.local".format(sbed.path.split(".")[0]),"{0}.raw.filtered.local".format(options.pairs.split(".")[0]))
 
 if __name__ == "__main__":
     import optparse
@@ -309,8 +309,8 @@ if __name__ == "__main__":
     assert options.mask in 'FT'
     
 
-    qnolocaldups_path =  qbed.path.split(".")[0] + ".nolocaldups.bed"
-    snolocaldups_path =  sbed.path.split(".")[0] + ".nolocaldups.bed"
+    qnolocaldups_path =  qbed.path.split(".")[0] + ".all.nolocaldups.bed"
+    snolocaldups_path =  sbed.path.split(".")[0] + ".all.nolocaldups.bed"
     #pairs_to_qa("{0}.local".format(options.pairs),'pair',"{0}.nolocaldups.bed.local".format(qbed.path.split(".")[0]),"{0}.nolocaldups.bed.local".format(sbed.path.split(".")[0]),"{0}.raw.filtered.local".format(options.pairs.split(".")[0]))
 
     import logging
