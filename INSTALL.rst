@@ -12,12 +12,12 @@ The easiest way to install the pipeline is to:
    
   1) Go to the requirements section and make sure the following are installed:
      (for instructions see requirements section)
-     + Python 2.7
-     + git
-     + gfortran
-     + Blas
-     + easy_install
-     + virtualenv
+     - Python 2.7
+     - git
+     - gfortran
+     - Blas
+     - easy_install
+     - virtualenv
   
   2) git clone this package ::
 
@@ -33,7 +33,9 @@ The easiest way to install the pipeline is to:
 Requirements
 =============
 The following are absolutely required otherwise installation WILL FAIL. Addtional help found `here <http://www.thisisthegreenroom.com/2011/installing-python-numpy-scipy-matplotlib-and-ipython-on-lion/>`_ If you are downloading this program on a Mac please download `homebrew <http://mxcl.github.com/homebrew/>`_ 
-it will make your like ALOT easier::
+it will make your like ALOT easier
+
+   + homebrew for mac::
 
       /usr/bin/ruby -e "$(/usr/bin/curl -fsSL https://raw.github.com/mxcl/homebrew/master/Library/Contributions/install_homebrew.rb)"
 
