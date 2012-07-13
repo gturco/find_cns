@@ -16,8 +16,8 @@ cpus=$4
 
 JOIN_PREFIX=`dirname ${qprefix}`/`basename ${qprefix}`_`basename ${sprefix}`
 
-python -c "from flatfeature import Bed; b = Bed('${qprefix}.bed', '${qprefix}.fasta'); b.cds_fasta(outfile='${qprefix}.features.fasta')";
-python -c "from flatfeature import Bed; b = Bed('${sprefix}.bed', '${sprefix}.fasta'); b.cds_fasta(outfile='${sprefix}.features.fasta')";
+python -c "from flatfeature import Bed; b = Bed('${qprefix}.all.bed', '${qprefix}.fasta'); b.cds_fasta(outfile='${qprefix}.features.fasta')";
+python -c "from flatfeature import Bed; b = Bed('${sprefix}.all.bed', '${sprefix}.fasta'); b.cds_fasta(outfile='${sprefix}.features.fasta')";
 #
 #
 LASTZ=lastz
@@ -29,8 +29,8 @@ python scripts/blastz.py -i ${qprefix}.features.fasta \
 
 
 python ${QUOTA_DIR}/scripts/blast_to_raw.py \
-            --qbed ${qprefix}.bed \
-            --sbed ${sprefix}.bed \
+            --qbed ${qprefix}.all.bed \
+            --sbed ${sprefix}.all.bed \
             --cscore 0.5 \
             --no_strip_names \
             --tandem_Nmax 20 \
@@ -42,14 +42,14 @@ python ${QUOTA_DIR}/quota_align.py \
             --quota $quota \
             ${JOIN_PREFIX}.raw
 
-python ${QUOTA_DIR}/scripts/qa_plot.py --qbed ${qprefix}.nolocaldups.bed \
-                                   --sbed ${sprefix}.nolocaldups.bed \
-                                    ${JOIN_PREFIX}.raw.filtered
-
-python ${QUOTA_DIR}/scripts/blast_plot.py --qbed ${qprefix}.bed \
-                                   --sbed ${sprefix}.bed \
-                                    ${JOIN_PREFIX}.blast
-
-python ${QUOTA_DIR}/scripts/qa_to_pairs.py --qbed ${qprefix}.nolocaldups.bed \
-                                       --sbed ${sprefix}.nolocaldups.bed \
+#python ${QUOTA_DIR}/scripts/qa_plot.py --qbed ${qprefix}.nolocaldups.bed \
+#                                   --sbed ${sprefix}.nolocaldups.bed \
+#                                    ${JOIN_PREFIX}.raw.filtered
+#
+#python ${QUOTA_DIR}/scripts/blast_plot.py --qbed ${qprefix}.bed \
+#                                   --sbed ${sprefix}.bed \
+#                                    ${JOIN_PREFIX}.blast
+#
+python ${QUOTA_DIR}/scripts/qa_to_pairs.py --qbed ${qprefix}.all.nolocaldups.bed \
+                                       --sbed ${sprefix}.all.nolocaldups.bed \
                                        ${JOIN_PREFIX}.raw.filtered > ${JOIN_PREFIX}.pairs.txt
