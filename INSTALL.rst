@@ -10,10 +10,19 @@ Installation Guide
 
 The easiest way to install the pipeline is to:
    
-  1) Go to the requirements section and make sure the following are installed
+  1) Go to the requirements section and make sure the following are installed:
+     (for instructions see requirements section)
+     + Python 2.7
+     + git
+     + gfortran
+     + Blas
+     + easy_install
+     + virtualenv
+  
   2) git clone this package ::
 
        git clone : git://github.com/gturco/find_cns.git
+       cd find_cns
 
   3) run Installation ::
 
@@ -23,9 +32,8 @@ The easiest way to install the pipeline is to:
     
 Requirements
 =============
-The following are absolutely required otherwise installation WILL FAIL. Addtional help found `here <http://www.thisisthegreenroom.com/2011/installing-python-numpy-scipy-matplotlib-and-ipython-on-lion/>`_
-
-  + `homebrew <http://mxcl.github.com/homebrew/>`_ (This is OPTIONAL and for MAC users only but will make downloading ALOT easier)::
+The following are absolutely required otherwise installation WILL FAIL. Addtional help found `here <http://www.thisisthegreenroom.com/2011/installing-python-numpy-scipy-matplotlib-and-ipython-on-lion/>`_ If you are downloading this program on a Mac please download `homebrew <http://mxcl.github.com/homebrew/>`_ 
+it will make your like ALOT easier::
 
       /usr/bin/ruby -e "$(/usr/bin/curl -fsSL https://raw.github.com/mxcl/homebrew/master/Library/Contributions/install_homebrew.rb)"
 
@@ -65,12 +73,13 @@ The following are absolutely required otherwise installation WILL FAIL. Addtiona
 
   + `virtualenv <http://pypi.python.org/pypi/virtualenv/>`_::
 
-      pip install virtualenv
+      sudo pip install virtualenv
 
       
 Installation
 ============
-To use the CNS pipeline the following python packages and c packages are required
+bootstrap.py runs the following commands if you are having trouble installing one of these packages follow the instructions below or use the links provided.
+If you are having trouble with numpy or Scipy on try this `link <http://www.thisisthegreenroom.com/2011/installing-python-numpy-scipy-matplotlib-and-ipython-on-lion/>`_
 
 **Python packages**
 
