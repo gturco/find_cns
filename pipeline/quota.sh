@@ -1,4 +1,4 @@
-QUOTA_DIR=../cns_pipeline/quota-alignment/
+QUOTA_DIR=../cns_pipeline/bin/quota-alignment/
 
 
 # these are set from the command-line do not edit.
