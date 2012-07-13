@@ -53,7 +53,7 @@ def main(gff_file, outdir, th_fasta):
             ids = []
             ids.append(feat.id)
             for subf in feat.sub_features:
-                if subf.type == 'CDS': 
+                if subf.type == 'CDS' or subf.type == 'chromosome':
                     has_cds = True
             if has_cds: continue
             #non_cds_feats.append(feat) 
@@ -129,7 +129,7 @@ if __name__ == "__main__":
     main(options.gff, options.outdir, options.fasta)
 
     import commands
-    cmd = "bblast.py -p blastn -e 0.001 -m 8 -W 7 -a 6 -i %s/%s_%s.cns.fasta -d %s/at_no_cds.fasta -o %s" \
+    cmd = "bblast.py -p blastn -e 0.001 -m 8 -W 7 -a 6 -i %s/%s_%s.cns_test.fasta -d %s/at_no_cds.fasta -o %s" \
                           % (options.outdir, options.query, options.subject, options.outdir, options.blast)
     print >>sys.stderr, "executing\n %s" % cmd
     print commands.getoutput(cmd)
