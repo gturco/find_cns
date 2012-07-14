@@ -475,9 +475,10 @@ def run_blasts(config, test=False):
                                                       config["genome_b"]["fasta"])
     blast_cfg["i"] = agenes
     blast_cfg["d"] = bfasta
+    blast_cfg["b"] = blastall
 
     if not test:
-        bblast.blast(blast_cfg, blastall=blastall)
+        bblast.blast(blast_cfg)
 
     bgenes, afasta =\
                 fastas_for_features_vs_masked_genomic(config["genome_b"]["fasta"],
@@ -487,9 +488,10 @@ def run_blasts(config, test=False):
     if config["default"].get("reciprocal"):
         blast_cfg["i"] = bgenes
         blast_cfg["d"] = afasta
+        blast_cfg["b"] = blastall
 
         if not test:
-            bblast.blast(blast_cfg, blastall=blastall)
+            bblast.blast(blast_cfg)
     
 
     # then genes to genes
