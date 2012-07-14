@@ -1,7 +1,10 @@
 import sys
-sys.path.append("/home/gturco/src/quota-alignment/scripts/")
+sys.path.append("../../cns_pipeline/bin/quota-alignment/scripts/")
 from cleanup import DupLine
-from bed_utils import Bed
+try:
+    from bed_utils import Bed
+except ImportError:
+    raise 'bed_utils.py pacakge not found edit the sys.path.append of qa_parsers.py  to location of your quota-alignment'
 
 class RawBed(object):
     """takes line from habos raw file and converts to brents bed line"""
