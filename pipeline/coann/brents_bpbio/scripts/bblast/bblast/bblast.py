@@ -83,7 +83,7 @@ def rm(f):
     if os.path.exists(f): os.unlink(f)
    
 
-def blast(_blast_cfg, blastall="/usr/bin/blastall", full_name=False, blast_log=None):
+def blast(_blast_cfg, full_name=False, blast_log=None):
     """
     >>> blast({'i': 'tests/a.fasta', 'd': 'tests/a.fasta'})
 
@@ -92,6 +92,8 @@ def blast(_blast_cfg, blastall="/usr/bin/blastall", full_name=False, blast_log=N
     check_args(blast_cfg)
     q_fasta = blast_cfg["i"]
     s_fasta = blast_cfg["d"]
+    blastall = blast_cfg["b"]
+    blast_cfg.pop('b')
 
     format_db = blastall.replace("blastall", "formatdb")
 
