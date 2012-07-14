@@ -59,7 +59,7 @@ class BlastLine(object):
         #    return getattr(self, attr)
         return "\t".join(map(str, (getattr(self, attr) for attr in BlastLine.__slots__)))
 
-def parse_at_description(desc_file=op.join(PATH, "../../data/thaliana_v9.description")):
+def parse_at_description(desc_file):
     desc = collections.defaultdict(str)
     for line in open(desc_file):
         line = line.split("\t")

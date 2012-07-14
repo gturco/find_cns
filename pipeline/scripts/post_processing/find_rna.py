@@ -69,7 +69,7 @@ def read_descriptions(desc_file):
         desc[name] += ";;" + line[-1].rstrip()
     return desc
 
-def make_cns_to_at_map(blast_file, gff, query, subject, outdir):
+def make_cns_to_at_map(des_file, blast_file, gff, query, subject, outdir):
     """
     take the cns vs at blast file, find the best at hit for the cns,
     and find teh tair desc for that hit, create a datastructure like:
@@ -80,7 +80,7 @@ def make_cns_to_at_map(blast_file, gff, query, subject, outdir):
     this can then be used in   make_better_datasheet.
     """
     #os_desc = parse_os_description()
-    at_desc = parse_at_description()
+    at_desc = parse_at_description(des_file)
 
     blast_array = {}
     for line in open(blast_file):
@@ -121,6 +121,8 @@ if __name__ == "__main__":
     parser.add_option("-q", "--query",   dest="query", help="name of query organism (rice)")
     parser.add_option("-s", "--subject", dest="subject", help="name of subject organism (sorghum)")
     parser.add_option("-f", "--fasta", dest="fasta", help="path to the thaliana fasta")
+    parser.add_option("--blastpath", dest="blastpath", help="path to the blast dir")
+    
     (options, _) = parser.parse_args()
     if not (options.gff and options.blast and options.desc and options.query and options.subject, options.outdir):
         sys.exit(parser.print_help())
@@ -129,12 +131,11 @@ if __name__ == "__main__":
     main(options.gff, options.outdir, options.fasta)
 
     import commands
-    cmd = "bblast.py -p blastn -e 0.001 -m 8 -W 7 -a 6 -i %s/%s_%s.cns_test.fasta -d %s/at_no_cds.fasta -o %s" \
-                          % (options.outdir, options.query, options.subject, options.outdir, options.blast)
+    cmd = "bblast.py -b {0} -p blastn -e 0.001 -m 8 -W 7 -a 6 -i {1}/{2}_{3}.cns_test.fasta -d {1}/at_no_cds.fasta -o {4}".format(options.blastpath,options.outdir, options.query, options.subject, options.blast)
     print >>sys.stderr, "executing\n %s" % cmd
     print commands.getoutput(cmd)
 
 
-    make_cns_to_at_map(options.blast, options.gff, options.query,
+    make_cns_to_at_map(options.desc, options.blast, options.gff, options.query,
                        options.subject, options.outdir)
 
