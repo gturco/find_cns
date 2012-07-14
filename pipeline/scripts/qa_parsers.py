@@ -1,5 +1,5 @@
 import sys
-sys.path.append("../../cns_pipeline/bin/quota-alignment/scripts/")
+sys.path.append("../cns_pipeline/bin/quota-alignment/scripts/")
 from cleanup import DupLine
 try:
     from bed_utils import Bed
