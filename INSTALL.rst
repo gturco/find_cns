@@ -66,7 +66,20 @@ it will make your like ALOT easier
         on mac:
            brew install geos
         on unix:
-           sudo apt-get install libgeos-dev
+          sudo apt-get install libgeos-dev
+  
+  + `scip <http://scip.zib.de/download.shtml>`_ go to `webpage <http://scip.zib.de/download.shtml>`_ choose operating system and accept user agreement::
+      
+      unzip scip-x.x.x
+      mv scip-x.x.x cns_pipeline/bin/scip
+      
+  + `gpkl <ftp://ftp.gnu.org/gnu/glpk/>`_::
+      
+        wget glpk-newest_version.tar.gz
+        tar -xvzf <somepath>/glpk-newest_version.tar.gz
+        ./configure --prefix=arfs
+        make
+        make install
 
   + PIP ::
       
