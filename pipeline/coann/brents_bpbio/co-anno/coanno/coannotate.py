@@ -200,7 +200,8 @@ def dispatch(cfg, flip=False):
     merged_genes = exclude_genes_in_high_repeat_areas(merged_genes, bfasta)
     if Klass == Flat:
         print >>out_fh, "\t".join(Klass.names)
-    
+
+    i = 0
     for i, new_gene in enumerate(merged_genes):
         #print >>sys.stderr, "GENNNNNN {0}".format(i)
 	new_gene['locs'] = [(new_gene['start'], new_gene['end'])]
