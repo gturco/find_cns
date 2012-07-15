@@ -4,8 +4,12 @@ from flatfeature import Bed
 sys.path.append("scripts/")
 from cns_utils import CNS
 from cns_utils import read_cns_to_rna, read_cns_to_protein_exons
-sys.path.insert(0, "/home/gturco/src/quota-alignment/scripts")
-from bed_utils import RawLine
+sys.path.insert(0, "../cns_pipeline/bin/quota-alignment/scripts")
+try:
+    from bed_utils import RawLine
+except ImportError:
+        raise 'bed_utils.py pacakge not found edit the sys.path.append of shuffle_protein_cns.py  to location of your quota-alignment'
+
 import collections
 from qa_parsers import pairs_to_qa,RawBed
 from scipy.spatial import cKDTree
