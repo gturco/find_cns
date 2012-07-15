@@ -47,7 +47,7 @@ def setup_install(dir_name):
 
 
 
-create_env('cns_pipeline2')
-pip_install('cns_pipeline2')
-git_install('cns_pipeline2')
-setup_install('cns_pipeline2')
+create_env('cns_pipeline')
+pip_install('cns_pipeline')
+git_install('cns_pipeline')
+setup_install('cns_pipeline')
