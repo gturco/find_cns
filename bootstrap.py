@@ -1,3 +1,5 @@
+import os
+import platform
 import subprocess
 import sys
 
@@ -43,6 +45,25 @@ def setup_install(dir_name):
     subprocess.Popen(['../../../../../{0}/bin/python2.7'.format(dir_name),'setup.py','install'],cwd=r'pipeline/coann/brents_bpbio/scripts/bblast/').wait()
     co_anno = subprocess.Popen(['../../../../{0}/bin/python2.7'.format(dir_name),'setup.py','install'],cwd=r'pipeline/coann/brents_bpbio/co-anno/').wait()
 
+def install_blast(dir_name):
+    opersys = platform.system()
+    if opersys == 'Darwin':
+        link = 'ftp://ftp.ncbi.nlm.nih.gov/blast/executables/release/LATEST/blast-2.2.26-universal-macosx.tar.gz'
+    elif opersys == 'Linux':
+        link = 'ftp://ftp.ncbi.nlm.nih.gov/blast/executables/release/LATEST/blast-2.2.26-ia32-linux.tar.gz'
+    subprocess.Popen(['wget','-O','blast.tar.gz',link],cwd=r'{0}/bin/'.format(dir_name)).wait()
+    subprocess.Popen(['tar', '-xvzf','blast.tar.gz'],cwd=r'{0}/bin/'.format(dir_name)).wait()
+
+def install_lastz(dir_name):
+    link = 'http://www.bx.psu.edu/~rsharris/lastz/newer/lastz-1.03.02.tar.gz'
+    subprocess.Popen(['wget','-O','lastz.tar.gz',link],cwd=r'{0}/bin/'.format(dir_name)).wait()
+    subprocess.Popen(['tar', '-xvzf','lastz.tar.gz'],cwd=r'{0}/bin/'.format(dir_name)).wait()
+    subprocess.Popen(['make'],cwd=r'{0}/bin/lastz-distrib-1.03.02/'.format(dir_name)).wait()
+    cwd = r'{0}/bin/lastz-distrib-1.03.02/'.format(dir_name)
+    opts = 'LASTZ_INSTALL={0}/cns_pipeline/bin/'.format(os.getcwd())
+    subprocess.Popen([opts,'make','install'],cwd=cwd, shell=True).wait()
+
+
 
 
 
@@ -51,3 +72,5 @@ create_env('cns_pipeline')
 pip_install('cns_pipeline')
 git_install('cns_pipeline')
 setup_install('cns_pipeline')
+install_blast('cns_pipeline')
+install_lastz('cns_pipeline')

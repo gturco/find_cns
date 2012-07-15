@@ -11,7 +11,7 @@ BLAST_DIR=../cns_pipeline/bin/blast-2.2.26/bin/
 ORGA=ricetest
 ORGB=sorgtest
 QUOTA=1:1
-NCPU=8
+NCPU=`python -c "import multiprocessing; print min(multiprocessing.cpu_count(),8)";`
 #### look on coge for dsgid information
 qDSGID=95
 sDSGID=9109
@@ -20,7 +20,7 @@ sDSGID=9109
 #############################################
 DIR=data/${ORGA}_${ORGB}/
 
-#source ../cns_pipeline/bin/activate
+source ../cns_pipeline/bin/activate
 #
 echo checking for unannotated proteins......
 sh coann/co-anno.sh ${ORGA} ${ORGB} $QUOTA $BLAST_DIR
