@@ -12,13 +12,22 @@ The easiest way to install the pipeline is to:
    
   1) Go to the requirements section and make sure the following are installed:
      (for instructions see requirements section)
+     
      - Python 2.7
+     
      - git
+     
      - gfortran
+     
      - Blas
-     - easy_install
+     
+     - easy_install and pip
+     
+     - glpk and scip
+     
      - virtualenv
-  
+     
+
   2) git clone this package ::
 
        git clone : git://github.com/gturco/find_cns.git
