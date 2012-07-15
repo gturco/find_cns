@@ -38,7 +38,13 @@ The easiest way to install the pipeline is to:
          ARCHFLAGS='-arch i386 -arch x86_64' python bootstrap.py
   
   + If step 3 fails then try installing the failed package using one of the steps below and re-doing step 3
-    
+
+  4) run test case `read how to set up run here <https://github.com/gturco/find_cns/blob/master/README.rst#id4>`_::
+        
+        cd pipeline
+        sh run.sh
+
+
 Requirements
 =============
 The following are absolutely required otherwise installation WILL FAIL. Addtional help found `here <http://www.thisisthegreenroom.com/2011/installing-python-numpy-scipy-matplotlib-and-ipython-on-lion/>`_ If you are downloading this program on a Mac please download `homebrew <http://mxcl.github.com/homebrew/>`_ 
