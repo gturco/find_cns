@@ -23,6 +23,7 @@ def pip_install(dir_name):
     if scipy != 0: raise Exception('can not download scipy READ REQUIREMENTS and TRY again!')
     Cython = subprocess.call(['{0}/bin/pip'.format(dir_name), 'install', 'Cython'])
     if Cython != 0: raise Exception('can not download Cython READ REQUIREMENTS and TRY again!')
+    pyrex = subprocess.call(['{0}/bin/pip'.format(dir_name), 'install', 'Pyrex'])
     biopython = subprocess.call(['{0}/bin/pip'.format(dir_name), 'install', 'biopython'])
     if biopython != 0: raise Exception('can not download biopython READ REQUIREMENTS and TRY again!')
     
