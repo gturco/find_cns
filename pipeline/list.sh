@@ -4,8 +4,8 @@ QUOTA_DIR=../cns_pipeline/bin/quota-alignment/
 ORGA=$1
 ORGB=$2 # if your files are rice_v6.fasta and rice_v6.bed, this will be rice_v6
 quota=$3
-QDSID=$4
-SDSID=$5
+QDSGID=$4
+SDSGID=$5
 dirc=data/${ORGA}_${ORGB}
 qprefix=${dirc}/${ORGA}
 sprefix=${dirc}/${ORGB}
@@ -46,8 +46,8 @@ python scripts/post_processing/make_genelist_gt.py \
    --sflat_new ${sprefix}.all.nolocaldups.bed.with_new.local \
         --qorg ${ORGA} \
         --sorg ${ORGB} \
-        --qdsid ${QDSID} \
-        --sdsid ${SDSID}  \
+        --qdsgid ${QDSGID} \
+        --sdsgid ${SDSGID}  \
         --qdups ${qprefix}.all.localdups \
         --sdups ${sprefix}.all.localdups \
         --qlocal ${qprefix}.all.localdups.local \
