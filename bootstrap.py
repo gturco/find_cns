@@ -26,6 +26,8 @@ def pip_install(dir_name):
     pyrex = subprocess.call(['{0}/bin/pip'.format(dir_name), 'install', 'Pyrex'])
     biopython = subprocess.call(['{0}/bin/pip'.format(dir_name), 'install', 'biopython'])
     if biopython != 0: raise Exception('can not download biopython READ REQUIREMENTS and TRY again!')
+    pandas = subprocess.call(['{0}/bin/pip'.format(dir_name), 'install', 'pandas'])
+    if pandas != 0: raise Exception('can not download pandas READ REQUIREMENTS and TRY again!')
     
 
 def git_install(dir_name):

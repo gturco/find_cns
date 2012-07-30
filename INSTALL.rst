@@ -147,6 +147,10 @@ If you are having trouble with numpy or Scipy on try this `link <http://www.this
 
     pip install Cython
 
+- `pandas <http://pandas.pydata.org/>`_::
+
+    pip install pandas
+
 - `flatfeature <https://github.com/brentp/flatfeature.git>`_::
 
     pip install git+https://github.com/brentp/flatfeature.git
