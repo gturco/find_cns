@@ -13,8 +13,8 @@ ORGB=sorgtest
 QUOTA=1:1
 NCPU=`python -c "import multiprocessing; print min(multiprocessing.cpu_count(),8)";`
 #### look on coge for dsgid information
-qDSGID=95
-sDSGID=9109
+QDSGID=11822
+SDSGID=11821
 #############################################
 # dont edit below here
 #############################################
@@ -107,8 +107,8 @@ python scripts/post_processing/assign.py \
      --sbed $DIR/${ORGB}.all.nolocaldups.bed.with_new.local \
      --cns $DIR/${ORGA}_${ORGB}.cns.txt.real.local \
      --pairs $DIR/${ORGA}_${ORGB}.pairs.txt.local \
-     --qdsgid 11821 \
-     --sdsgid 8120 \
+     --qdsgid $QDSGID \
+     --sdsgid $SDSGID \
      --qpad 15000 \
      --spad 15000 \
      --pair_fmt pair > $DIR/${ORGA}_${ORGB}.cns.assigned.csv.local
@@ -121,4 +121,7 @@ python scripts/post_processing/cns_to_fasta.py \
                 --qorg ${ORGA} \
                 --sorg ${ORGB} \
                 > $DIR/${ORGA}_${ORGB}.cns.fasta
+
+### creates genelist and cnslist
+sh list.sh ${ORGA} ${ORGB} $QUOTA $QDSGID $SDSGID
 
