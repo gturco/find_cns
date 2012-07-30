@@ -47,7 +47,7 @@ python scripts/post_processing/make_genelist_gt.py \
         --qorg ${ORGA} \
         --sorg ${ORGB} \
         --qdsgid ${QDSGID} \
-        --sdsgid ${SDSGID}  \
+        --sdsgid ${SDSGID} \
         --qdups ${qprefix}.all.localdups \
         --sdups ${sprefix}.all.localdups \
         --qlocal ${qprefix}.all.localdups.local \
@@ -63,3 +63,7 @@ python scripts/post_processing/cns_location_csv.py \
   --sbed ${sprefix}.all.nolocaldups.bed.with_new.local \
   --cns ${JOIN_PREFIX}.cns.assigned.csv.local \
   --fmt csv \
+  --qdsgid $QDSGID \
+  --sdsgid $SDSGID \
+  --qfasta ${qprefix}.fasta \
+  --sfasta ${sprefix}.fasta
