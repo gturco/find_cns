@@ -200,8 +200,8 @@ if __name__ == "__main__":
     parser.add_option("--sflat_new", dest="sflat_new", help="subject flat file with new genes and no dups")
 
     parser.add_option("--datasheet", dest="datasheet", help="cns datasheet")
-    parser.add_option("--qdsid", dest="qdsid", help="query dataset_id")
-    parser.add_option("--sdsid", dest="sdsid", help="subject dataset_id")
+    parser.add_option("--qdsgid", dest="qdsgid", help="query dataset_id")
+    parser.add_option("--sdsgid", dest="sdsgid", help="subject dataset_id")
     parser.add_option("--qorg", dest="qorg", help="name of query organism")
     parser.add_option("--sorg", dest="sorg", help="name of subject organism")
     parser.add_option("--qdups",  dest="qdups",  help="query dups")
@@ -216,7 +216,7 @@ if __name__ == "__main__":
     if not (opts.qflat_all and opts.sflat_all and opts.datasheet):
         print "A"
         sys.exit(parser.print_help())
-    if not (opts.qdsid and opts.qorg and opts.sorg):
+    if not (opts.qdsgid and opts.qorg and opts.sorg):
         print "B"
         sys.exit(parser.print_help())
     if not (opts. qdups and opts.sdups and opts.paralogy and opts.orthology):
@@ -258,8 +258,8 @@ if __name__ == "__main__":
     qout = op.join(out_dir, opts.qorg +
             ".genelist-" + tdate + ".csv")
     
-    link = "http://coge.iplantcollaborative.org/CoGe/GEvo.pl?prog=blastn&dsid1=" + \
-                  opts.qdsid + "&dsid2=" + opts.sdsid + \
+    link = "http://coge.iplantcollaborative.org/CoGe/GEvo.pl?prog=blastn&dsgid1=" + \
+                  opts.qdsgid + "&dsgid2=" + opts.sdsgid + \
                   "&accn1=%(accn1)s&accn2=%(accn2)s&num_seqs=2&autogo=1&show_cns=1" 
     
     write_genelist('q', qout, qflat, pairs, orthos, mcns, link, opts.qorg,opts.sorg, sflat, qdups, qlocaldups)
