@@ -30,7 +30,7 @@ The easiest way to install the pipeline is to:
 
   2) git clone this package ::
 
-       git clone : git://github.com/gturco/find_cns.git
+       git clone git://github.com/gturco/find_cns.git
        cd find_cns
 
   3) run Installation ::
@@ -83,6 +83,11 @@ it will make your like ALOT easier
         on unix:
           sudo apt-get install libgeos-dev
   
+  + `virtualenv <http://pypi.python.org/pypi/virtualenv/>`_::
+
+      sudo pip install virtualenv
+      virtualenv --distribute cns_pipeline --python=python2.7
+   
   + `scip <http://scip.zib.de/download.shtml>`_ go to `webpage <http://scip.zib.de/download.shtml>`_ choose operating system and accept user agreement::
       
       unzip scip-x.x.x
@@ -100,10 +105,6 @@ it will make your like ALOT easier
       
      sudo easy_install pip
 
-
-  + `virtualenv <http://pypi.python.org/pypi/virtualenv/>`_::
-
-      sudo pip install virtualenv
 
       
 Installation
