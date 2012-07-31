@@ -46,12 +46,12 @@ Inputs
    prefer the readable Os01g101010 names over the names like m103430.
 
 
-Editing Run File
+Runing Pipeline
 ::::::::::::::::
 
- + *Once only*: edit quota.sh to correct path for ``quota-alignment``
- + edit quota.sh to the correct `ORGA`, `ORGB`, `QUOTA`
+ + edit run.sh to the correct `ORGA`, `ORGB`, `QUOTA`, `SDGID`, `QDSGID`
  + under the data directory create a new directory titled ORGA_ORGB with their corresponding beds and fasta eg ``mkdir data/rice_v6_sorghum_v1``
+ + activate screen ``screen``
  + activate virtualenv: ``source ../cns_pipeline/bin/activate``
  + run cmd: ``sh run.sh`` #that will call quota.sh (this will take a long time as it's doing a full blast (lastz) and then all of quota align, then cns pipeline).
  + this will create png's for the dotplots. check those to make sure the quota-blocks look correct.
@@ -60,8 +60,8 @@ Editing Run File
 Output files
 ::::::::::::
 
- + Query and subject CNS position
- + Missing Exons from ORGA ORGB blast
- + CNS blast to  RNA file
- + CNS blast to proteins file
- + CNS assigned to nearest Ortholog
+ + CNSlist (contains start,stop,chr,sequences and 5 prime 3 prime information for gene)
+ + Genelist  (one for each ORG, contains the gene start,stop,local dupinfo,orthos,number of CNSs)
+ + new genes are named ORG_chr_start_stop in the Genelist
+ + CNS with hits to rna or protein are also renamed in the Genelist
+
