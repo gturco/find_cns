@@ -1,5 +1,8 @@
 #!/bin/sh
-BLAST_DIR=../cns_pipeline/bin/blast-2.2.26/bin/
+BLAST_DIR=../cns_pipeline/bin/blast-2.2.26/bin/bl2seq
+### If using blast +
+#BLAST_DIR=../cns_pipeline/bin/blast-2.2.26+/bin/legacy_blast.pl
+
 #on new synteny, run these. and put .bed and .fasta files in data/ directory.
 #  perl export_to_bed.pl -fasta_name rice_v6.fasta -dsg 8163 -name_re "^Os\d\dg\d{5}$" > rice_v6.bed
 # perl export_to_bed.pl -fasta_name sorghum_v1.4.fasta -dsg 95 > sorghum_v1.4.bed
@@ -35,7 +38,7 @@ python scripts/find_cns.py \
         -n 8 \
         --qpad 12000 \
         --spad 12000 \
-        --blast_path ${BLAST_DIR}/bl2seq \
+        --blast_path ${BLAST_DIR} \
         --pair_fmt pair > $DIR/${ORGA}_${ORGB}.cns.txt 
 
 python scripts/localdup.py \
@@ -47,7 +50,7 @@ python scripts/localdup.py \
         -n 8 \
         --qpad 12000 \
         --spad 12000 \
-        --blast_path ${BLAST_DIR}/bl2seq \
+        --blast_path ${BLAST_DIR} \
         --pair_fmt pair \
        --qdups $DIR/${ORGA}.all.localdups \
        --sdups $DIR/${ORGB}.all.localdups
