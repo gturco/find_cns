@@ -344,9 +344,25 @@ def get_masked_fastas(bed):
         fh.close()
     return fastas
 
+def determine_blast_type(blast_path,mask):
+    if "legacy" in blast_path:
+        bl2seq =   "%s " % blast_path + \
+           " bl2seq -p blastn -D 1 -E 2 -q -2 -r 1 -G 5 -W 7 -F %s " % mask + \
+           " -e %(e_value).2f -i %(qfasta)s -j %(sfasta)s \
+              -I %(qstart)d,%(qstop)d -J %(sstart)d,%(sstop)d | grep -v '#' \
+            | grep -v 'WARNING' | grep -v 'ERROR' "
+    else:
+        bl2seq = "%s " % blast_path + \
+           " -p blastn -D 1 -E 2 -q -2 -r 1 -G 5 -W 7 -F %s " % mask + \
+           " -e %(e_value).2f -i %(qfasta)s -j %(sfasta)s \
+              -I %(qstart)d,%(qstop)d -J %(sstart)d,%(sstop)d | grep -v '#' \
+            | grep -v 'WARNING' | grep -v 'ERROR' "
+    return bl2seq
+
 def main(qbed, sbed, pairs_file, qpad, spad, pair_fmt, blast_path, mask='F', ncpu=8):
     """main runner for finding cnss"""
     pool = Pool(ncpu)
+    bl2seq = determine_blast_type(blast_path,mask)
 #    legacy_bl2seq =   "%s " % blast_path + \
 #           " bl2seq -p blastn -D 1 -E 2 -q -2 -r 1 -G 5 -W 7 -F %s " % mask + \
 #           " -e %(e_value).2f -i %(qfasta)s -j %(sfasta)s \
@@ -355,12 +371,12 @@ def main(qbed, sbed, pairs_file, qpad, spad, pair_fmt, blast_path, mask='F', ncp
 #
 #    bl2seq = legacy_bl2seq
 #   
-    bl2seq = "%s " % blast_path + \
-           " -p blastn -D 1 -E 2 -q -2 -r 1 -G 5 -W 7 -F %s " % mask + \
-           " -e %(e_value).2f -i %(qfasta)s -j %(sfasta)s \
-              -I %(qstart)d,%(qstop)d -J %(sstart)d,%(sstop)d | grep -v '#' \
-            | grep -v 'WARNING' | grep -v 'ERROR' "
-
+#    bl2seq = "%s " % blast_path + \
+#           " -p blastn -D 1 -E 2 -q -2 -r 1 -G 5 -W 7 -F %s " % mask + \
+#           " -e %(e_value).2f -i %(qfasta)s -j %(sfasta)s \
+#              -I %(qstart)d,%(qstop)d -J %(sstart)d,%(sstop)d | grep -v '#' \
+#            | grep -v 'WARNING' | grep -v 'ERROR' "
+#
     fcnss = sys.stdout
     print >> fcnss, "#qseqid,qaccn,sseqid,saccn,[qstart,qend,sstart,send,evalue...]"
 
