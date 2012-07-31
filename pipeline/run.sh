@@ -1,7 +1,7 @@
 #!/bin/sh
-BLAST_DIR=../cns_pipeline/bin/blast-2.2.26/bin/bl2seq
+BLAST_DIR=../cns_pipeline/bin/blast-2.2.26/bin/
 ### If using blast +
-#BLAST_DIR=../cns_pipeline/bin/blast-2.2.26+/bin/legacy_blast.pl
+#BLAST_DIR=../cns_pipeline/bin/blast-2.2.26+/bin/
 
 #on new synteny, run these. and put .bed and .fasta files in data/ directory.
 #  perl export_to_bed.pl -fasta_name rice_v6.fasta -dsg 8163 -name_re "^Os\d\dg\d{5}$" > rice_v6.bed
@@ -23,7 +23,6 @@ SDSGID=11821
 #############################################
 DIR=data/${ORGA}_${ORGB}/
 
-source ../cns_pipeline/bin/activate
 #
 echo checking for unannotated proteins......
 sh coann/co-anno.sh ${ORGA} ${ORGB} $QUOTA $BLAST_DIR
@@ -38,7 +37,9 @@ python scripts/find_cns.py \
         -n 8 \
         --qpad 12000 \
         --spad 12000 \
-        --blast_path ${BLAST_DIR} \
+        --blast_path ${BLAST_DIR}\bl2seq \
+        ### if using blast+  --blast_path ${BLAST_DIR}\legacy_blast.pl \
+        --pair_fmt pair > $DIR/${ORGA}_${ORGB}.cns.txt 
         --pair_fmt pair > $DIR/${ORGA}_${ORGB}.cns.txt 
 
 python scripts/localdup.py \
@@ -50,8 +51,9 @@ python scripts/localdup.py \
         -n 8 \
         --qpad 12000 \
         --spad 12000 \
-        --blast_path ${BLAST_DIR} \
-        --pair_fmt pair \
+        --blast_path ${BLAST_DIR}\bl2seq \
+        ### if using blast+  --blast_path ${BLAST_DIR}\legacy_blast.pl \
+       --pair_fmt pair \
        --qdups $DIR/${ORGA}.all.localdups \
        --sdups $DIR/${ORGB}.all.localdups
 
