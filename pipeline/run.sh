@@ -38,9 +38,8 @@ python scripts/find_cns.py \
         --qpad 12000 \
         --spad 12000 \
         --blast_path ${BLAST_DIR}\bl2seq \
+        --pair_fmt pair > $DIR/${ORGA}_${ORGB}.cns.txt 
         ### if using blast+  --blast_path ${BLAST_DIR}\legacy_blast.pl \
-        --pair_fmt pair > $DIR/${ORGA}_${ORGB}.cns.txt 
-        --pair_fmt pair > $DIR/${ORGA}_${ORGB}.cns.txt 
 
 python scripts/localdup.py \
        -q $DIR/${ORGA}.fasta --qbed $DIR/${ORGA}.all.bed \
@@ -52,10 +51,10 @@ python scripts/localdup.py \
         --qpad 12000 \
         --spad 12000 \
         --blast_path ${BLAST_DIR}\bl2seq \
-        ### if using blast+  --blast_path ${BLAST_DIR}\legacy_blast.pl \
        --pair_fmt pair \
        --qdups $DIR/${ORGA}.all.localdups \
        --sdups $DIR/${ORGB}.all.localdups
+        ### if using blast+  --blast_path ${BLAST_DIR}\legacy_blast.pl \
 
 python scripts/post_processing/cns_to_fasta.py \
                 -c $DIR/${ORGA}_${ORGB}.cns.txt.local \
