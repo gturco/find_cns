@@ -97,7 +97,7 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad, unmaske
 
     # cant cross with < 2 cnss.
     # get rid of the eval, bitscore stuff.
-    if len(cnss) < 2: return [(c[0], c[1], c[2], c[3],c[-2]) for c in cnss]
+    if len(cnss) < 2: return [(c[0], c[1], c[2], c[3],c[-1]) for c in cnss]
     cnss = list(cnss)
     ####################################################################################
     #########split cns into groups based on inversion, seq marks in maize ##########
@@ -135,10 +135,10 @@ def parse_blast(blast_str, orient, qfeat, sfeat, qbed, sbed, qpad, spad, unmaske
           sgene[0] *= -1
           sgene[1] *= -1
       if abs(sgene[1]) in range(key[0], key[1]): # if the cns fall in same group as gene we know its same stand  as gene and dont need to run rest
-        cnss_same_strand = [(c[0], c[1], c[2], c[3],c[-2]) for c in remove_crossing_cnss(same_strand, qgene, sgene)]
+        cnss_same_strand = [(c[0], c[1], c[2], c[3],c[-1]) for c in remove_crossing_cnss(same_strand, qgene, sgene)]
         map(cns_by_group.append, cnss_same_strand)
       else:
-        cnss_same_strand = [(c[0], c[1], c[2], c[3],c[-2]) for c in remove_crossing_cnss(same_strand, qgene, sgene)]
+        cnss_same_strand = [(c[0], c[1], c[2], c[3],c[-1]) for c in remove_crossing_cnss(same_strand, qgene, sgene)]
         cnss_opp_strand = cns_opp_strand(opp_strand, qgene, sgene) # alternitive for cns on opp strand
         if len(cnss_same_strand) < len(cnss_opp_strand):
           map(cns_by_group.append, cnss_opp_strand)
@@ -191,7 +191,8 @@ def main(qbed, sbed, pairs_file, qpad, spad, unmasked_fasta, pair_fmt,blast_path
 
 
     fcnss = sys.stdout
-    print >> fcnss, "#qseqid,qaccn,sseqid,saccn,[qstart,qend,sstart,send...]"
+    print >> fcnss,
+    "#qseqid,qaccn,sseqid,saccn,[qstart,qend,sstart,send,bitscore...]"
 
     qfastas = get_masked_fastas(qbed)
     sfastas = get_masked_fastas(sbed) if qbed.filename != sbed.filename else qfastas
