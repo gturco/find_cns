@@ -39,10 +39,11 @@ The easiest way to install the pipeline is to:
   
   + If step 3 fails then try installing the failed package using one of the steps below and re-doing step 3
 
-  4) run test case `read how to set up run here <https://github.com/gturco/find_cns/blob/master/README.rst#id4>`_::
+  4) run test case `read how to run here <https://github.com/gturco/find_cns/blob/master/README.rst#id4>`_::
         
-        cd pipeline
-        sh run.sh
+       source ../cns_pipeline/bin/activate
+       cd pipeline
+       sh run.sh 
 
 
 Requirements
