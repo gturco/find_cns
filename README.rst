@@ -16,52 +16,49 @@ Created in the `Freeling Lab <http://microscopy.berkeley.edu/~freeling/>`_ at UC
 Installation
 ============
 
-Read `INSTALL file <https://github.com/gturco/find_cns/blob/master/INSTALL.rst>`_ for instructions
-
-Run
-===
-Inputs
--------
-
- + Fasta File (it is recommended to run `50x mask repeat <http://code.google.com/p/bpbio/source/browse/trunk/scripts/mask_genome/mask_genome.py>`_)
- + Bed File (supports `UCSC bed format <http://genome.ucsc.edu/FAQ/FAQformat#format1>`_)
- + Converting GFF to Bed
-  ``BCBio`` module required::
+  - Download most recent code here::
       
-      python scripts/gff_to_bed.py rice_v6.gff >rice_v6.bed
+      git clone https://github.com/gturco/find_cns.git
+
+**Required Dependencies** 
+
+  -Read `INSTALL file <https://github.com/gturco/find_cns/blob/master/INSTALL.rst>`_ for instructions
+
+Running the Pipeline
+====================
+
+**Obtaining Input Files**
+
+  -Requires a fasta file and `Bed file <http://genome.ucsc.edu/FAQ/FAQformat#format1>`_ for each organism being compared
+  -Download fasta and gff from `CoGe OrganismView <http://genomevolution.org/CoGe/OrganismView.pl>`_ for each organism 
+  -Convert files to correct format::
+      python scripts/gff_to_bed.py -re "^Os\d\dg\d{5}" --gff rice_v6.gff --bed rice_v6.bed
+
+      
+The -re regular expression is not required, but in this case, it will
+prefer the readable Os01g101010 names over the names like m103430.
+
+Fasta File (it is recommended to run `50x mask repeat <http://code.google.com/p/bpbio/source/browse/trunk/scripts/mask_genome/mask_genome.py>`_)
+Fasta file and Bed file **must be the same name** (in this case ``rice_v6``).
+Move fasta files to the ``data/`` directory.
 
 
- + If you have access to Coge the fasta and bed file for each organism can be obtained using export_to_bed.pl e.g.::
-
-    perl scripts/export_to_bed.pl \
-                          -fasta_name rice_v6.fasta \
-                          -dsg 8163 \
-                          -name_re "^Os\d\dg\d{5}$" > rice_v6.bed
-
-   where ``dsg`` is from CoGe OrganismView and the prefix for the .bed and
-   .fasta file **must be the same** (in this case ``rice_v6``).
-   You likely need to run this on new synteny and then copy the .bed and
-   .fasta files to the ``data/`` directory.
-   The -name_re regular expression is not required, but in this case, it will
-   prefer the readable Os01g101010 names over the names like m103430.
+**Runing Pipeline**
 
 
-Runing Pipeline
-::::::::::::::::
+ - edit run.sh to the correct `ORGA`, `ORGB`, `QUOTA`, `SDGID`, `QDSGID`
+ - under the data directory create a new directory titled ORGA_ORGB with their corresponding beds and fasta eg ``mkdir data/rice_v6_sorghum_v1``
+ - activate screen ``screen``
+ - activate virtualenv: ``source ../cns_pipeline/bin/activate``
+ - run cmd: ``sh run.sh`` #that will call quota.sh (this will take a long time as it's doing a full blast (lastz) and then all of quota align, then cns pipeline).
+ - this will create png's for the dotplots. check those to make sure the quota-blocks look correct.
+ - when finshed deactivate virtualenv ``deactivate``
 
- + edit run.sh to the correct `ORGA`, `ORGB`, `QUOTA`, `SDGID`, `QDSGID`
- + under the data directory create a new directory titled ORGA_ORGB with their corresponding beds and fasta eg ``mkdir data/rice_v6_sorghum_v1``
- + activate screen ``screen``
- + activate virtualenv: ``source ../cns_pipeline/bin/activate``
- + run cmd: ``sh run.sh`` #that will call quota.sh (this will take a long time as it's doing a full blast (lastz) and then all of quota align, then cns pipeline).
- + this will create png's for the dotplots. check those to make sure the quota-blocks look correct.
- + when finshed deactivate virtualenv ``deactivate``
+**Output Files**
 
-Output files
-::::::::::::
 
- + CNSlist (contains start,stop,chr,sequences and 5 prime 3 prime information for gene)
- + Genelist  (one for each ORG, contains the gene start,stop,local dupinfo,orthos,number of CNSs)
- + new genes are named ORG_chr_start_stop in the Genelist
- + CNS with hits to rna or protein are also renamed in the Genelist
+ - CNSlist (contains start,stop,chr,sequences and 5 prime 3 prime information for gene)
+ - Genelist  (one for each ORG, contains the gene start,stop,local dupinfo,orthos,number of CNSs)
+ - new genes are named ORG_chr_start_stop in the Genelist
+ - CNS with hits to rna or protein are also renamed in the Genelist
 
