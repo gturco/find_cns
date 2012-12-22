@@ -32,7 +32,9 @@ Running the Pipeline
  - Requires a fasta file and `Bed file <http://genome.ucsc.edu/FAQ/FAQformat#format1>`_ for each organism being compared 
  - Download fasta and gff from `CoGe OrganismView <http://genomevolution.org/CoGe/OrganismView.pl>`_ for each organism 
  - Make sure to **UNCLICK**  "Do not generate features for ncRNA genes (CDS genes only)" 
- - Convert files to correct format::
+
+ Convert files to correct format::
+      
       python scripts/gff_to_bed.py -re "^Os\d\dg\d{5}" --gff rice_v6.gff --bed rice_v6.bed
       perl -pi -e "s/>gi\|/>/gi" 9109.faa
   
