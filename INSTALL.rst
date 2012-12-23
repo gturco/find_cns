@@ -53,10 +53,10 @@ Install the following (if not already installed)
    + Add homebrew to your .bash_profile::
 
       touch ~/.bash_profile (if this is a new file check ~/.profile or ~/.bashrc)
-    Once one of these are open add ``PATH="usr/local/bin/:${PATH}"`` and ``export PATH``
-    Then open a new terminal window and type ``brew`` to make sure installed
+    Once one of the profiles are open add ``PATH="usr/local/bin/:${PATH}"`` and then ``export PATH`` to a new line
+    Then open a new terminal window and type ``brew`` to make sure it was properly installed
 
-  + Install Xcode `download here <https://itunes.apple.com/us/app/xcode/id497799835?ls=1&mt=12>`_
+  + Install and download `Xcode here <https://itunes.apple.com/us/app/xcode/id497799835?ls=1&mt=12>`_
 
 **Requirements for Mac and Unix**
 
@@ -110,14 +110,14 @@ Install the following (if not already installed)
 
 
       
-Installation
-============
+Manual Installation if bootstrap fails
+===================================
 bootstrap.py runs the following commands if you are having trouble installing one of these packages follow the instructions below or use the links provided.
-If you are having trouble with numpy or Scipy on try this `link <http://www.thisisthegreenroom.com/2011/installing-python-numpy-scipy-matplotlib-and-ipython-on-lion/>`_
+`troubleshooting numpy and scipy <http://www.thisisthegreenroom.com/2011/installing-python-numpy-scipy-matplotlib-and-ipython-on-lion/>`_
 
 **Python packages**
 
-- First activate your virtualenv so everything is downloaded in here::
+- First **activate** your virtualenv so everything downloads to your  ``cns_pipeline/bin``::
       
     virtualenv --distribute cns_pipeline --python=python2.7
     (creates folder if not already created)
