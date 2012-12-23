@@ -10,23 +10,7 @@ Installation Guide
 
 The easiest way to install the pipeline is to:
    
-  1) Go to the requirements section and make sure the following are installed:
-     (for instructions see requirements section)
-     
-     - Python 2.7
-     
-     - git
-     
-     - gfortran
-     
-     - Blas
-     
-     - easy_install and pip
-     
-     - glpk and scip
-     
-     - virtualenv
-     
+  1) **SEE REQUIREMENTS SECTION**
 
   2) git clone this package ::
 
@@ -48,18 +32,36 @@ The easiest way to install the pipeline is to:
 
 Requirements
 =============
-The following are absolutely required otherwise installation WILL FAIL. Addtional help found `here <http://www.thisisthegreenroom.com/2011/installing-python-numpy-scipy-matplotlib-and-ipython-on-lion/>`_ If you are downloading this program on a Mac please download `homebrew <http://mxcl.github.com/homebrew/>`_ 
-it will make your like ALOT easier
+Install the following (if not already installed) 
+**Instructions** are provided below `troubleshooting help available here <http://www.thisisthegreenroom.com/2011/installing-python-numpy-scipy-matplotlib-and-ipython-on-lion/>`_
 
-   + homebrew for mac::
+     - Python 2.7
+     - git
+     - gfortran
+     - Blas
+     - easy_install and pip
+     - glpk and scip
+     - virtualenv
 
-      /usr/bin/ruby -e "$(/usr/bin/curl -fsSL https://raw.github.com/mxcl/homebrew/master/Library/Contributions/install_homebrew.rb)"
 
-  (thats it! Now add homebrew to your system path: open your .bash_profile in your user(~) directory add export PATH=/usr/local/bin:$PATH)
+**Special Requirements for Mac**
 
+   + Install homebrew::
+
+      ruby <(curl -fsSkL raw.github.com/mxcl/homebrew/go)
+
+   + Add homebrew to your .bash_profile::
+
+      touch ~/.bash_profile (if this is a new file check ~/.profile or ~/.bashrc)
+    Once one of these are open add ``PATH="usr/local/bin/:${PATH}"`` and ``export PATH``
+    Then open a new terminal window and type ``brew`` to make sure installed
+
+  + Install Xcode `download here <https://itunes.apple.com/us/app/xcode/id497799835?ls=1&mt=12>`_
+
+**Requirements for Mac and Unix**
 
   + Python version >= 2.7 (you can use `pythonbrew <https://github.com/utahta/pythonbrew/>`_ to install python)::
-      
+                
                 on mac:
                     brew install python --framework --universal
                     (edit .bash_profile)
