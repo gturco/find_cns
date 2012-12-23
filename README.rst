@@ -16,7 +16,7 @@ Created in the `Freeling Lab <http://microscopy.berkeley.edu/~freeling/>`_ at UC
 Installation
 ============
 
-  - Download most recent code here::
+  - Download the most recent code here::
       
       git clone https://github.com/gturco/find_cns.git
 
@@ -29,26 +29,31 @@ Running the Pipeline
 
 **Obtaining Input Files**
 
- - Requires a fasta file and `Bed file <http://genome.ucsc.edu/FAQ/FAQformat#format1>`_ for each organism being compared 
- - Download fasta and gff from `CoGe OrganismView <http://genomevolution.org/CoGe/OrganismView.pl>`_ for each organism 
- - Make sure to **UNCLICK**  "Do not generate features for ncRNA genes (CDS genes only)" 
+ - Download Fasta and gff from `CoGe OrganismView <http://genomevolution.org/CoGe/OrganismView.pl>`_ for each organism 
+ - Make sure to **UNCLICK**  "Do not generate features for ncRNA genes (CDS genes only)" when downloading gff
 
- Convert files to correct format::
-      
+ Convert gff to `Bed format <http://genome.ucsc.edu/FAQ/FAQformat#format1>`_::
+
       python scripts/gff_to_bed.py -re "^Os\d\dg\d{5}" --gff rice_v6.gff --bed rice_v6.bed
-      perl -pi -e "s/>gi\|/>/gi" 9109.faa
   
- - The -re regular expression is not required, but in this case, it will prefer the readable Os01g101010 names over the names like m103430.
+  - The -re regular expression is not required, but in this case, it will prefer the readable Os01g101010 names over the names like m103430.
+  
+ Convert fasta to correct format::
+
+      perl -pi -e "s/>gi\|/>/gi" 9109.faa
+      mv 9109.faa rice_v6.fasta
+
  - Fasta File (it is recommended to run `50x mask repeat <http://code.google.com/p/bpbio/source/browse/trunk/scripts/mask_genome/mask_genome.py>`_)
- - **RENAME** Fasta file and Bed file **must be the same name** (in this case ``rice_v6``).
- - Move fasta and Bed file to the ``data/`` directory
+ - **RENAME** Fasta file and Bed file **must be the same name** (in this case ``rice_v6.fasta and rice_v6.bed``).
+ - Move Fasta and Bed file to the ``data/`` directory
 
 
 **Runing Pipeline**
 
 
- - edit run.sh to the correct `ORGA`, `ORGB`, `QUOTA`, `SDGID`, `QDSGID`
- - under the data directory create a new directory titled ORGA_ORGB with their corresponding beds and fasta eg ``mkdir data/rice_v6_sorghum_v1``
+ - Create a new directory (under data) name for organisms being compared ORGA_ORGB  eg ``mkdir data/rice_v6_sorghum_v1``
+ - Add Fasta and Bed files to directory
+ - Edit run.sh file ``touch run.sh`` change `ORGA`, `ORGB`, `QUOTA`, `SDGID`, `QDGID` #DGID found in CoGe
  - activate screen ``screen``
  - activate virtualenv: ``source ../cns_pipeline/bin/activate``
  - run cmd: ``sh run.sh`` #that will call quota.sh (this will take a long time as it's doing a full blast (lastz) and then all of quota align, then cns pipeline).

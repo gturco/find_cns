@@ -17,11 +17,11 @@ The easiest way to install the pipeline is to:
        git clone git://github.com/gturco/find_cns.git
        cd find_cns
 
-  3) run Installation ::
+  3) run bootstrap Installation ::
 
          ARCHFLAGS='-arch i386 -arch x86_64' python bootstrap.py
   
-  + If step 3 fails then try installing the failed package using one of the steps below and re-doing step 3
+  + If step 3 fails try installing the failed package under the Manual Installation and then re-runing bootstrap
 
   4) run test case `read how to run here <https://github.com/gturco/find_cns/blob/master/README.rst#id4>`_::
         
@@ -86,31 +86,35 @@ Install the following (if not already installed)
         on unix:
           sudo apt-get install libgeos-dev
   
+    + PIP ::
+      
+      sudo easy_install pip
+ 
   + `virtualenv <http://pypi.python.org/pypi/virtualenv/>`_::
 
       sudo pip install virtualenv
       virtualenv --distribute cns_pipeline --python=python2.7
-   
-  + `scip <http://scip.zib.de/download.shtml>`_ go to `webpage <http://scip.zib.de/download.shtml>`_ choose operating system and accept user agreement::
+
+    
+  + `scip <http://scip.zib.de/download.shtml>`_ Download `here <http://scip.zib.de/download.shtml>`_ choose operating system and **accept user agreement** on next page::
       
       unzip scip-x.x.x
       mv scip-x.x.x cns_pipeline/bin/scip
-      
+
+      on unix:
+        sudo apt-get install unzip (add if not installed)
+
   + `gpkl <ftp://ftp.gnu.org/gnu/glpk/>`_::
       
         wget glpk-newest_version.tar.gz
         tar -xvzf <somepath>/glpk-newest_version.tar.gz
-        ./configure --prefix=arfs
+        ./configure
         make
-        make install
-
-  + PIP ::
-      
-     sudo easy_install pip
+        sudo make install
 
 
       
-Manual Installation if bootstrap fails
+Manual Installation if bootstrap (step 3) fails
 ===================================
 bootstrap.py runs the following commands if you are having trouble installing one of these packages follow the instructions below or use the links provided.
 `troubleshooting numpy and scipy <http://www.thisisthegreenroom.com/2011/installing-python-numpy-scipy-matplotlib-and-ipython-on-lion/>`_
