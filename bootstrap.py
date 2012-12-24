@@ -53,7 +53,10 @@ def install_blast(dir_name):
     if opersys == 'Darwin':
         link = 'ftp://ftp.ncbi.nlm.nih.gov/blast/executables/release/LATEST/blast-2.2.26-universal-macosx.tar.gz'
     elif opersys == 'Linux':
-        link = 'ftp://ftp.ncbi.nlm.nih.gov/blast/executables/release/LATEST/blast-2.2.26-ia32-linux.tar.gz'
+        if '_32' in platform.version():
+            link = 'ftp://ftp.ncbi.nlm.nih.gov/blast/executables/release/LATEST/blast-2.2.26-ia32-linux.tar.gz'
+        else:
+            link = 'ftp://ftp.ncbi.nlm.nih.gov/blast/executables/release/LATEST/blast-2.2.26-x64-linux.tar.gz'
     subprocess.Popen(['wget','-O','blast.tar.gz',link],cwd=r'{0}/bin/'.format(dir_name)).wait()
     subprocess.Popen(['tar', '-xvzf','blast.tar.gz'],cwd=r'{0}/bin/'.format(dir_name)).wait()
 
