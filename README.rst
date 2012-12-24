@@ -34,18 +34,11 @@ Running the Pipeline
 
  Convert gff to `Bed format <http://genome.ucsc.edu/FAQ/FAQformat#format1>`_::
 
-      python scripts/gff_to_bed.py -re "^Os\d\dg\d{5}" --gff rice_v6.gff --bed rice_v6.bed
- 
+      python scripts/gff_to_bed.py -re "^Os\d\dg\d{5}" --gff rice_v6.gff  --fasta 9109.faa --out rice_v6
+
  - The -re regular expression is not required, but in this case, it will prefer the readable Os01g101010 names over the names like m103430.
-  
- Convert fasta to correct format::
-
-      perl -pi -e "s/>gi\|/>/gi" 9109.faa
-      mv 9109.faa rice_v6.fasta
-
+ - the --out is the root word for the Fasta and Bed outfiles since they **must be the same name** (in this case ``rice_v6.fasta and rice_v6.bed``)
  - Fasta File (it is recommended to run `50x mask repeat <http://code.google.com/p/bpbio/source/browse/trunk/scripts/mask_genome/mask_genome.py>`_)
- - **RENAME** Fasta file and Bed file **must be the same name** (in this case ``rice_v6.fasta and rice_v6.bed``).
- - Move Fasta and Bed file to the ``data/`` directory
 
 
 **Runing Pipeline**
