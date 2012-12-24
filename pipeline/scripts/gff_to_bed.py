@@ -38,6 +38,7 @@ def parse_gff(regex,gff):
         if line[0] == "#": continue
         args = line.strip().split("\t")
         seqid = args[0]
+        if seqid == "C" or seqid == "M": continue
         start = int(args[3])
         end = int(args[4])
         strand = args[6]
