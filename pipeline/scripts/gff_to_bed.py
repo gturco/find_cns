@@ -57,7 +57,9 @@ def parse_fasta(fasta,out):
     filter_fasta = open("{0}.fasta".format(out),"wb")
     for line in open(fasta):
         i += 1
-        if line[:4] == "gi|M" or line[:4] == "gi|C":
+        if "gi|" in line:
+            line = "".join(line.split('gi|'))
+        if "|M" in line or "|C" in line:
             no_i.append(i + 1)
             continue
         if i in no_i: continue
