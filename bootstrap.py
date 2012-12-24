@@ -42,7 +42,7 @@ def git_install(dir_name):
 
 def setup_install(dir_name):
     """installs setup install files to virenv directory"""
-    subprocess.Popen(['../../python2.7','setup.py','install'],cwd=r'{0}/bin/bcbb/gff/'.format(dir_name))
+    subprocess.Popen(['../../python2.7','setup.py','install'],cwd=r'{0}/bin/bcbb/gff/'.format(dir_name)).wait()
     subprocess.Popen(['../../../../{0}/bin/python2.7'.format(dir_name),'setup.py','install'],cwd=r'pipeline/coann/brents_bpbio/biostuff/').wait()
     subprocess.Popen(['../../../../../{0}/bin/python2.7'.format(dir_name),'setup.py','install'],cwd=r'pipeline/coann/brents_bpbio/blasttools/blast_misc/').wait()
     subprocess.Popen(['../../../../../{0}/bin/python2.7'.format(dir_name),'setup.py','install'],cwd=r'pipeline/coann/brents_bpbio/scripts/bblast/').wait()
