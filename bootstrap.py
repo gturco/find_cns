@@ -61,10 +61,12 @@ def install_blast(dir_name):
     subprocess.Popen(['tar', '-xvzf','blast.tar.gz'],cwd=r'{0}/bin/'.format(dir_name)).wait()
 
 def install_lastz(dir_name):
-    link = 'http://www.bx.psu.edu/~rsharris/lastz/newer/lastz-1.03.02.tar.gz'
-    subprocess.Popen(['wget','-O','lastz.tar.gz',link],cwd=r'{0}/bin/'.format(dir_name)).wait()
-    subprocess.Popen(['tar', '-xvzf','lastz.tar.gz'],cwd=r'{0}/bin/'.format(dir_name)).wait()
-    subprocess.Popen(['make'],cwd=r'{0}/bin/lastz-distrib-1.03.02/'.format(dir_name)).wait()
+    if "lastz-distrib" not in os.listdir(dir_name):
+        link = 'http://www.bx.psu.edu/~rsharris/lastz/newer/lastz-1.03.02.tar.gz'
+        subprocess.Popen(['wget','-O','lastz.tar.gz',link],cwd=r'{0}/bin/'.format(dir_name)).wait()
+        subprocess.Popen(['tar', '-xvzf','lastz.tar.gz'],cwd=r'{0}/bin/'.format(dir_name)).wait()
+    passed = subprocess.Popen(['make'],cwd=r'{0}/bin/lastz-distrib-1.03.02/'.format(dir_name)).wait()
+    if passed != 0: print >>sys.stderr, 'Delete the word -Werror at the line 31 in cns_pipeline/bin/lastz-distrib-1.03.02/src/Makefile and re-run bootstrap.py!!!!!!'
     cwd = r'{0}/bin/lastz-distrib-1.03.02/'.format(dir_name)
     opts = 'LASTZ_INSTALL={0}/cns_pipeline/bin/'.format(os.getcwd())
     subprocess.Popen([opts,'make','install'],cwd=cwd, shell=True).wait()
