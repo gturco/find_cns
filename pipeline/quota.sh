@@ -1,5 +1,5 @@
 QUOTA_DIR=../cns_pipeline/bin/quota-alignment/
-
+LASTZ=./../cns_pipeline/bin/lastz-distrib-1.03.02/src/lastz
 
 # these are set from the command-line do not edit.
 qprefix=$1
@@ -20,7 +20,6 @@ python -c "from flatfeature import Bed; b = Bed('${qprefix}.all.bed', '${qprefix
 python -c "from flatfeature import Bed; b = Bed('${sprefix}.all.bed', '${sprefix}.fasta'); b.cds_fasta(outfile='${sprefix}.features.fasta')";
 #
 #
-LASTZ=lastz
 python scripts/blastz.py -i ${qprefix}.features.fasta \
                  -d ${sprefix}.features.fasta \
                  -a $cpus \
