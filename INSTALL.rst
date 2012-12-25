@@ -9,13 +9,15 @@ Installation Guide
 =================
 
 The easiest way to install the pipeline is to:
-   
-  1) **SEE REQUIREMENTS SECTION**
 
-  2) git clone this package ::
+  1) Install git and clone this package
+  
+  + `Install git here <http://git-scm.com/downloads>`_ (click the `link <http://git-scm.com/downloads>`_ and follow instructions for your system )::
 
        git clone git://github.com/gturco/find_cns.git
        cd find_cns
+  
+  2) **SEE REQUIREMENTS SECTION**
 
   3) run bootstrap Installation ::
 
@@ -36,7 +38,6 @@ Install the following (if not already installed)
 **Instructions** are provided below `troubleshooting help available here <http://www.thisisthegreenroom.com/2011/installing-python-numpy-scipy-matplotlib-and-ipython-on-lion/>`_
 
      - Python 2.7
-     - git
      - gfortran
      - Blas
      - easy_install and pip
@@ -69,7 +70,6 @@ Install the following (if not already installed)
                 on unix:
                   sudo apt-get update; sudo apt-get install python2.7 python2.7-dev python-setuptools
 
-  + `git <http://git-scm.com/downloads>`_ (click the `link <http://git-scm.com/downloads>`_ and follow instructions for your system )
   
   + Scipy PreReq::
 
@@ -101,7 +101,7 @@ Install the following (if not already installed)
       unzip scip-x.x.x
       mv scip-x.x.x cns_pipeline/bin/scip
 
-      on unix:
+      if on unix need unzip:
         sudo apt-get install unzip (add if not installed)
 
   + `gpkl <ftp://ftp.gnu.org/gnu/glpk/>`_::
