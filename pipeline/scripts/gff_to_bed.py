@@ -57,9 +57,9 @@ def parse_fasta(fasta,out):
     filter_fasta = open("{0}.fasta".format(out),"wb")
     for line in open(fasta):
         i += 1
-        if "gi|" in line:
-            line = "".join(line.split('gi|'))
-        if "|M" in line or "|C" in line:
+        if "|" in line:
+            line = ">" + line.split('|')[1]
+        if "|M" in line or line.endswith("|C"):
             no_i.append(i + 1)
             continue
         if i in no_i: continue
@@ -69,6 +69,7 @@ def parse_fasta(fasta,out):
 def gff_to_bed(parents,feats,out):
     bed_fh = open("{0}.bed".format(out),"wb")
     for pid in parents.keys():
+        print pid
         seqid,start,end,strand,accn = parents[pid]
         largest_feats = merge_feats(feats[pid])
         feat_starts = [str(s-start) for (s,e) in largest_feats]
