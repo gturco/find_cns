@@ -69,7 +69,6 @@ def parse_fasta(fasta,out):
 def gff_to_bed(parents,feats,out):
     bed_fh = open("{0}.bed".format(out),"wb")
     for pid in parents.keys():
-        print pid
         seqid,start,end,strand,accn = parents[pid]
         largest_feats = merge_feats(feats[pid])
         feat_starts = [str(s-start) for (s,e) in largest_feats]
