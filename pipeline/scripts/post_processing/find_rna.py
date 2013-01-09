@@ -49,12 +49,12 @@ def main(gff_file, outdir, th_fasta):
     for seqid in seqids:
         seq_features = conden_transcripts(seqid.features)
         for feat in seq_features:
-            has_cds = False
+            has_cds = True
             ids = []
             ids.append(feat.id)
             for subf in feat.sub_features:
-                if subf.type == 'CDS' or subf.type == 'chromosome':
-                    has_cds = True
+                if subf.type in set(['tRNA','rRNA','miRNA','snoRNA','ncRNA','snRNA']):
+                    has_cds = False
             if has_cds: continue
             #non_cds_feats.append(feat) 
             print >>out_fasta, ">%s" % ids[0]
