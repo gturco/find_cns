@@ -43,7 +43,7 @@ Install the following (if not already installed)
      - easy_install and pip
      - glpk and scip
      - virtualenv
-
+**Instructions below**
 
 **Special Requirements for Mac**
 
@@ -62,52 +62,73 @@ Install the following (if not already installed)
 **Requirements for Mac and Unix**
 
   + Python version >= 2.7 (you can use `pythonbrew <https://github.com/utahta/pythonbrew/>`_ to install python)::
-                
-                on mac:
-                    brew install python --framework --universal
-                    (edit .bash_profile)
-                    export PATH=/usr/local/share/python:$PATH
-                on unix:
-                  sudo apt-get update; sudo apt-get install python2.7 python2.7-dev python-setuptools
+        
+        on mac:
+          brew install python --framework --universal
+          (edit .bash_profile)
+          export PATH=/usr/local/share/python:$PATH
+        on unix:
+          sudo apt-get update; sudo apt-get install python2.7 python2.7-dev python-setuptools
+        on centos:
+          http://toomuchdata.com/2012/06/25/how-to-install-python-2-7-3-on-centos-6-2/
 
-  
-  + Scipy PreReq::
+  + gfortran::
+        on mac:
+            brew install libblas gfortran
+        on unix:
+            sudo apt-get install build-essential liblas-dev liblapack-dev gfortran
+        on centos:
+
+  + `BLAS <http://www.netlib.org/blas/>`_::
+      
+        on mac:
+        on unix:
+          sudo apt-get install libblas-dev
+        on centos:
+          sudo yum install blas-devel
+
+  + `LAPACK <http://www.netlib.org/lapack/>_`::
 
       on mac:
-          brew install libblas gfortran
+        
       on unix:
-           sudo apt-get install build-essential liblas-dev liblapack-dev gfortran
-  
-  
+        sudo apt-get install liblapack-dev
+
+      on centos:
+        sudo yum install lapack-devel
+
   + `GEOS <http://trac.osgeo.org/geos/>`_::
 
         on mac:
            brew install geos
         on unix:
           sudo apt-get install libgeos-dev
-  
+        on centos:
+          sudo yum install geos
+
     + PIP ::
       
-      sudo easy_install pip
+        sudo easy_install pip
  
   + `virtualenv <http://pypi.python.org/pypi/virtualenv/>`_::
 
-      sudo pip install virtualenv
-      virtualenv --distribute cns_pipeline --python=python2.7
+        sudo pip install virtualenv
+        virtualenv --distribute cns_pipeline --python=python2.7
 
-    
   + `scip <http://scip.zib.de/download.shtml>`_ Download `here <http://scip.zib.de/download.shtml>`_ choose operating system and **accept user agreement** on next page::
-      
-      unzip scip-x.x.x
-      mv scip-x.x.x cns_pipeline/bin/scip
+        
+        #may need to scp from your computer to server
+        unzip scip-x.x.x
+        mv scip-x.x.x cns_pipeline/bin/scip
 
-      if on unix need unzip:
-        sudo apt-get install unzip (add if not installed)
+        if on unix need unzip:
+          sudo apt-get install unzip (add if not installed)
 
   + `gpkl <ftp://ftp.gnu.org/gnu/glpk/>`_::
       
         wget glpk-newest_version.tar.gz
         tar -xvzf <somepath>/glpk-newest_version.tar.gz
+        cd glpk-newest_version
         ./configure
         make
         sudo make install
