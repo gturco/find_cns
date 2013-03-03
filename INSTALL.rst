@@ -40,6 +40,7 @@ Install the following (if not already installed)
      - Python 2.7
      - gfortran
      - Blas
+     - LAPACK
      - easy_install and pip
      - glpk and scip
      - virtualenv
@@ -67,43 +68,44 @@ Install the following (if not already installed)
           brew install python --framework --universal
           (edit .bash_profile)
           export PATH=/usr/local/share/python:$PATH
-        on unix:
+        on ubuntu/debian:
           sudo apt-get update; sudo apt-get install python2.7 python2.7-dev python-setuptools
-        on centos:
+        on centos/redhat:
           http://toomuchdata.com/2012/06/25/how-to-install-python-2-7-3-on-centos-6-2/
 
   + gfortran::
+
         on mac:
             brew install libblas gfortran
-        on unix:
+        on ubuntu/debian:
             sudo apt-get install build-essential liblas-dev liblapack-dev gfortran
-        on centos:
+        on centos/redhat:
 
   + `BLAS <http://www.netlib.org/blas/>`_::
       
         on mac:
-        on unix:
+          http://pheiter.wordpress.com/2012/09/04/howto-installing-lapack-and-blas-on-mac-os/
+        on ubuntu/debian:
           sudo apt-get install libblas-dev
-        on centos:
+        on centos/redhat:
           sudo yum install blas-devel
 
   + `LAPACK <http://www.netlib.org/lapack/>_`::
 
       on mac:
-        
-      on unix:
+        http://pheiter.wordpress.com/2012/09/04/howto-installing-lapack-and-blas-on-mac-os/
+      on ubuntu/debian:
         sudo apt-get install liblapack-dev
-
-      on centos:
+      on centos/redhat:
         sudo yum install lapack-devel
 
   + `GEOS <http://trac.osgeo.org/geos/>`_::
 
         on mac:
            brew install geos
-        on unix:
+        on ubuntu/debian:
           sudo apt-get install libgeos-dev
-        on centos:
+        on centos/redhat:
           sudo yum install geos
 
     + PIP ::
@@ -121,7 +123,7 @@ Install the following (if not already installed)
         unzip scip-x.x.x
         mv scip-x.x.x cns_pipeline/bin/scip
 
-        if on unix need unzip:
+        if on ubuntu/debian need unzip:
           sudo apt-get install unzip (add if not installed)
 
   + `gpkl <ftp://ftp.gnu.org/gnu/glpk/>`_::
