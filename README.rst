@@ -16,7 +16,7 @@ Created in the `Freeling Lab <http://microscopy.berkeley.edu/~freeling/>`_ at UC
 Cite
 ============
 
-Turco, G., Schnable, J. C., Pedersen, B., & Freeling, M. Automated conserved noncoding sequence (CNS) discovery reveals differences in gene content and promoter evolution among grasses. Frontiers in Plant Science, 4, 170.
+Turco, G., Schnable, J. C., Pedersen, B., & Freeling, M. Automated conserved noncoding sequence (CNS) discovery reveals differences in gene content and promoter evolution among grasses. Frontiers in Plant Science, 4, 170. `Link to Paper <http://www.frontiersin.org/Journal/Abstract.aspx?ART_DOI=10.3389/fpls.2013.00170>`_
 
 Installation
 ============
