@@ -17,7 +17,7 @@ The easiest way to install the pipeline is to:
        git clone git://github.com/gturco/find_cns.git
        cd find_cns
   
-  2) **SEE REQUIREMENTS SECTION**
+  2) **SEE REQUIREMENTS SECTION or run on iplant's atmosphere image find_cns_pipeline (emi-8EF728EB)**
 
   3) run bootstrap Installation ::
 

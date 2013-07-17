@@ -13,12 +13,23 @@ Created in the `Freeling Lab <http://microscopy.berkeley.edu/~freeling/>`_ at UC
 
 .. image:: http://upload.wikimedia.org/wikipedia/commons/0/08/Pipeline_git.png
 
+Cite
+============
+
+Turco, G., Schnable, J. C., Pedersen, B., & Freeling, M. Automated conserved noncoding sequence (CNS) discovery reveals differences in gene content and promoter evolution among grasses. Frontiers in Plant Science, 4, 170.
+
 Installation
 ============
+
+  - Everything is predownloaded in the `iplant atmosphere <https://atmo.iplantcollaborative.org/login/>`_ image find_cns_pipeline (emi-8EF728EB)
 
   - Download the most recent code here::
       
       git clone https://github.com/gturco/find_cns.git
+
+  - run bootstrap code::
+
+       python bootstrap.py
 
 **Required Dependencies** 
 
