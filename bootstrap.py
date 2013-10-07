@@ -17,7 +17,7 @@ def pip_install(dir_name):
     if processing != 0: raise Exception('can not download processing READ REQUIREMENTS and TRY again!')
     shapely = subprocess.call(['{0}/bin/pip'.format(dir_name), 'install', 'shapely'])
     if shapely != 0: raise Exception('can not download shapely READ REQUIREMENTS and TRY again!')
-    pyfasta = subprocess.call(['{0}/bin/pip'.format(dir_name), 'install', 'pyfasta'])
+    pyfasta = subprocess.call(['{0}/bin/pip'.format(dir_name), 'install','-Iv', 'pyfasta==0.4.5'])
     if pyfasta != 0: raise Exception('can not download pyfasta READ REQUIREMENTS and TRY again!')
     scipy = subprocess.call(['{0}/bin/pip'.format(dir_name), 'install', 'scipy'])
     if scipy != 0: raise Exception('can not download scipy READ REQUIREMENTS and TRY again!')

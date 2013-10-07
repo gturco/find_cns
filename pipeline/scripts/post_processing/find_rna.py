@@ -130,10 +130,10 @@ if __name__ == "__main__":
     #print >>sys.stderr, "skipping main for testing"
     main(options.gff, options.outdir, options.fasta)
 
-    import commands
+    import os
     cmd = "bblast.py -b {0} -p blastn -e 0.001 -m 8 -W 7 -a 6 -i {1}/{2}_{3}.cns_test.fasta -d {1}/at_no_cds.fasta -o {4}".format(options.blastpath,options.outdir, options.query, options.subject, options.blast)
     print >>sys.stderr, "executing\n %s" % cmd
-    print commands.getoutput(cmd)
+    print os.system(cmd)
 
 
     make_cns_to_at_map(options.desc, options.blast, options.gff, options.query,
