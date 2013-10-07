@@ -21,14 +21,14 @@ Turco, G., Schnable, J. C., Pedersen, B., & Freeling, M. Automated conserved non
 
 Datasets
 ============
-CNS Datasets Available `here <http://figshare.com/articles/CNS_Discovery_Pipeline_Supporting_Data/107054>`_ for:
+CNS Datasets Available `Here <http://figshare.com/articles/CNS_Discovery_Pipeline_Supporting_Data/107054>`_ for:
 
-  - Automated thaliana_v10 thaliana_v10 cns
-  - Automated rice maize cns 
-  - Automated rice sorghum cns
-  - Automated sorghum sorghum
-  - Automated rice setaria cns
-  - Automated setaria setaria
+  - Thaliana_v10 Thaliana_v10 CNS
+  - Rice Maize CNS
+  - Rice Sorghum CNS
+  - Sorghum Sorghum CNS
+  - Rice Setaria CNS
+  - Setaria Setaria CNS
 
 Please use citation above 
 
