@@ -23,7 +23,7 @@ SDSGID=11821
 #############################################
 DIR=data/${ORGA}_${ORGB}/
 
-#
+
 echo checking for unannotated proteins......
 sh coann/co-anno.sh ${ORGA} ${ORGB} $QUOTA $BLAST_DIR
 
@@ -198,7 +198,7 @@ python scripts/post_processing/assign.py \
 
 status=$?
 if [ $status -ne 0 ]; then
-  echo "Error running assing cns to genes"
+  echo "Error running assigning cns to genes"
   exit
 fi
 
