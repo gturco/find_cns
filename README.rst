@@ -16,18 +16,31 @@ Created in the `Freeling Lab <http://microscopy.berkeley.edu/~freeling/>`_ at UC
 Cite
 ============
 
-Turco, G., Schnable, J. C., Pedersen, B., & Freeling, M. Automated conserved noncoding sequence (CNS) discovery reveals differences in gene content and promoter evolution among grasses. Frontiers in Plant Science, 4, 170. `Link to Paper <http://www.frontiersin.org/Journal/Abstract.aspx?ART_DOI=10.3389/fpls.2013.00170>`_
+Turco, G., Schnable, J. C., Pedersen, B., & Freeling, M. Automated conserved noncoding sequence (CNS) discovery reveals differences in gene content and promoter evolution among grasses. Frontiers in Plant Science, 4, 170. `Link to Plant CNS Paper <http://www.frontiersin.org/plant_genetics_and_genomics/10.3389/fpls.2013.00170/abstract>`_
+
+
+Datasets
+============
+CNS Datasets Available `Here <http://figshare.com/articles/CNS_Discovery_Pipeline_Supporting_Data/107054>`_ for:
+
+  - Thaliana_v10 Thaliana_v10 CNS
+  - Rice Maize CNS
+  - Rice Sorghum CNS
+  - Sorghum Sorghum CNS
+  - Rice Setaria CNS
+  - Setaria Setaria CNS
+
+Please use citation above 
 
 Installation
 ============
 
-  - Everything is predownloaded in the `iplant atmosphere <https://atmo.iplantcollaborative.org/login/>`_ image find_cns_pipeline (emi-8EF728EB)
-
+  - Everything is predownloaded except scip in the `iplant atmosphere <https://atmo.iplantcollaborative.org/login/>`_ image find_cns_pipeline (emi-8EF728EB)
   - Download the most recent code here::
       
       git clone https://github.com/gturco/find_cns.git
 
-  - run bootstrap code::
+  - run bootstrap code and add scip to cns_pipline/bin/::
 
        python bootstrap.py
 

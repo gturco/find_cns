@@ -199,8 +199,9 @@ def make_pair_maps(pair_file, fmt, qbed, sbed):
     for pair in get_pair(pair_file, fmt, qbed, sbed):
         if pair is None: break
         (qname, sname) = pair
-        qmap[qname].append(sname)
-        smap[sname].append(qname)
+
+        qmap[qname[3]].append(sname[3])
+        smap[sname[3]].append(qname[3])
     return qmap, smap
 
 

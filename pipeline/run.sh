@@ -23,11 +23,25 @@ SDSGID=11821
 #############################################
 DIR=data/${ORGA}_${ORGB}/
 
-#
+
 echo checking for unannotated proteins......
 sh coann/co-anno.sh ${ORGA} ${ORGB} $QUOTA $BLAST_DIR
+
+status=$?
+if [ $status -ne 0 ]; then
+  echo "Error running checking for unannotated proteins"
+  exit
+fi
+
 echo finding syntenic regions...
 sh quota.sh $DIR/${ORGA} $DIR/${ORGB} $QUOTA $NCPU
+status=$?
+if [ $status -ne 0 ]; then
+  echo "Error running quota-algn"
+  exit
+fi
+
+
 echo finding cns...
 python scripts/find_cns.py \
 	-q $DIR/${ORGA}.fasta --qbed $DIR/${ORGA}.all.bed \
@@ -40,6 +54,13 @@ python scripts/find_cns.py \
         --blast_path ${BLAST_DIR}\bl2seq \
         --pair_fmt pair > $DIR/${ORGA}_${ORGB}.cns.txt 
         ### if using blast+  --blast_path ${BLAST_DIR}\legacy_blast.pl \
+
+status=$?
+if [ $status -ne 0 ]; then
+  echo "Error runnining find cns"
+  exit
+fi
+
 
 python scripts/localdup.py \
        -q $DIR/${ORGA}.fasta --qbed $DIR/${ORGA}.all.bed \
@@ -55,6 +76,12 @@ python scripts/localdup.py \
        --qdups $DIR/${ORGA}.all.localdups \
        --sdups $DIR/${ORGB}.all.localdups
         ### if using blast+  --blast_path ${BLAST_DIR}\legacy_blast.pl \
+status=$?
+if [ $status -ne 0 ]; then
+  echo "Error runnining finding localdups"
+  exit
+fi
+
 
 python scripts/post_processing/cns_to_fasta.py \
                 -c $DIR/${ORGA}_${ORGB}.cns.txt.local \
@@ -65,23 +92,60 @@ python scripts/post_processing/cns_to_fasta.py \
                 --min_len=18 \
                 > $DIR/${ORGA}_${ORGB}.cns_test.fasta
 
+status=$?
+if [ $status -ne 0 ]; then
+  echo "Error runnining cns2fasta"
+  exit
+fi
+
+
 echo removing cns that have hits in arabidopsis as rna or protein
-wget -O data/at_protein.fasta ftp://ftp.arabidopsis.org/home/tair/Sequences/blast_datasets/TAIR10_blastsets/TAIR10_pep_20101214_updated
-wget -O data/os_protein.fasta ftp://ftp.plantbiology.msu.edu/pub/data/Eukaryotic_Projects/o_sativa/annotation_dbs/pseudomolecules/version_6.1/all.dir/all.pep
+
+if [ ! -f data/at_protein.fasta ]; then
+	wget -O data/at_protein.fasta ftp://ftp.arabidopsis.org/home/tair/Sequences/blast_datasets/TAIR10_blastsets/TAIR10_pep_20101214_updated
+fi
+
+if [ ! -f data/os_protein.fasta ]; then
+	wget -O data/os_protein.fasta ftp://ftp.plantbiology.msu.edu/pub/data/Eukaryotic_Projects/o_sativa/annotation_dbs/pseudomolecules/version_6.1/all.dir/all.pep
+fi
+
 bblast.py -b ${BLAST_DIR}/blastall -p blastx -d data/at_protein.fasta -i $DIR/${ORGA}_${ORGB}.cns_test.fasta -e 0.01 -m 8 -a ${NCPU} -o $DIR/at_protein.blast
 bblast.py -b ${BLAST_DIR}/blastall -p blastx -d data/os_protein.fasta -i $DIR/${ORGA}_${ORGB}.cns_test.fasta -e 0.01 -m 8 -a ${NCPU} -o $DIR/os_protein.blast
+
+status=$?
+if [ $status -ne 0 ]; then
+  echo "Error running bblast"
+  exit
+fi
+
 
 python scripts/post_processing/find_exons.py \
                  --cns $DIR/${ORGA}_${ORGB}.cns.txt.local \
                  -o $DIR \
                  $DIR/at_protein.blast $DIR/os_protein.blast
 
-###NEED TO EDIT find_rna.py SO IT looks for the correct cns fasta file
-wget -O data/thaliana_v10.gff ftp://ftp.arabidopsis.org/home/tair/Genes/TAIR10_genome_release/TAIR10_gff3/TAIR10_GFF3_genes_transposons.gff
-wget -O data/thaliana_v10.description ftp://ftp.arabidopsis.org/home/tair/Genes/TAIR10_genome_release/TAIR10_functional_descriptions
-wget -O data/thaliana_v10.fasta ftp://ftp.arabidopsis.org/home/tair/Genes/TAIR10_genome_release/TAIR10_chromosome_files/TAIR10_chr_all.fas
-perl -pi -e "s/>(.).*/>\$1/" data/thaliana_v10.fasta
-perl -pi -e "s/.{3}//" data/thaliana_v10.gff
+status=$?
+if [ $status -ne 0 ]; then
+  echo "Error running find exons"
+  exit
+fi
+
+
+
+if [ ! -f data/thaliana_v10.gff ]; then
+	wget -O data/thaliana_v10.gff ftp://ftp.arabidopsis.org/home/tair/Genes/TAIR10_genome_release/TAIR10_gff3/TAIR10_GFF3_genes_transposons.gff
+	perl -pi -e "s/.{3}//" data/thaliana_v10.gff
+fi
+
+if [ ! -f data/thaliana_v10.description ]; then
+	wget -O data/thaliana_v10.description ftp://ftp.arabidopsis.org/home/tair/Genes/TAIR10_genome_release/TAIR10_functional_descriptions
+fi
+
+if [ ! -f data/thaliana_v10.fasta ]; then
+	wget -O data/thaliana_v10.fasta ftp://ftp.arabidopsis.org/home/tair/Genes/TAIR10_genome_release/TAIR10_chromosome_files/TAIR10_chr_all.fas
+	perl -pi -e "s/>(.).*/>\$1/" data/thaliana_v10.fasta
+fi
+
 
 python scripts/post_processing/find_rna.py \
 	    --blastpath $BLAST_DIR/blastall \
@@ -93,6 +157,14 @@ python scripts/post_processing/find_rna.py \
    	 -o $DIR \
    	 -d data/thaliana_v10.description
 
+
+status=$?
+if [ $status -ne 0 ]; then
+  echo "Error running find rna"
+  exit
+fi
+
+
 cp $DIR/${ORGA}_${ORGB}.raw.filtered.local  $DIR/${ORGA}_${ORGB}.raw2.filtered.local
 
 python scripts/post_processing/shuffle_protein_cns.py \
@@ -103,6 +175,12 @@ python scripts/post_processing/shuffle_protein_cns.py \
    --orthology $DIR/${ORGA}_${ORGB}.raw2.filtered.local \
    --pairs $DIR/${ORGA}_${ORGB}.pairs.txt.local \ 
 #creates: $DIR/${ORGA}_${ORGB}.quota.with_new.orthology
+
+status=$?
+if [ $status -ne 0 ]; then
+  echo "Error running shuffle proteins"
+  exit
+fi
 
 
 
@@ -118,6 +196,14 @@ python scripts/post_processing/assign.py \
      --pair_fmt pair > $DIR/${ORGA}_${ORGB}.cns.assigned.csv.local
 
 
+status=$?
+if [ $status -ne 0 ]; then
+  echo "Error running assigning cns to genes"
+  exit
+fi
+
+
+
 python scripts/post_processing/cns_to_fasta.py \
                 -c $DIR/${ORGA}_${ORGB}.cns.txt.real.local \
                 --qfasta $DIR/${ORGA}.genomic.masked.fasta \
@@ -125,6 +211,15 @@ python scripts/post_processing/cns_to_fasta.py \
                 --qorg ${ORGA} \
                 --sorg ${ORGB} \
                 > $DIR/${ORGA}_${ORGB}.cns.fasta
+
+
+status=$?
+if [ $status -ne 0 ]; then
+  echo "Error running cns to fasta"
+  exit
+fi
+
+
 
 ### creates genelist and cnslist
 sh list.sh ${ORGA} ${ORGB} $QUOTA $QDSGID $SDSGID
