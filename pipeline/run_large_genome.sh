@@ -12,7 +12,7 @@ BLAST_DIR=../cns_pipeline/bin/blast-2.2.26/bin/
 
 
 ORGA=ricetest
-ORGB=sorgtest
+ORGB=maizetest
 QUOTA=1:1
 NCPU=`python -c "import multiprocessing; print min(multiprocessing.cpu_count(),8)";`
 #### look on coge for dsgid information
@@ -29,7 +29,7 @@ sh coann/co-anno.sh ${ORGA} ${ORGB} $QUOTA $BLAST_DIR
 echo finding syntenic regions...
 sh quota.sh $DIR/${ORGA} $DIR/${ORGB} $QUOTA $NCPU
 echo finding cns...
-python scripts/find_cns.py \
+python scripts/find_cns_maize.py \
 	-q $DIR/${ORGA}.fasta --qbed $DIR/${ORGA}.all.bed \
 	-s $DIR/${ORGB}.fasta --sbed $DIR/${ORGB}.all.bed \
         -p $DIR/${ORGA}_${ORGB}.pairs.txt \
@@ -38,6 +38,7 @@ python scripts/find_cns.py \
         --qpad 12000 \
         --spad 12000 \
         --blast_path ${BLAST_DIR}\bl2seq \
+        --UMfasta $DIR/${ORGB}_UM.fasta \
         --pair_fmt pair > $DIR/${ORGA}_${ORGB}.cns.txt 
         ### if using blast+  --blast_path ${BLAST_DIR}\legacy_blast.pl \
 
@@ -52,6 +53,7 @@ python scripts/localdup.py \
         --spad 12000 \
         --blast_path ${BLAST_DIR}\bl2seq \
        --pair_fmt pair \
+       --UMfasta $DIR/${ORGB}_UM.fasta \
        --qdups $DIR/${ORGA}.all.localdups \
        --sdups $DIR/${ORGB}.all.localdups
         ### if using blast+  --blast_path ${BLAST_DIR}\legacy_blast.pl \
